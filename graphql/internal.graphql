@@ -1,0 +1,145 @@
+scalar ObjectId
+scalar Date
+
+#QUERY==========================================
+type Query {
+    GetMe: User!
+    GetUser(id: ObjectId!): User!
+}
+
+type User {
+    _id: ObjectId!
+    username: String!
+    preferredName: String!
+    roleId: ObjectId!
+    role: Role!
+    secret: Secret!
+    currentCoord: [Float!]
+    rating: UserRating!
+    vehicleIds: [ObjectId!]!
+    vehicles: [Vehicle!]!
+    bankAccountIds: [ObjectId!]!
+    bankAccounts: [BankAccount!]!
+}
+
+type Role {
+    _id: ObjectId!
+    name: String!
+    permissions: [Permission!]!
+}
+
+type Permission {
+    _id: ObjectId!
+    moduleId: ObjectId!
+    module: Module!
+    value: String!
+}
+
+type Secret {
+    hash: String!
+}
+
+type Module {
+    _id: ObjectId!
+    name: String!
+}
+
+type UserRating{
+    politeness: Float!
+    punctuality: Float!
+    driving: Float!
+}
+
+type HostedTrip {
+    _id: ObjectId!
+    hostId: ObjectId!
+    host: User!
+    route: Route!
+    time: TripTime!
+    vehicleId: ObjectId #If vehicleId==null, vehicle is temporary
+    vehicle: Vehicle! #Could be a temporary or saved
+    seats: Int!
+    billing: TripBilling!
+    rating: TripRating!
+}
+
+type Route {
+    from: String!
+    to: String!
+    polyLines: [String!]
+    keyCoords: [[Float!]!]
+}
+
+type TripTime {
+    schedule: Date!
+    start: Date
+    end: Date
+}
+
+type Vehicle {
+    _id: ObjectId!
+    name: String!
+    number: String!
+    model: String!
+    features: VehicleFeatures!
+    rating: VehicleRating!
+}
+
+type VehicleFeatures {
+    ac: Boolean!
+    luggage: Boolean!
+}
+
+type VehicleRating {
+    cleanliness: Float!
+    ac: Float!
+}
+
+type TripBilling {
+    bankAccountId: ObjectId!
+    bankAccount: BankAccount!
+    priceFirstKm: Float!
+    priceNextKm: Float!
+}
+
+type BankAccount {
+    _id: ObjectId!
+    name: String!
+    bank: String!
+    account: String!
+    branch: String!
+}
+
+type TripRating {
+    punctuality: Float!
+    politeness: Float!
+    driving: Float!
+    meetsCondition: Float!
+}
+
+type RequestedTrip {
+    _id: ObjectId!
+    requesterId: ObjectId!
+    requester: User!
+    route: Route!
+    time: TripTime!
+    seats: Int!
+}
+
+type Notification {
+    hostedTripId: ObjectId!
+    requestedTripId: ObjectId!
+    acceptedByHost: Boolean!
+    acceptedByRequester: Boolean!
+    payment: Payment!
+}
+
+type Payment {
+    amount: Float!
+    time: Date #When there is a time, payment is done
+}
+
+#MUTATION========================================
+type Mutation {
+    SignIn(username: String!, password: String!): String!
+}

@@ -1,0 +1,125 @@
+scalar ObjectId
+scalar Date
+
+#QUERY==========================================
+type Query {
+    GetMe: User!
+    GetUser(id: ObjectId!): User!
+}
+
+type User {
+    _id: ObjectId!
+    username: String!
+    preferredName: String!
+    currentCoord: [Float!]
+    rating: UserRating!
+    vehicles: [Vehicle!]!
+    bankAccounts: [BankAccount!]!
+}
+
+type Role {
+    name: String!
+    permissions: [Permission!]!
+}
+
+type Permission {
+    module: Module!
+    value: String!
+}
+
+type Module {
+    name: String!
+}
+
+type UserRating{
+    politeness: Float!
+    punctuality: Float!
+    driving: Float!
+}
+
+type HostedTrip {
+    host: User!
+    route: Route!
+    time: TripTime!
+    vehicle: Vehicle! #Could be a temporary or saved
+    seats: Int!
+    billing: TripBilling!
+    rating: TripRating!
+}
+
+type Route {
+    from: String!
+    to: String!
+    polyLines: [String!]
+    keyCoords: [[Float!]!]
+}
+
+type TripTime {
+    schedule: Date!
+    start: Date
+    end: Date
+}
+
+type Vehicle {
+    name: String!
+    number: String!
+    model: String!
+    features: VehicleFeatures!
+    rating: VehicleRating!
+}
+
+type VehicleFeatures {
+    ac: Boolean!
+    luggage: Boolean!
+}
+
+type VehicleRating {
+    cleanliness: Float!
+    ac: Float!
+}
+
+type TripBilling {
+    bankAccount: BankAccount!
+    priceFirstKm: Float!
+    priceNextKm: Float!
+}
+
+type BankAccount {
+    _id: ObjectId!
+    name: String!
+    bank: String!
+    account: String!
+    branch: String!
+}
+
+type TripRating {
+    punctuality: Float!
+    politeness: Float!
+    driving: Float!
+    meetsCondition: Float!
+}
+
+type RequestedTrip {
+    requester: User!
+    route: Route!
+    time: TripTime!
+    seats: Int!
+}
+
+type Notification {
+    hostedTripId: ObjectId!
+    requestedTripId: ObjectId!
+    acceptedByHost: Boolean!
+    acceptedByRequester: Boolean!
+    payment: Payment!
+}
+
+type Payment {
+    amount: Float!
+    time: Date #When there is a time, payment is done
+}
+
+#MUTATION========================================
+type Mutation {
+    SignIn(username: String!, password: String!): String!
+}

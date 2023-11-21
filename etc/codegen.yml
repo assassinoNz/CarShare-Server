@@ -1,0 +1,37 @@
+overwrite: true
+config:
+  preResolveTypes: true # Simplifies the generated types
+  namingConvention: keep # Keeps naming as-is
+  nonOptionalTypename: false # Forces `__typename` on all selection sets
+  skipTypeNameForRoot: true # Don't generate __typename for root types
+documents: null
+generates:
+  "graphql/internal.ts":
+    schema: "graphql/internal.graphql"
+    config:
+      template: "imports.ts"
+      scalars: 
+        ObjectId: ObjectId
+        Date: Date
+    plugins:
+      - typescript
+      - add:
+          content: 'import { ObjectId } from "mongodb";'
+  "graphql/external.ts":
+    schema: "graphql/external.graphql"
+    config:
+      template: "imports.ts"
+      scalars: 
+        ObjectId: ID
+        Date: Date
+    plugins:
+      - typescript
+  "../Client/src/lib/graphql.ts":
+    schema: "graphql/external.graphql"
+    config:
+      template: "imports.ts"
+      scalars: 
+        ObjectId: ID
+        Date: Date
+    plugins:
+      - typescript

@@ -1,0 +1,286 @@
+use('carshare');
+
+db.modules.drop();
+const moduleInsertionResult = db.modules.insertMany([
+    { _id: ObjectId("000000000000000000000000"), name: "Roles" },
+    { _id: ObjectId("000000000000000000000001"), name: "Users" },
+    { _id: ObjectId("000000000000000000000002"), name: "Vehicles" },
+    { _id: ObjectId("000000000000000000000003"), name: "Hosted Trips" },
+    { _id: ObjectId("000000000000000000000004"), name: "Requested Trips" },
+    { _id: ObjectId("000000000000000000000005"), name: "Notifications" }
+]);
+
+db.roles.drop();
+const roleInsertionResult = db.roles.insertMany([
+    {
+        _id: ObjectId("100000000000000000000000"),
+        name: "Admin",
+        permissions: [
+            { moduleId: moduleInsertionResult.insertedIds["0"], value: "1111" },
+            { moduleId: moduleInsertionResult.insertedIds["1"], value: "1111" },
+            { moduleId: moduleInsertionResult.insertedIds["2"], value: "1111" },
+            { moduleId: moduleInsertionResult.insertedIds["3"], value: "1111" },
+            { moduleId: moduleInsertionResult.insertedIds["4"], value: "1111" },
+            { moduleId: moduleInsertionResult.insertedIds["5"], value: "1111" },
+        ]
+    },
+    {
+        _id: ObjectId("100000000000000000000001"),
+        name: "Standard",
+        permissions: [
+            { moduleId: moduleInsertionResult.insertedIds["0"], value: "0100" },
+            { moduleId: moduleInsertionResult.insertedIds["1"], value: "0100" }
+        ]
+    }
+]);
+
+db.vehicles.drop();
+const vehicleInsertionResult = db.vehicles.insertMany([
+    {
+        _id: ObjectId("300000000000000000000000"),
+        name: "Lightning Mc.Queen",
+        number: "CAR-911",
+        model: "Toyota Corolla",
+        features: {
+            ac: false,
+            luggage: false,
+        },
+        rating: {
+            cleanliness: 0.5,
+            ac: 0.0,
+        },
+    },
+    {
+        _id: ObjectId("300000000000000000000001"),
+        name: "KITT",
+        number: "KNIGHT-007",
+        model: "Pontiac T",
+        features: {
+            ac: true,
+            luggage: false,
+        },
+        rating: {
+            cleanliness: 1.0,
+            ac: 1.0,
+        },
+    },
+    {
+        _id: ObjectId("300000000000000000000002"),
+        name: "Batmobile",
+        number: "JB-007",
+        model: "Porsche",
+        features: {
+            ac: true,
+            luggage: true,
+        },
+        rating: {
+            cleanliness: 0.5,
+            ac: 0.9,
+        },
+    },
+]);
+
+db.bankAccounts.drop();
+const bankAccountInsertionResult = db.bankAccounts.insertMany([
+    {
+        _id: ObjectId("500000000000000000000000"),
+        name: "Com Bank 1",
+        bank: "Commercial Bank",
+        account: "800900300400",
+        branch: "Cinnamon Gardens"
+    },
+    {
+        _id: ObjectId("500000000000000000000001"),
+        name: "Com Bank 2",
+        bank: "Commercial Bank",
+        account: "800900300401",
+        branch: "Thimbirigasyaya"
+    },
+    {
+        _id: ObjectId("500000000000000000000002"),
+        name: "Ppls",
+        bank: "People's Bank",
+        account: "255665345123",
+        branch: "Fort"
+    },
+]);
+
+db.users.drop();
+const userInsertionResult = db.users.insertMany([
+    {
+        _id: ObjectId("200000000000000000000000"),
+        username: "assassino",
+        preferredName: "Nirmal Diaz",
+        roleId: roleInsertionResult.insertedIds["0"],
+        secret: { 
+            hash: "7110eda4d09e062aa5e4a390b0a572ac0d2c0220"
+        },
+        currentCoord: [7.086671208262996, 79.9984498524246].reverse(),
+        rating: {
+            politeness: 0.8,
+            punctuality: 0.1,
+            driving: 0.2,
+        },
+        vehicleIds: [
+            vehicleInsertionResult.insertedIds[0],
+        ],
+        bankAccountIds: [
+            bankAccountInsertionResult.insertedIds[0],
+            bankAccountInsertionResult.insertedIds[1],
+        ],
+    },
+    {
+        _id: ObjectId("200000000000000000000001"),
+        username: "nsm",
+        preferredName: "John Doe",
+        roleId: roleInsertionResult.insertedIds["1"],
+        secret: {
+            hash: "2abd55e001c524cb2cf6300a89ca6366848a77d5"
+        },
+        currentCoord: null,
+        rating: {
+            politeness: 0.9,
+            punctuality: 0.6,
+            driving: 0.7,
+        },
+        vehicleIds: [
+            vehicleInsertionResult.insertedIds[1],
+            vehicleInsertionResult.insertedIds[2],
+        ],
+        bankAccountIds: [
+            bankAccountInsertionResult.insertedIds[2]
+        ],
+    }
+]);
+
+db.hostedTrips.drop();
+const hostedTripInsertionResult = db.hostedTrips.insertMany([
+    {
+        _id: ObjectId("400000000000000000000000"),
+        hostId: userInsertionResult.insertedIds[0],
+        route: {
+            from: "Gampaha Railway",
+            to: "Miriswatta Junction",
+            polyLines: [
+                "gehj@usfgNDB",
+                "aehj@qsfgNR_AF]ViADM\oAVaA",
+                "qahj@y}fgNECCCAE?E@E@CDCD?",
+                "mahj@{~fgNPw@ZgADUDSBSBYB[BW@U@_@@a@@c@?q@@o@@_@?s@BkA@c@@g@@a@@c@@_@@a@A[",
+                "i~gj@uzggNC?CACAECCCAEAC?E?E@EBEDCDA",
+                "q~gj@i|ggNDM@GDIDOf@eCHa@Lk@Ha@RcAF[Lo@XqARcAPy@Pq@Lm@HYLo@Ri@L[To@Tg@Zs@|@cBZe@LS|AgCj@y@t@i@v@k@f@_@jB{Ap@e@`@[bAq@~@k@f@W`@QVOXMHGRKTORW^c@FIXa@V[V[Z]RQpA}@FCv@a@RKrDeB@AxAq@BAVKDAZKb@OzB{@|Bu@pBs@PIj@WrBy@pH_DfC_ANGDA@?LG|@]TKf@Ql@YBAXQp@a@fA}@POr@s@XWxAyAj@i@PS",
+                "eodj@adkgNRSRT^f@@@"
+            ],
+            keyCoords: [
+                [7.092252219283498, 79.99299056862273].reverse(),
+                [7.072965706899689, 80.01593012768988].reverse(),
+            ],
+        },
+        time: {
+            scheduled: new Date(2023, 12, 4, 10, 30),
+            start: null,
+            end: null,
+        },
+        vehicleId: vehicleInsertionResult.insertedIds[0],
+        seats: 3,
+        billing: {
+            account: bankAccountInsertionResult.insertedIds[0],
+            priceFirstKm: 100,
+            priceNextKm: 50,
+        },
+        rating: {
+            punctuality: 0.8,
+            politeness: 0.9,
+            driving: 0.6,
+            meetsCondition: 0.8,
+        }
+    },
+    {
+        _id: ObjectId("400000000000000000000001"),
+        hostId: userInsertionResult.insertedIds[1],
+        route: {
+            from: "Dept. of Motor Traffic, Weherehara",
+            to: "Care Moto, Weherehara",
+            polyLines: [
+                "}xth@whvfNl@a@b@s@r@k@r@w@LEd@BRGLK?OIMc@SOQi@uAo@aD",
+                "euth@cyvfNVMbAWhAO`BUxAKv@Of@O^QJEbAe@bDcBVO`BaA`BcAdAu@jD{Bh@_@BCpAy@nBoA|ByAx@k@hBgATSRMFG\OPMRGr@[tAm@TMXUh@[\Q`@O`@Mr@Ul@Q^INAJ@TBf@Ld@JRDL@R?NAXCXIj@Ul@Wp@Yt@[PIDAjAi@hAo@pAi@\OVKRENENCh@ErDCdAGpBk@lC}@VId@In@Ev@A",
+                "a~ph@_oxfNP]@EJO\e@zAmA`AiAhByBzAeBhA_Bb@{@nBgGh@sAz@aBh@_AHKv@iA`JkMdAoBt@sBh@wBp@_GTyBT_BNq@z@oDr@kB",
+                "iloh@qg{fN?WCYMe@]k@e@i@a@k@Uk@m@aBa@{AESe@eD{@oCYu@Ys@e@iAw@iCIa@G[Eg@Ec@?i@P_B@[Og@a@w@Ii@D}@Ju@JYBI@YMcCQoA]mAScACc@Bo@ZuBDy@AKQ]cAqAc@k@{@uASs@I][oBYaA_@}@W[aA_Au@q@MMsCkCuCoC{@YgA[[e@G_@IgCIk@Ie@k@{@WWwBiB{@y@_A}AqBsCc@u@]e@aAqAm@c@i@MMEc@I}@OIA}A[UCuAKc@Ku@U_@SKEaBq@YI",
+                "yarh@qw_gN]fA",
+                "wbrh@iu_gN"
+            ],
+            keyCoords: [
+                [7.091540697723802, 79.9947859108097].reverse(),
+                [7.034742366985356, 80.02610573596573].reverse(),
+            ],
+        },
+        time: {
+            scheduled: new Date(2023, 12, 10, 10, 30),
+            start: null,
+            end: null,
+        },
+        vehicleId: null,
+        vehicle: {
+            name: "Temp TukTuk",
+            number: "TMP-7788",
+            model: "Piaggio",
+            features: {
+                ac: false,
+                luggage: true,
+            },
+            rating: {
+                cleanliness: 0.8,
+                ac: 0.0,
+            }
+        },
+        seats: 2,
+        billing: {
+            account: bankAccountInsertionResult.insertedIds[2],
+            priceFirstKm: 150,
+            priceNextKm: 75,
+        },
+        rating: {
+            punctuality: 0.9,
+            politeness: 0.7,
+            driving: 0.5,
+            meetsCondition: 0.8,
+        }
+    },
+]);
+
+db.requestedTrips.drop();
+const requestedTripInsertionResult = db.requestedTrips.insertMany([
+    {
+        _id: ObjectId("600000000000000000000000"),
+        requesterId: userInsertionResult.insertedIds[1],
+        route: {
+            from: "Piliyandala",
+            to: "Cybertron",
+            polyLines: null,
+            keyCoords: [
+                [6.829470024356559, 79.90957546009602].reverse(),
+                [6.815242592352088, 79.95746412416065].reverse(),
+            ]
+        },
+        time: {
+            scheduled: new Date(),
+        },
+        seats: 1,
+    },
+    {
+        _id: ObjectId("600000000000000000000001"),
+        requesterId: userInsertionResult.insertedIds[1],
+        route: {
+            from: "Piliyandala",
+            to: "Cybertron",
+            polyLines: null,
+            keyCoords: [
+                [6.829470024356559, 79.90957546009602].reverse(),
+                [6.815242592352088, 79.95746412416065].reverse(),
+            ]
+        },
+        time: {
+            scheduled: new Date(),
+        },
+        seats: 2,
+    }
+]);
