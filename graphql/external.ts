@@ -27,6 +27,7 @@ export type BankAccount = {
 
 export type HostedTrip = {
   __typename?: 'HostedTrip';
+  _id: Scalars['ObjectId']['output'];
   billing: TripBilling;
   host: User;
   rating: TripRating;
@@ -54,11 +55,13 @@ export type MutationSignInArgs = {
 
 export type Notification = {
   __typename?: 'Notification';
-  acceptedByHost: Scalars['Boolean']['output'];
-  acceptedByRequester: Scalars['Boolean']['output'];
-  hostedTripId: Scalars['ObjectId']['output'];
+  _id: Scalars['ObjectId']['output'];
+  acceptedByRecipient: Scalars['Boolean']['output'];
+  hostedTrip: HostedTrip;
   payment: Payment;
-  requestedTripId: Scalars['ObjectId']['output'];
+  recipient: User;
+  requestedTrip: RequestedTrip;
+  sender: User;
 };
 
 export type Payment = {
@@ -76,16 +79,17 @@ export type Permission = {
 export type Query = {
   __typename?: 'Query';
   GetMe: User;
-  GetUser: User;
-};
-
-
-export type QueryGetUserArgs = {
-  id: Scalars['ObjectId']['input'];
+  GetMyBankAccounts: Array<BankAccount>;
+  GetMyHostedTrips: Array<Maybe<HostedTrip>>;
+  GetMyReceivedNotifications: Array<Maybe<Notification>>;
+  GetMyRequestedTrips: Array<Maybe<RequestedTrip>>;
+  GetMySentNotifications: Array<Maybe<Notification>>;
+  GetMyVehicles: Array<Vehicle>;
 };
 
 export type RequestedTrip = {
   __typename?: 'RequestedTrip';
+  _id: Scalars['ObjectId']['output'];
   requester: User;
   route: Route;
   seats: Scalars['Int']['output'];
@@ -131,12 +135,10 @@ export type TripTime = {
 export type User = {
   __typename?: 'User';
   _id: Scalars['ObjectId']['output'];
-  bankAccounts: Array<BankAccount>;
   currentCoord?: Maybe<Array<Scalars['Float']['output']>>;
   preferredName: Scalars['String']['output'];
   rating: UserRating;
   username: Scalars['String']['output'];
-  vehicles: Array<Vehicle>;
 };
 
 export type UserRating = {
@@ -148,6 +150,7 @@ export type UserRating = {
 
 export type Vehicle = {
   __typename?: 'Vehicle';
+  _id: Scalars['ObjectId']['output'];
   features: VehicleFeatures;
   model: Scalars['String']['output'];
   name: Scalars['String']['output'];

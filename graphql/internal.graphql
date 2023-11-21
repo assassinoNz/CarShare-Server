@@ -4,7 +4,16 @@ scalar Date
 #QUERY==========================================
 type Query {
     GetMe: User!
-    GetUser(id: ObjectId!): User!
+
+    GetMyVehicles: [Vehicle!]!
+
+    GetMyBankAccounts: [BankAccount!]!
+
+    GetMyHostedTrips: [HostedTrip]!
+    GetMyRequestedTrips: [RequestedTrip]!
+
+    GetMySentNotifications: [Notification]!
+    GetMyReceivedNotifications: [Notification]!
 }
 
 type User {
@@ -78,6 +87,8 @@ type TripTime {
 
 type Vehicle {
     _id: ObjectId!
+    ownerId: ObjectId!
+    owner: User!
     name: String!
     number: String!
     model: String!
@@ -104,6 +115,8 @@ type TripBilling {
 
 type BankAccount {
     _id: ObjectId!
+    ownerId: ObjectId!
+    owner: User!
     name: String!
     bank: String!
     account: String!
@@ -127,10 +140,16 @@ type RequestedTrip {
 }
 
 type Notification {
+    _id: ObjectId!
+    senderId: ObjectId!
+    sender: User!
+    recipientId: ObjectId!
+    recipient: User!
     hostedTripId: ObjectId!
+    hostedTrip: HostedTrip!
     requestedTripId: ObjectId!
-    acceptedByHost: Boolean!
-    acceptedByRequester: Boolean!
+    requestedTrip: RequestedTrip!
+    acceptedByRecipient: Boolean!
     payment: Payment!
 }
 

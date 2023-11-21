@@ -3,8 +3,17 @@ import * as Internal from "../graphql/internal";
 
 import { Server } from "./app";
 import { ModuleId, OperationIndex } from "./enum";
+import { Context } from "./interface";
 
 export class PermissionManager {
+    static getMe(ctx: Context) {
+        if (ctx.user) {
+            return ctx.user;
+        } else {
+            throw new Error.NotSignedIn();
+        }
+    }
+
     static async queryPermission(user: Internal.User | null, moduleId: ModuleId, operationIndex: OperationIndex) {
         if (user) {
             const role = await Server.db.collection<Internal.Role>("roles").findOne({

@@ -16,24 +16,55 @@ import { SECRET_JWT } from "../config";
 export const QueryResolver: Resolver<Internal.Query, External.Query> = {
     GetMe: async (parent, args, ctx, info) => {
         //WARNING: GetMe doesn't need any permission validation
-        if (ctx.user) {
-            return ctx.user;
-        } else {
-            throw new Error.NotSignedIn();
-        }
+        return PermissionManager.getMe(ctx);
     },
 
-    GetUser: async (parent, args: External.QueryGetUserArgs, ctx, info) => {
-        await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
-        const item = await Server.db.collection<Internal.User>("users").findOne({
-            _id: args.id
-        });
+    GetMyVehicles: async (parent, args, ctx, info) => {
+        await PermissionManager.queryPermission(ctx.user, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
+        const me = PermissionManager.getMe(ctx);
+        return await Server.db.collection<Internal.Vehicle>("vehicles").find({
+            ownerId: me._id
+        }).toArray();
+    },
 
-        if (item) {
-            return item;
-        } else {
-            throw new Error.ItemDoesNotExist("user", "id", args.id.toHexString());
-        }
+    GetMyBankAccounts: async (parent, args, ctx, info) => {
+        await PermissionManager.queryPermission(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
+        const me = PermissionManager.getMe(ctx);
+        return await Server.db.collection<Internal.BankAccount>("bankAccounts").find({
+            ownerId: me._id
+        }).toArray();
+    },
+
+    GetMyHostedTrips: async (parent, args, ctx, info) => {
+        await PermissionManager.queryPermission(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
+        const me = PermissionManager.getMe(ctx);
+        return await Server.db.collection<Internal.HostedTrip>("hostedTrips").find({
+            hostId: me._id
+        }).toArray();
+    },
+
+    GetMyRequestedTrips: async (parent, args, ctx, info) => {
+        await PermissionManager.queryPermission(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
+        const me = PermissionManager.getMe(ctx);
+        return await Server.db.collection<Internal.RequestedTrip>("requestedTrips").find({
+            requesterId: me._id
+        }).toArray();
+    },
+
+    GetMySentNotifications: async (parent, args, ctx, info) => {
+        await PermissionManager.queryPermission(ctx.user, ModuleId.NOTIFICATIONS, OperationIndex.RETRIEVE);
+        const me = PermissionManager.getMe(ctx);
+        return await Server.db.collection<Internal.Notification>("notifications").find({
+            senderId: me._id
+        }).toArray();
+    },
+
+    GetMyReceivedNotifications: async (parent, args, ctx, info) => {
+        await PermissionManager.queryPermission(ctx.user, ModuleId.NOTIFICATIONS, OperationIndex.RETRIEVE);
+        const me = PermissionManager.getMe(ctx);
+        return await Server.db.collection<Internal.Notification>("notifications").find({
+            recipientId: me._id
+        }).toArray();
     },
 };
 
@@ -104,30 +135,6 @@ export const ScalarResolver = {
     }),
 }
 
-export const UserResolver: Resolver<Internal.User, External.User> = {
-    _id: async (parent, args, ctx, info) => parent._id,
-
-    username: async (parent, args, ctx, info) => parent.username,
-
-    preferredName: async (parent, args, ctx, info) => parent.preferredName,
-
-    vehicles: async (parent, args, ctx, info) => {
-        await PermissionManager.queryPermission(ctx.user, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
-        return await Server.db.collection<Internal.Vehicle>("vehicles").find({
-            _id: { $in: parent.vehicleIds }
-        }).toArray();
-    },
-
-    bankAccounts: async (parent, args, ctx, info) => {
-        await PermissionManager.queryPermission(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
-        return await Server.db.collection<Internal.BankAccount>("bankAccounts").find({
-            _id: { $in: parent.bankAccountIds }
-        }).toArray();
-    },
-
-    rating: async (parent, args, ctx, info) => parent.rating,
-};
-
 export const PermissionResolver: Resolver<Internal.Permission, External.Permission> = {
     value: async (parent, args, ctx, info) => parent.value,
 
@@ -140,12 +147,14 @@ export const PermissionResolver: Resolver<Internal.Permission, External.Permissi
         if (item) {
             return item;
         } else {
-            throw new Error.ItemDoesNotExist("role", "id", args.id.toHexString());
+            throw new Error.ItemDoesNotExist("module", "id", args.id.toHexString());
         }
     },
 };
 
 export const HostedTripResolver: Resolver<Internal.HostedTrip, External.HostedTrip> = {
+    _id: async (parent, args, ctx, info) => parent._id,
+
     host: async (parent, args, ctx, info) => {
         await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
         const item = await Server.db.collection<Internal.User>("users").findOne({
@@ -155,7 +164,7 @@ export const HostedTripResolver: Resolver<Internal.HostedTrip, External.HostedTr
         if (item) {
             return item;
         } else {
-            throw new Error.ItemDoesNotExist("user", "id", args.id.toHexString());
+            throw new Error.ItemDoesNotExist("user/host", "id", args.id.toHexString());
         }
     },
 
@@ -207,6 +216,8 @@ export const TripBillingResolver: Resolver<Internal.TripBilling, External.TripBi
 };
 
 export const RequestedTripResolver: Resolver<Internal.RequestedTrip, External.RequestedTrip> = {
+    _id: async (parent, args, ctx, info) => parent._id,
+    
     requester: async (parent, args, ctx, info) => {
         await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
         const item = await Server.db.collection<Internal.User>("users").findOne({
@@ -216,7 +227,7 @@ export const RequestedTripResolver: Resolver<Internal.RequestedTrip, External.Re
         if (item) {
             return item;
         } else {
-            throw new Error.ItemDoesNotExist("user", "id", args.id.toHexString());
+            throw new Error.ItemDoesNotExist("user/requester", "id", args.id.toHexString());
         }
     },
 
@@ -225,4 +236,64 @@ export const RequestedTripResolver: Resolver<Internal.RequestedTrip, External.Re
     time: async (parent, args, ctx, info) => parent.time,
 
     seats: async (parent, args, ctx, info) => parent.seats,
+};
+
+export const NotificationResolver: Resolver<Internal.Notification, External.Notification> = {
+    _id: async (parent, args, ctx, info) => parent._id,
+
+    sender: async (parent, args, ctx, info) => {
+        await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
+        const item = await Server.db.collection<Internal.User>("users").findOne({
+            _id: parent.senderId
+        });
+
+        if (item) {
+            return item;
+        } else {
+            throw new Error.ItemDoesNotExist("user/sender", "id", args.id.toHexString());
+        }
+    },
+
+    recipient: async (parent, args, ctx, info) => {
+        await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
+        const item = await Server.db.collection<Internal.User>("users").findOne({
+            _id: parent.recipientId
+        });
+
+        if (item) {
+            return item;
+        } else {
+            throw new Error.ItemDoesNotExist("user/recipient", "id", args.id.toHexString());
+        }
+    },
+
+    hostedTrip: async (parent, args, ctx, info) => {
+        await PermissionManager.queryPermission(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
+        const item = await Server.db.collection<Internal.HostedTrip>("hostedTrips").findOne({
+            _id: parent.hostedTripId
+        });
+
+        if (item) {
+            return item;
+        } else {
+            throw new Error.ItemDoesNotExist("hosted trip", "id", args.id.toHexString());
+        }
+    },
+
+    requestedTrip: async (parent, args, ctx, info) => {
+        await PermissionManager.queryPermission(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
+        const item = await Server.db.collection<Internal.RequestedTrip>("requestedTrips").findOne({
+            _id: parent.requestedTrip
+        });
+
+        if (item) {
+            return item;
+        } else {
+            throw new Error.ItemDoesNotExist("requested trip", "id", args.id.toHexString());
+        }
+    },
+
+    acceptedByRecipient: async (parent, args, ctx, info) => parent.acceptedByRecipient,
+
+    payment: async (parent, args, ctx, info) => parent.payment,
 };

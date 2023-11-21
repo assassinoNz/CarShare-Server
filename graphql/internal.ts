@@ -24,6 +24,8 @@ export type BankAccount = {
   bank: Scalars['String']['output'];
   branch: Scalars['String']['output'];
   name: Scalars['String']['output'];
+  owner: User;
+  ownerId: Scalars['ObjectId']['output'];
 };
 
 export type HostedTrip = {
@@ -59,11 +61,17 @@ export type MutationSignInArgs = {
 
 export type Notification = {
   __typename?: 'Notification';
-  acceptedByHost: Scalars['Boolean']['output'];
-  acceptedByRequester: Scalars['Boolean']['output'];
+  _id: Scalars['ObjectId']['output'];
+  acceptedByRecipient: Scalars['Boolean']['output'];
+  hostedTrip: HostedTrip;
   hostedTripId: Scalars['ObjectId']['output'];
   payment: Payment;
+  recipient: User;
+  recipientId: Scalars['ObjectId']['output'];
+  requestedTrip: RequestedTrip;
   requestedTripId: Scalars['ObjectId']['output'];
+  sender: User;
+  senderId: Scalars['ObjectId']['output'];
 };
 
 export type Payment = {
@@ -83,12 +91,12 @@ export type Permission = {
 export type Query = {
   __typename?: 'Query';
   GetMe: User;
-  GetUser: User;
-};
-
-
-export type QueryGetUserArgs = {
-  id: Scalars['ObjectId']['input'];
+  GetMyBankAccounts: Array<BankAccount>;
+  GetMyHostedTrips: Array<Maybe<HostedTrip>>;
+  GetMyReceivedNotifications: Array<Maybe<Notification>>;
+  GetMyRequestedTrips: Array<Maybe<RequestedTrip>>;
+  GetMySentNotifications: Array<Maybe<Notification>>;
+  GetMyVehicles: Array<Vehicle>;
 };
 
 export type RequestedTrip = {
@@ -174,6 +182,8 @@ export type Vehicle = {
   model: Scalars['String']['output'];
   name: Scalars['String']['output'];
   number: Scalars['String']['output'];
+  owner: User;
+  ownerId: Scalars['ObjectId']['output'];
   rating: VehicleRating;
 };
 
