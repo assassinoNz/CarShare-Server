@@ -197,15 +197,17 @@ const hostedTripInsertionResult = db.hostedTrips.insertMany([
         _id: ObjectId("400000000000000000000001"),
         hostId: userInsertionResult.insertedIds[1],
         route: {
-            from: "Dept. of Motor Traffic, Weherehara",
-            to: "Care Moto, Weherehara",
+            from: "Gampaha Railway",
+            to: "Weliveriya",
             polyLines: [
-                "}xth@whvfNl@a@b@s@r@k@r@w@LEd@BRGLK?OIMc@SOQi@uAo@aD",
-                "euth@cyvfNVMbAWhAO`BUxAKv@Of@O^QJEbAe@bDcBVO`BaA`BcAdAu@jD{Bh@_@BCpAy@nBoA|ByAx@k@hBgATSRMFG\OPMRGr@[tAm@TMXUh@[\Q`@O`@Mr@Ul@Q^INAJ@TBf@Ld@JRDL@R?NAXCXIj@Ul@Wp@Yt@[PIDAjAi@hAo@pAi@\OVKRENENCh@ErDCdAGpBk@lC}@VId@In@Ev@A",
-                "a~ph@_oxfNP]@EJO\e@zAmA`AiAhByBzAeBhA_Bb@{@nBgGh@sAz@aBh@_AHKv@iA`JkMdAoBt@sBh@wBp@_GTyBT_BNq@z@oDr@kB",
-                "iloh@qg{fN?WCYMe@]k@e@i@a@k@Uk@m@aBa@{AESe@eD{@oCYu@Ys@e@iAw@iCIa@G[Eg@Ec@?i@P_B@[Og@a@w@Ii@D}@Ju@JYBI@YMcCQoA]mAScACc@Bo@ZuBDy@AKQ]cAqAc@k@{@uASs@I][oBYaA_@}@W[aA_Au@q@MMsCkCuCoC{@YgA[[e@G_@IgCIk@Ie@k@{@WWwBiB{@y@_A}AqBsCc@u@]e@aAqAm@c@i@MMEc@I}@OIA}A[UCuAKc@Ku@U_@SKEaBq@YI",
-                "yarh@qw_gN]fA",
-                "wbrh@iu_gN"
+                "ychj@swfgNJe@DM\oAVaA",
+                "qahj@y}fgNECCCAE?E@E@CDCD?",
+                "mahj@{~fgNPw@ZgADUDSBSBYB[BW@U@_@@a@@c@?q@@o@@_@?s@BkA@c@@g@@a@@c@@_@@a@A[",
+                "i~gj@uzggNC?CACAECCCAEAC?E?E@EBEDCDA",
+                "q~gj@i|ggNDM@GDIDOf@eCHa@Lk@Ha@RcAF[Lo@XqARcAPy@Pq@Lm@HYLo@Ri@L[To@Tg@Zs@|@cBZe@LS|AgCj@y@t@i@v@k@f@_@jB{Ap@e@`@[bAq@~@k@f@W`@QVOXMHGRKTORW^c@FIXa@V[V[Z]RQpA}@FCv@a@RKrDeB@AxAq@BAVKDAZKb@OzB{@|Bu@pBs@PIj@WrBy@pH_DfC_ANGDA@?LG|@]TKf@Ql@YBAXQp@a@fA}@POr@s@XWxAyAj@i@PS",
+                "eodj@adkgNRSRT^f@TZZb@p@x@zAnBb@`@f@XxCdA`FbB`@L`Bh@fA^`KfD",
+                "gfcj@gljgNHANAPITWLW@CDO`@eANQVMXIfAKpC]ZE`BQl@Gr@MxBm@fCc@~ASbBSpAMrBYhBi@dAS~@WzBi@~@Sl@O`Cg@jCe@tAWbCa@XEf@KfB[hAUxDg@dDWjAIbAC^Bn@Jp@Tr@`@vApAZPj@HtAB~G?~@ErAUnDcAdAa@dDeBjDwAjCcAlFiCHGpBeAxCyBpAkAX[lA{An@{@j@cAl@sAt@{BRa@`@]hBgAfCcBbA}@^q@P]zAuCHMxAaBfA}@|@c@xAi@lBq@|@e@~C_CnB}ARQh@c@x@k@fAg@nAg@`AYj@O",
+                "ug|i@ormgN"
             ],
             keyCoords: [
                 [7.091540697723802, 79.9947859108097].reverse(),
@@ -269,12 +271,12 @@ const requestedTripInsertionResult = db.requestedTrips.insertMany([
         _id: ObjectId("600000000000000000000001"),
         requesterId: userInsertionResult.insertedIds[1],
         route: {
-            from: "Piliyandala",
-            to: "Cybertron",
+            from: "Gampaha Railway",
+            to: "Miriswatta",
             polyLines: null,
             keyCoords: [
-                [6.829470024356559, 79.90957546009602].reverse(),
-                [6.815242592352088, 79.95746412416065].reverse(),
+                [7.092252219283498, 79.99299056862273].reverse(),
+                [7.072965706899689, 80.01593012768988].reverse(),
             ]
         },
         time: {
