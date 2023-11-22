@@ -283,7 +283,7 @@ export const NotificationResolver: Resolver<Internal.Notification, External.Noti
     requestedTrip: async (parent, args, ctx, info) => {
         await PermissionManager.queryPermission(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
         const item = await Server.db.collection<Internal.RequestedTrip>("requestedTrips").findOne({
-            _id: parent.requestedTrip
+            _id: parent.requestedTripId
         });
 
         if (item) {

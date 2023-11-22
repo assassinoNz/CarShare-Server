@@ -31,7 +31,12 @@ const roleInsertionResult = db.roles.insertMany([
         name: "Standard",
         permissions: [
             { moduleId: moduleInsertionResult.insertedIds["0"], value: "0100" },
-            { moduleId: moduleInsertionResult.insertedIds["1"], value: "0100" }
+            { moduleId: moduleInsertionResult.insertedIds["1"], value: "0100" },
+            { moduleId: moduleInsertionResult.insertedIds["2"], value: "0100" },
+            { moduleId: moduleInsertionResult.insertedIds["3"], value: "0100" },
+            { moduleId: moduleInsertionResult.insertedIds["4"], value: "0100" },
+            { moduleId: moduleInsertionResult.insertedIds["5"], value: "0100" },
+            { moduleId: moduleInsertionResult.insertedIds["6"], value: "0100" },
         ]
     }
 ]);
@@ -256,7 +261,7 @@ const requestedTripInsertionResult = db.requestedTrips.insertMany([
             ]
         },
         time: {
-            scheduled: new Date(),
+            schedule: new Date(),
         },
         seats: 1,
     },
@@ -273,7 +278,7 @@ const requestedTripInsertionResult = db.requestedTrips.insertMany([
             ]
         },
         time: {
-            scheduled: new Date(),
+            schedule: new Date(),
         },
         seats: 2,
     }
