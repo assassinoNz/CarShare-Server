@@ -1,5 +1,5 @@
 import * as crypto from "crypto";
-
+import fetch from "node-fetch";
 import * as jwt from "jsonwebtoken";
 import { ObjectId } from "mongodb";
 import { GraphQLError, GraphQLScalarType, Kind } from "graphql";
@@ -10,8 +10,8 @@ import * as External from "../graphql/external";
 import { Server } from "../lib/app";
 import { ModuleId, OperationIndex } from "../lib/enum";
 import { Resolver } from "../lib/interface";
-import { PermissionManager } from "../lib/util";
-import { SECRET_JWT } from "../config";
+import { PermissionManager, PostGIS } from "../lib/util";
+import { SECRET_JWT, URL_OSRM } from "../config";
 
 export const QueryResolver: Resolver<Internal.Query, External.Query> = {
     GetMe: async (parent, args, ctx, info) => {
@@ -65,6 +65,65 @@ export const QueryResolver: Resolver<Internal.Query, External.Query> = {
         return await Server.db.collection<Internal.Notification>("notifications").find({
             recipientId: me._id
         }).toArray();
+    },
+
+    GetMatchingRequestedTrips: async (parent, args: External.QueryGetMatchingRequestedTripsArgs, ctx, info) => {
+        await PermissionManager.queryPermission(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
+
+        //Retrieve the hosted trip
+        const item = await Server.db.collection<Internal.HostedTrip>("hostedTrips").findOne({
+            _id: args.hostedTripId
+        });
+
+        if (item) {
+            const hostedTripPolyLines = item.route.polyLines!;
+            const requestedTripMatches: Internal.RequestedTripMatch[] = [];
+
+            //DANGER: Must me optimized. Find a better way than retrieving all requested trips 
+            //Get all requested trips
+            const items = await Server.db.collection<Internal.RequestedTrip>("requestedTrips").find().toArray();
+
+            //For each requested trip, calculate match results
+            for (const requestedTrip of items) {
+                //Query all possible routes of the requested trip using OSRM
+                const routes = await fetch(`${URL_OSRM}/${requestedTrip.route.keyCoords?.map(keyCoord => keyCoord.join(",")).join(";")}?overview=false&steps=true`)
+                    .then((res: any) => res.json())
+                    .then((res: any) => res.routes);
+
+                const tripMatchResults: External.TripMatchResult[] = [];
+
+                //For each possible route calculate trip match result
+                for (const route of routes) {
+                    const requestedTripPolyLines: string[] = [];
+                    for (const step of route.legs[0].steps) {
+                        requestedTripPolyLines.push(step.geometry);
+                    }
+
+                    const tripMatchResult = await PostGIS.calculateRouteMatchResult(hostedTripPolyLines, requestedTripPolyLines);
+
+                    tripMatchResults.push({
+                        hostedTripLength: tripMatchResult.mainRouteLength,
+                        requestedTripLength: tripMatchResult.secondaryRouteLength,
+                        hostedTripCoverage: tripMatchResult.mainRouteCoverage,
+                        requestedTripCoverage: tripMatchResult.secondaryRouteCoverage,
+                        intersectionLength: tripMatchResult.intersectionLength,
+                        intersectionPolyLine: tripMatchResult.intersectionPolyLine
+                    });
+                }
+
+                requestedTripMatches.push({
+                    hostedTripId: args.hostedTripId,
+                    hostedTrip: item,
+                    requestedTripId: requestedTrip._id,
+                    requestedTrip: requestedTrip,
+                    results: tripMatchResults
+                });
+            }
+
+            return requestedTripMatches;
+        } else {
+            throw new Error.ItemDoesNotExist("hosted trip", "id", args.hostedTripId.toHexString());
+        }
     },
 };
 

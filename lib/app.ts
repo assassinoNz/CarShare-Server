@@ -4,17 +4,25 @@ import * as path from "path";
 import * as jwt from "jsonwebtoken";
 import * as express from "express";
 import * as cors from "cors";
+import { Client } from "pg";
 import { Db, MongoClient, ObjectId } from "mongodb";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 
 import { HostedTripResolver, MutationResolver, NotificationResolver, PermissionResolver, QueryResolver, RequestedTripResolver, ScalarResolver, TripBillingResolver } from "../graphql/resolver";
-import { NAME_DB, PORT_EXPRESS, SECRET_JWT, URL_DB_MONGO } from "../config";
+import { DB_MONGO, DB_POSTGRES, HOST_POSTGRES, PASSWORD_POSTGRES, PORT_EXPRESS, PORT_POSTGRES, SECRET_JWT, URL_MONGO, USER_POSTGRES } from "../config";
 import { Role, User } from "../graphql/internal";
 import { Context } from "./interface";
 
 export class Server {
-    private static readonly dbDriver = new MongoClient(URL_DB_MONGO);
+    static readonly postgresDriver = new Client({
+        host: HOST_POSTGRES,
+        user: USER_POSTGRES,
+        password: PASSWORD_POSTGRES,
+        database: DB_POSTGRES,
+        port: PORT_POSTGRES,
+    });
+    private static readonly mongoDriver = new MongoClient(URL_MONGO);
     static db: Db;
     static readonly express = express();
     static readonly appolo = new ApolloServer({
@@ -32,13 +40,20 @@ export class Server {
         }
     });
 
-    static async connectToDatabase() {
-        await this.dbDriver.connect();
-        this.db = this.dbDriver.db(NAME_DB);
+    static async connectDatabaseDrivers() {
+        await this.mongoDriver.connect();
+        this.db = this.mongoDriver.db(DB_MONGO);
         console.log({
-            component: "Database Driver",
+            component: "MongoDB Driver",
             status: true,
-            database: NAME_DB
+            database: DB_MONGO
+        });
+
+        await this.postgresDriver.connect();
+        console.log({
+            component: "PostgreSQL Driver",
+            status: true,
+            database: DB_MONGO
         });
     }
 

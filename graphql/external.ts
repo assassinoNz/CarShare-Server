@@ -78,6 +78,7 @@ export type Permission = {
 
 export type Query = {
   __typename?: 'Query';
+  GetMatchingRequestedTrips: Array<RequestedTripMatch>;
   GetMe: User;
   GetMyBankAccounts: Array<BankAccount>;
   GetMyHostedTrips: Array<Maybe<HostedTrip>>;
@@ -87,6 +88,11 @@ export type Query = {
   GetMyVehicles: Array<Vehicle>;
 };
 
+
+export type QueryGetMatchingRequestedTripsArgs = {
+  hostedTripId: Scalars['ObjectId']['input'];
+};
+
 export type RequestedTrip = {
   __typename?: 'RequestedTrip';
   _id: Scalars['ObjectId']['output'];
@@ -94,6 +100,13 @@ export type RequestedTrip = {
   route: Route;
   seats: Scalars['Int']['output'];
   time: TripTime;
+};
+
+export type RequestedTripMatch = {
+  __typename?: 'RequestedTripMatch';
+  hostedTrip: HostedTrip;
+  requestedTrip: RequestedTrip;
+  results: Array<TripMatchResult>;
 };
 
 export type Role = {
@@ -115,6 +128,16 @@ export type TripBilling = {
   bankAccount: BankAccount;
   priceFirstKm: Scalars['Float']['output'];
   priceNextKm: Scalars['Float']['output'];
+};
+
+export type TripMatchResult = {
+  __typename?: 'TripMatchResult';
+  hostedTripCoverage: Scalars['Float']['output'];
+  hostedTripLength: Scalars['Float']['output'];
+  intersectionLength: Scalars['Float']['output'];
+  intersectionPolyLine: Scalars['String']['output'];
+  requestedTripCoverage: Scalars['Float']['output'];
+  requestedTripLength: Scalars['Float']['output'];
 };
 
 export type TripRating = {

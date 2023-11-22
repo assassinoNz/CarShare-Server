@@ -1,7 +1,7 @@
 import { Server } from "./lib/app";
 
 //Make database connectivity
-Server.connectToDatabase().catch(err => {
+Server.connectDatabaseDrivers().catch(err => {
     console.error({
         component: "Database Driver",
         status: false,

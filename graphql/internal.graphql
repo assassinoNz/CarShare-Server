@@ -14,6 +14,8 @@ type Query {
 
     GetMySentNotifications: [Notification]!
     GetMyReceivedNotifications: [Notification]!
+
+    GetMatchingRequestedTrips(hostedTripId: ObjectId!): [RequestedTripMatch!]!
 }
 
 type User {
@@ -156,6 +158,23 @@ type Notification {
 type Payment {
     amount: Float!
     time: Date #When there is a time, payment is done
+}
+
+type RequestedTripMatch {
+    hostedTripId: ObjectId!
+    hostedTrip: HostedTrip!
+    requestedTripId: ObjectId!
+    requestedTrip: RequestedTrip!
+    results: [TripMatchResult!]!
+}
+
+type TripMatchResult {
+    hostedTripLength: Float!
+    requestedTripLength: Float!
+    intersectionLength: Float!
+    hostedTripCoverage: Float!
+    requestedTripCoverage: Float!
+    intersectionPolyLine: String!
 }
 
 #MUTATION========================================
