@@ -13,7 +13,7 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   Date: { input: Date; output: Date; }
-  ObjectId: { input: ID; output: ID; }
+  ObjectId: { input: Scalars["ID"]["input"]; output: Scalars["ID"]["input"]; }
 };
 
 export type BankAccount = {
