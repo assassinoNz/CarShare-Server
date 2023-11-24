@@ -75,6 +75,8 @@ export const QueryResolver: Resolver<Internal.Query, External.Query> = {
             _id: args.hostedTripId
         });
 
+        //TODO: Test if hosted trip's host is current user
+
         if (item) {
             const hostedTripPolyLines = item.route.polyLines!;
             const requestedTripMatches: Internal.RequestedTripMatch[] = [];
