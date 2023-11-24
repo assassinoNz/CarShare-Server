@@ -99,11 +99,6 @@ export type RequestedTripMatch = {
   results: Array<TripMatchResult>;
 };
 
-export type Role = {
-  __typename?: 'Role';
-  name: Scalars['String']['output'];
-};
-
 export type Route = {
   __typename?: 'Route';
   from: Scalars['String']['output'];

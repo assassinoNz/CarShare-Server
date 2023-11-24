@@ -27,10 +27,6 @@ type User {
     rating: UserRating!
 }
 
-type Role {
-    name: String!
-}
-
 type UserRating{
     politeness: Float!
     punctuality: Float!
