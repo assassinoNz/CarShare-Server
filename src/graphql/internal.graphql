@@ -24,14 +24,9 @@ type User {
     email: String!
     preferredName: String!
     roleId: ObjectId!
-    role: Role!
     secret: Secret!
     currentCoord: [Float!]
     rating: UserRating!
-    vehicleIds: [ObjectId!]!
-    vehicles: [Vehicle!]!
-    bankAccountIds: [ObjectId!]!
-    bankAccounts: [BankAccount!]!
 }
 
 type Role {
@@ -43,7 +38,6 @@ type Role {
 type Permission {
     _id: ObjectId!
     moduleId: ObjectId!
-    module: Module!
     value: String!
 }
 
@@ -65,11 +59,10 @@ type UserRating{
 type HostedTrip {
     _id: ObjectId!
     hostId: ObjectId!
-    host: User!
     route: Route!
     time: TripTime!
     vehicleId: ObjectId #If vehicleId==null, vehicle is temporary
-    vehicle: Vehicle! #Could be a temporary or saved
+    vehicle: Vehicle #Could be a temporary or saved
     seats: Int!
     billing: TripBilling!
     rating: TripRating!
@@ -91,7 +84,6 @@ type TripTime {
 type Vehicle {
     _id: ObjectId!
     ownerId: ObjectId!
-    owner: User!
     name: String!
     number: String!
     model: String!
@@ -111,7 +103,6 @@ type VehicleRating {
 
 type TripBilling {
     bankAccountId: ObjectId!
-    bankAccount: BankAccount!
     priceFirstKm: Float!
     priceNextKm: Float!
 }
@@ -119,7 +110,6 @@ type TripBilling {
 type BankAccount {
     _id: ObjectId!
     ownerId: ObjectId!
-    owner: User!
     name: String!
     bank: String!
     account: String!
@@ -136,7 +126,6 @@ type TripRating {
 type RequestedTrip {
     _id: ObjectId!
     requesterId: ObjectId!
-    requester: User!
     route: Route!
     time: TripTime!
     seats: Int!
@@ -145,13 +134,9 @@ type RequestedTrip {
 type Notification {
     _id: ObjectId!
     senderId: ObjectId!
-    sender: User!
     recipientId: ObjectId!
-    recipient: User!
     hostedTripId: ObjectId!
-    hostedTrip: HostedTrip!
     requestedTripId: ObjectId!
-    requestedTrip: RequestedTrip!
     acceptedByRecipient: Boolean!
     payment: Payment!
 }
@@ -163,9 +148,7 @@ type Payment {
 
 type RequestedTripMatch {
     hostedTripId: ObjectId!
-    hostedTrip: HostedTrip!
     requestedTripId: ObjectId!
-    requestedTrip: RequestedTrip!
     results: [TripMatchResult!]!
 }
 
@@ -181,4 +164,16 @@ type TripMatchResult {
 #MUTATION========================================
 type Mutation {
     SignIn(mobile: String!, password: String!): String!
+
+    AddUser(user: UserInput!): ObjectId!
+}
+
+input UserInput {
+    mobile: String!
+    roleId: ObjectId!
+    rating: UserRating!
+    roleId: ObjectId!
+    email: String!
+    secret: Secret!
+    preferredName: String!
 }

@@ -5,15 +5,16 @@ import { ObjectId } from "mongodb";
 import { GraphQLError, GraphQLScalarType, Kind } from "graphql";
 
 import * as Error from "../lib/error";
-import * as Internal from "./internal";
-import * as External from "./external";
+import * as In from "./internal";
+import * as Ex from "./external";
 import { Server } from "../lib/app";
 import { ModuleId, OperationIndex } from "../lib/enum";
 import { JwtValue, Resolver } from "../lib/interface";
 import { PermissionManager, PostGIS } from "../lib/util";
 import { SECRET_JWT, URL_OSRM } from "../../config";
+import { ID_ROLE } from "../lib/default";
 
-export const QueryResolver: Resolver<Internal.Query, External.Query> = {
+export const QueryResolver: Resolver<In.Query, Ex.Query> = {
     GetMe: async (parent, args, ctx, info) => {
         //WARNING: GetMe doesn't need any permission validation
         return PermissionManager.getMe(ctx);
@@ -22,7 +23,7 @@ export const QueryResolver: Resolver<Internal.Query, External.Query> = {
     GetMyVehicles: async (parent, args, ctx, info) => {
         await PermissionManager.queryPermission(ctx.user, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
         const me = PermissionManager.getMe(ctx);
-        return await Server.db.collection<Internal.Vehicle>("vehicles").find({
+        return await Server.db.collection<In.Vehicle>("vehicles").find({
             ownerId: me._id
         }).toArray();
     },
@@ -30,7 +31,7 @@ export const QueryResolver: Resolver<Internal.Query, External.Query> = {
     GetMyBankAccounts: async (parent, args, ctx, info) => {
         await PermissionManager.queryPermission(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
         const me = PermissionManager.getMe(ctx);
-        return await Server.db.collection<Internal.BankAccount>("bankAccounts").find({
+        return await Server.db.collection<In.BankAccount>("bankAccounts").find({
             ownerId: me._id
         }).toArray();
     },
@@ -38,7 +39,7 @@ export const QueryResolver: Resolver<Internal.Query, External.Query> = {
     GetMyHostedTrips: async (parent, args, ctx, info) => {
         await PermissionManager.queryPermission(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
         const me = PermissionManager.getMe(ctx);
-        return await Server.db.collection<Internal.HostedTrip>("hostedTrips").find({
+        return await Server.db.collection<In.HostedTrip & Ex.HostedTrip>("hostedTrips").find({
             hostId: me._id
         }).toArray();
     },
@@ -46,7 +47,7 @@ export const QueryResolver: Resolver<Internal.Query, External.Query> = {
     GetMyRequestedTrips: async (parent, args, ctx, info) => {
         await PermissionManager.queryPermission(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
         const me = PermissionManager.getMe(ctx);
-        return await Server.db.collection<Internal.RequestedTrip>("requestedTrips").find({
+        return await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>("requestedTrips").find({
             requesterId: me._id
         }).toArray();
     },
@@ -54,7 +55,7 @@ export const QueryResolver: Resolver<Internal.Query, External.Query> = {
     GetMySentNotifications: async (parent, args, ctx, info) => {
         await PermissionManager.queryPermission(ctx.user, ModuleId.NOTIFICATIONS, OperationIndex.RETRIEVE);
         const me = PermissionManager.getMe(ctx);
-        return await Server.db.collection<Internal.Notification>("notifications").find({
+        return await Server.db.collection<In.Notification & Ex.Notification>("notifications").find({
             senderId: me._id
         }).toArray();
     },
@@ -62,16 +63,16 @@ export const QueryResolver: Resolver<Internal.Query, External.Query> = {
     GetMyReceivedNotifications: async (parent, args, ctx, info) => {
         await PermissionManager.queryPermission(ctx.user, ModuleId.NOTIFICATIONS, OperationIndex.RETRIEVE);
         const me = PermissionManager.getMe(ctx);
-        return await Server.db.collection<Internal.Notification>("notifications").find({
+        return await Server.db.collection<In.Notification & Ex.Notification>("notifications").find({
             recipientId: me._id
         }).toArray();
     },
 
-    GetMatchingRequestedTrips: async (parent, args: External.QueryGetMatchingRequestedTripsArgs, ctx, info) => {
+    GetMatchingRequestedTrips: async (parent, args: Ex.QueryGetMatchingRequestedTripsArgs, ctx, info) => {
         await PermissionManager.queryPermission(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
 
         //Retrieve the hosted trip
-        const item = await Server.db.collection<Internal.HostedTrip>("hostedTrips").findOne({
+        const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>("hostedTrips").findOne({
             _id: args.hostedTripId
         });
 
@@ -79,11 +80,11 @@ export const QueryResolver: Resolver<Internal.Query, External.Query> = {
 
         if (item) {
             const hostedTripPolyLines = item.route.polyLines!;
-            const requestedTripMatches: Internal.RequestedTripMatch[] = [];
+            const requestedTripMatches: Ex.RequestedTripMatch[] = [];
 
             //DANGER: Must me optimized. Find a better way than retrieving all requested trips 
             //Get all requested trips
-            const items = await Server.db.collection<Internal.RequestedTrip>("requestedTrips").find().toArray();
+            const items = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>("requestedTrips").find().toArray();
 
             //For each requested trip, calculate match results
             for (const requestedTrip of items) {
@@ -92,7 +93,7 @@ export const QueryResolver: Resolver<Internal.Query, External.Query> = {
                     .then((res: any) => res.json())
                     .then((res: any) => res.routes);
 
-                const tripMatchResults: External.TripMatchResult[] = [];
+                const tripMatchResults: Ex.TripMatchResult[] = [];
 
                 //For each possible route calculate trip match result
                 for (const route of routes) {
@@ -114,9 +115,7 @@ export const QueryResolver: Resolver<Internal.Query, External.Query> = {
                 }
 
                 requestedTripMatches.push({
-                    hostedTripId: args.hostedTripId,
                     hostedTrip: item,
-                    requestedTripId: requestedTrip._id,
                     requestedTrip: requestedTrip,
                     results: tripMatchResults
                 });
@@ -129,9 +128,9 @@ export const QueryResolver: Resolver<Internal.Query, External.Query> = {
     },
 };
 
-export const MutationResolver: Resolver<Internal.Mutation, External.Mutation> = {
-    SignIn: async (parent, args: External.MutationSignInArgs, ctx, info) => {
-        const user = await Server.db.collection<Internal.User>("users").findOne({
+export const MutationResolver: Resolver<In.Mutation, Ex.Mutation> = {
+    SignIn: async (parent, args: Ex.MutationSignInArgs, ctx, info) => {
+        const user = await Server.db.collection<In.User>("users").findOne({
             mobile: args.mobile
         });
 
@@ -151,6 +150,27 @@ export const MutationResolver: Resolver<Internal.Mutation, External.Mutation> = 
         } else {
             throw new Error.ItemDoesNotExist("user", "mobile", args.mobile);
         }
+    },
+
+    AddUser: async (parent, args: Ex.MutationAddUserArgs, ctx, info) => {
+        await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.CREATE);
+
+        const newItem = await Server.db.collection<In.UserInput>("users").insertOne({
+            mobile: args.user.mobile,
+            email: args.user.email,
+            preferredName: args.user.preferredName,
+            roleId: new ObjectId(ID_ROLE),
+            rating: {
+                driving: 0.0,
+                politeness: 0.0,
+                punctuality: 0.0,
+            },
+            secret: {
+                hash: crypto.createHash("sha1").update(args.user.password).digest("hex")
+            }
+        });
+
+        return newItem.insertedId;
     },
 };
 
@@ -202,12 +222,12 @@ export const ScalarResolver = {
     }),
 }
 
-export const HostedTripResolver: Resolver<Internal.HostedTrip, External.HostedTrip> = {
+export const HostedTripResolver: Resolver<In.HostedTrip, Ex.HostedTrip> = {
     _id: async (parent, args, ctx, info) => parent._id,
 
     host: async (parent, args, ctx, info) => {
         await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
-        const item = await Server.db.collection<Internal.User>("users").findOne({
+        const item = await Server.db.collection<In.User>("users").findOne({
             _id: parent.hostId
         });
 
@@ -224,8 +244,10 @@ export const HostedTripResolver: Resolver<Internal.HostedTrip, External.HostedTr
 
     vehicle: async (parent, args, ctx, info) => {
         if (parent.vehicleId) {
+            //CASE: vehicleId exists.
+            //User has assigned a saved vehicle. It must be retrieved from database
             await PermissionManager.queryPermission(ctx.user, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
-            const item = await Server.db.collection<Internal.Vehicle>("vehicles").findOne({
+            const item = await Server.db.collection<In.Vehicle & Ex.Vehicle>("vehicles").findOne({
                 _id: parent.vehicleId
             });
     
@@ -235,7 +257,9 @@ export const HostedTripResolver: Resolver<Internal.HostedTrip, External.HostedTr
                 throw new Error.ItemDoesNotExist("vehicle", "id", args.id.toHexString());
             }
         } else {
-            return parent.vehicle;
+            //CASE: vehicleId doesn't exists.
+            //User has assigned a temporary vehicle. It must be available as an embedded document
+            return parent.vehicle as Ex.Vehicle;
         }
     },
 
@@ -246,10 +270,10 @@ export const HostedTripResolver: Resolver<Internal.HostedTrip, External.HostedTr
     rating: async (parent, args, ctx, info) => parent.rating,
 };
 
-export const TripBillingResolver: Resolver<Internal.TripBilling, External.TripBilling> = {
+export const TripBillingResolver: Resolver<In.TripBilling, Ex.TripBilling> = {
     bankAccount: async (parent, args, ctx, info) => {
         await PermissionManager.queryPermission(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
-        const item = await Server.db.collection<Internal.BankAccount>("bankAccounts").findOne({
+        const item = await Server.db.collection<In.BankAccount>("bankAccounts").findOne({
             _id: parent.bankAccountId
         });
 
@@ -265,12 +289,12 @@ export const TripBillingResolver: Resolver<Internal.TripBilling, External.TripBi
     priceNextKm: async (parent, args, ctx, info) => parent.priceNextKm,
 };
 
-export const RequestedTripResolver: Resolver<Internal.RequestedTrip, External.RequestedTrip> = {
+export const RequestedTripResolver: Resolver<In.RequestedTrip, Ex.RequestedTrip> = {
     _id: async (parent, args, ctx, info) => parent._id,
     
     requester: async (parent, args, ctx, info) => {
         await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
-        const item = await Server.db.collection<Internal.User>("users").findOne({
+        const item = await Server.db.collection<In.User & Ex.User>("users").findOne({
             _id: parent.requesterId
         });
 
@@ -288,12 +312,12 @@ export const RequestedTripResolver: Resolver<Internal.RequestedTrip, External.Re
     seats: async (parent, args, ctx, info) => parent.seats,
 };
 
-export const NotificationResolver: Resolver<Internal.Notification, External.Notification> = {
+export const NotificationResolver: Resolver<In.Notification, Ex.Notification> = {
     _id: async (parent, args, ctx, info) => parent._id,
 
     sender: async (parent, args, ctx, info) => {
         await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
-        const item = await Server.db.collection<Internal.User>("users").findOne({
+        const item = await Server.db.collection<In.User>("users").findOne({
             _id: parent.senderId
         });
 
@@ -306,7 +330,7 @@ export const NotificationResolver: Resolver<Internal.Notification, External.Noti
 
     recipient: async (parent, args, ctx, info) => {
         await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
-        const item = await Server.db.collection<Internal.User>("users").findOne({
+        const item = await Server.db.collection<In.User>("users").findOne({
             _id: parent.recipientId
         });
 
@@ -319,7 +343,7 @@ export const NotificationResolver: Resolver<Internal.Notification, External.Noti
 
     hostedTrip: async (parent, args, ctx, info) => {
         await PermissionManager.queryPermission(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
-        const item = await Server.db.collection<Internal.HostedTrip>("hostedTrips").findOne({
+        const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>("hostedTrips").findOne({
             _id: parent.hostedTripId
         });
 
@@ -332,7 +356,7 @@ export const NotificationResolver: Resolver<Internal.Notification, External.Noti
 
     requestedTrip: async (parent, args, ctx, info) => {
         await PermissionManager.queryPermission(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
-        const item = await Server.db.collection<Internal.RequestedTrip>("requestedTrips").findOne({
+        const item = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>("requestedTrips").findOne({
             _id: parent.requestedTripId
         });
 

@@ -24,7 +24,6 @@ export type BankAccount = {
   bank: Scalars['String']['output'];
   branch: Scalars['String']['output'];
   name: Scalars['String']['output'];
-  owner: User;
   ownerId: Scalars['ObjectId']['output'];
 };
 
@@ -32,13 +31,12 @@ export type HostedTrip = {
   __typename?: 'HostedTrip';
   _id: Scalars['ObjectId']['output'];
   billing: TripBilling;
-  host: User;
   hostId: Scalars['ObjectId']['output'];
   rating: TripRating;
   route: Route;
   seats: Scalars['Int']['output'];
   time: TripTime;
-  vehicle: Vehicle;
+  vehicle?: Maybe<Vehicle>;
   vehicleId?: Maybe<Scalars['ObjectId']['output']>;
 };
 
@@ -50,7 +48,13 @@ export type Module = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  AddUser: Scalars['ObjectId']['output'];
   SignIn: Scalars['String']['output'];
+};
+
+
+export type MutationAddUserArgs = {
+  user: UserInput;
 };
 
 
@@ -63,14 +67,10 @@ export type Notification = {
   __typename?: 'Notification';
   _id: Scalars['ObjectId']['output'];
   acceptedByRecipient: Scalars['Boolean']['output'];
-  hostedTrip: HostedTrip;
   hostedTripId: Scalars['ObjectId']['output'];
   payment: Payment;
-  recipient: User;
   recipientId: Scalars['ObjectId']['output'];
-  requestedTrip: RequestedTrip;
   requestedTripId: Scalars['ObjectId']['output'];
-  sender: User;
   senderId: Scalars['ObjectId']['output'];
 };
 
@@ -83,7 +83,6 @@ export type Payment = {
 export type Permission = {
   __typename?: 'Permission';
   _id: Scalars['ObjectId']['output'];
-  module: Module;
   moduleId: Scalars['ObjectId']['output'];
   value: Scalars['String']['output'];
 };
@@ -108,7 +107,6 @@ export type QueryGetMatchingRequestedTripsArgs = {
 export type RequestedTrip = {
   __typename?: 'RequestedTrip';
   _id: Scalars['ObjectId']['output'];
-  requester: User;
   requesterId: Scalars['ObjectId']['output'];
   route: Route;
   seats: Scalars['Int']['output'];
@@ -117,9 +115,7 @@ export type RequestedTrip = {
 
 export type RequestedTripMatch = {
   __typename?: 'RequestedTripMatch';
-  hostedTrip: HostedTrip;
   hostedTripId: Scalars['ObjectId']['output'];
-  requestedTrip: RequestedTrip;
   requestedTripId: Scalars['ObjectId']['output'];
   results: Array<TripMatchResult>;
 };
@@ -146,7 +142,6 @@ export type Secret = {
 
 export type TripBilling = {
   __typename?: 'TripBilling';
-  bankAccount: BankAccount;
   bankAccountId: Scalars['ObjectId']['output'];
   priceFirstKm: Scalars['Float']['output'];
   priceNextKm: Scalars['Float']['output'];
@@ -180,18 +175,22 @@ export type TripTime = {
 export type User = {
   __typename?: 'User';
   _id: Scalars['ObjectId']['output'];
-  bankAccountIds: Array<Scalars['ObjectId']['output']>;
-  bankAccounts: Array<BankAccount>;
   currentCoord?: Maybe<Array<Scalars['Float']['output']>>;
   email: Scalars['String']['output'];
   mobile: Scalars['String']['output'];
   preferredName: Scalars['String']['output'];
   rating: UserRating;
-  role: Role;
   roleId: Scalars['ObjectId']['output'];
   secret: Secret;
-  vehicleIds: Array<Scalars['ObjectId']['output']>;
-  vehicles: Array<Vehicle>;
+};
+
+export type UserInput = {
+  email: Scalars['String']['input'];
+  mobile: Scalars['String']['input'];
+  preferredName: Scalars['String']['input'];
+  rating: UserRating;
+  roleId: Scalars['ObjectId']['input'];
+  secret: Secret;
 };
 
 export type UserRating = {
@@ -208,7 +207,6 @@ export type Vehicle = {
   model: Scalars['String']['output'];
   name: Scalars['String']['output'];
   number: Scalars['String']['output'];
-  owner: User;
   ownerId: Scalars['ObjectId']['output'];
   rating: VehicleRating;
 };

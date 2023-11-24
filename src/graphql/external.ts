@@ -40,7 +40,13 @@ export type HostedTrip = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  AddUser: Scalars['ObjectId']['output'];
   SignIn: Scalars['String']['output'];
+};
+
+
+export type MutationAddUserArgs = {
+  user: UserInput;
 };
 
 
@@ -147,6 +153,13 @@ export type User = {
   mobile: Scalars['String']['output'];
   preferredName: Scalars['String']['output'];
   rating: UserRating;
+};
+
+export type UserInput = {
+  email: Scalars['String']['input'];
+  mobile: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+  preferredName: Scalars['String']['input'];
 };
 
 export type UserRating = {

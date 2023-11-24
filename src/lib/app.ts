@@ -11,7 +11,7 @@ import { expressMiddleware } from "@apollo/server/express4";
 
 import { HostedTripResolver, MutationResolver, NotificationResolver, QueryResolver, RequestedTripResolver, ScalarResolver, TripBillingResolver } from "../graphql/resolver";
 import { DB_MONGO, DB_POSTGRES, HOST_POSTGRES, PASSWORD_POSTGRES, PORT_EXPRESS, PORT_POSTGRES, SECRET_JWT, URL_MONGO, USER_POSTGRES } from "../../config";
-import { Role, User } from "../graphql/internal";
+import * as In from "../graphql/internal";
 import { Context, JwtValue } from "./interface";
 import { NominatimResolver, OsrmResolver } from "../rest/resolver";
 
@@ -71,8 +71,7 @@ export class Server {
                     const result = jwt.verify(token, SECRET_JWT) as JwtValue;
 
                     //Retrieve the user and their role based on the JWT token
-                    const user = await Server.db.collection<User>("users").findOne({ _id: new ObjectId(result.userId) }) as User;
-                    user.role = await Server.db.collection<Role>("roles").findOne({ _id: user.roleId }) as Role;
+                    const user = await Server.db.collection<In.User>("users").findOne({ _id: new ObjectId(result.userId) }) as In.User;
 
                     //Add the user and their role to the context
                     return { user };

@@ -138,4 +138,13 @@ type TripMatchResult {
 #MUTATION========================================
 type Mutation {
     SignIn(mobile: String!, password: String!): String!
+
+    AddUser(user: UserInput!): ObjectId!
+}
+
+input UserInput {
+    mobile: String!
+    password: String!
+    email: String!
+    preferredName: String!
 }
