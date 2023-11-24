@@ -27,6 +27,7 @@ export class Server {
     static db: Db;
     static readonly express = express();
     static readonly appolo = new ApolloServer({
+        includeStacktraceInErrorResponses: false,
         typeDefs: fs.readFileSync(path.resolve(__dirname + "/../graphql/external.graphql"), "utf-8"),
         resolvers: {
             ObjectId: ScalarResolver.ObjectId,

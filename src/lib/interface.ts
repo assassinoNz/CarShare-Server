@@ -4,14 +4,6 @@ export interface JwtValue {
     userId: string;
 }
 
-export interface CustomErrorDetails {
-    message: string;
-    title: string;
-    suggestion: string;
-    description: string;
-    code: string;
-}
-
 export interface Context {
     user: Internal.User | null;
 }
