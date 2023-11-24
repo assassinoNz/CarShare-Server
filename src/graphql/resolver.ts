@@ -5,13 +5,13 @@ import { ObjectId } from "mongodb";
 import { GraphQLError, GraphQLScalarType, Kind } from "graphql";
 
 import * as Error from "../lib/error";
-import * as Internal from "../graphql/internal";
-import * as External from "../graphql/external";
+import * as Internal from "./internal";
+import * as External from "./external";
 import { Server } from "../lib/app";
 import { ModuleId, OperationIndex } from "../lib/enum";
 import { JwtValue, Resolver } from "../lib/interface";
 import { PermissionManager, PostGIS } from "../lib/util";
-import { SECRET_JWT, URL_OSRM } from "../config";
+import { SECRET_JWT, URL_OSRM } from "../../config";
 
 export const QueryResolver: Resolver<Internal.Query, External.Query> = {
     GetMe: async (parent, args, ctx, info) => {

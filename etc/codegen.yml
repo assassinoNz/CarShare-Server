@@ -6,8 +6,8 @@ config:
   skipTypeNameForRoot: true # Don't generate __typename for root types
 documents: null
 generates:
-  "graphql/internal.ts":
-    schema: "graphql/internal.graphql"
+  "src/graphql/internal.ts":
+    schema: "src/graphql/internal.graphql"
     config:
       template: "imports.ts"
       scalars: 
@@ -17,8 +17,8 @@ generates:
       - typescript
       - add:
           content: 'import { ObjectId } from "mongodb";'
-  "graphql/external.ts":
-    schema: "graphql/external.graphql"
+  "src/graphql/external.ts":
+    schema: "src/graphql/external.graphql"
     config:
       template: "imports.ts"
       scalars: 
@@ -29,7 +29,7 @@ generates:
       - add:
           content: 'import { ObjectId } from "mongodb";'
   "../Client/src/lib/graphql.ts":
-    schema: "graphql/external.graphql"
+    schema: "src/graphql/external.graphql"
     config:
       template: "imports.ts"
       scalars: 

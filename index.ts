@@ -1,4 +1,4 @@
-import { Server } from "./lib/app";
+import { Server } from "./src/lib/app";
 
 //Make database connectivity
 Server.connectDatabaseDrivers().catch(err => {
