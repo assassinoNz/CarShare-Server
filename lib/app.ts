@@ -12,7 +12,7 @@ import { expressMiddleware } from "@apollo/server/express4";
 import { HostedTripResolver, MutationResolver, NotificationResolver, QueryResolver, RequestedTripResolver, ScalarResolver, TripBillingResolver } from "../graphql/resolver";
 import { DB_MONGO, DB_POSTGRES, HOST_POSTGRES, PASSWORD_POSTGRES, PORT_EXPRESS, PORT_POSTGRES, SECRET_JWT, URL_MONGO, USER_POSTGRES } from "../config";
 import { Role, User } from "../graphql/internal";
-import { Context } from "./interface";
+import { Context, JwtValue } from "./interface";
 
 export class Server {
     static readonly postgresDriver = new Client({
@@ -65,7 +65,7 @@ export class Server {
                 const token = req.headers.authorization || "";
 
                 try {
-                    const result = jwt.verify(token, SECRET_JWT) as any;
+                    const result = jwt.verify(token, SECRET_JWT) as JwtValue;
 
                     //Retrieve the user and their role based on the JWT token
                     const user = await Server.db.collection<User>("users").findOne({ _id: new ObjectId(result.userId) }) as User;

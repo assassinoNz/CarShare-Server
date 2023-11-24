@@ -9,7 +9,7 @@ import * as Internal from "../graphql/internal";
 import * as External from "../graphql/external";
 import { Server } from "../lib/app";
 import { ModuleId, OperationIndex } from "../lib/enum";
-import { Resolver } from "../lib/interface";
+import { JwtValue, Resolver } from "../lib/interface";
 import { PermissionManager, PostGIS } from "../lib/util";
 import { SECRET_JWT, URL_OSRM } from "../config";
 
@@ -136,7 +136,13 @@ export const MutationResolver: Resolver<Internal.Mutation, External.Mutation> = 
         if (user) {
             const generatedHash = crypto.createHash("sha1").update(args.password).digest("hex");
             if (generatedHash === user.secret!.hash) {
-                return jwt.sign({ userId: ScalarResolver.ObjectId.serialize(user._id) }, SECRET_JWT);
+                return jwt.sign({
+                    userId: ScalarResolver.ObjectId.serialize(user._id)
+                } as JwtValue,
+                SECRET_JWT,
+                {
+                    expiresIn: "7d"
+                });
             } else {
                 throw new Error.PasswordMismatch(args.mobile);
             }
