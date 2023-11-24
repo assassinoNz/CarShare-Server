@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -13,7 +14,7 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   Date: { input: Date; output: Date; }
-  ObjectId: { input: Scalars["ID"]["input"]; output: Scalars["ID"]["input"]; }
+  ObjectId: { input: ObjectId; output: ObjectId; }
 };
 
 export type BankAccount = {
@@ -37,11 +38,6 @@ export type HostedTrip = {
   vehicle: Vehicle;
 };
 
-export type Module = {
-  __typename?: 'Module';
-  name: Scalars['String']['output'];
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
   SignIn: Scalars['String']['output'];
@@ -49,8 +45,8 @@ export type Mutation = {
 
 
 export type MutationSignInArgs = {
+  mobile: Scalars['String']['input'];
   password: Scalars['String']['input'];
-  username: Scalars['String']['input'];
 };
 
 export type Notification = {
@@ -68,12 +64,6 @@ export type Payment = {
   __typename?: 'Payment';
   amount: Scalars['Float']['output'];
   time?: Maybe<Scalars['Date']['output']>;
-};
-
-export type Permission = {
-  __typename?: 'Permission';
-  module: Module;
-  value: Scalars['String']['output'];
 };
 
 export type Query = {
@@ -112,7 +102,6 @@ export type RequestedTripMatch = {
 export type Role = {
   __typename?: 'Role';
   name: Scalars['String']['output'];
-  permissions: Array<Permission>;
 };
 
 export type Route = {
@@ -159,9 +148,10 @@ export type User = {
   __typename?: 'User';
   _id: Scalars['ObjectId']['output'];
   currentCoord?: Maybe<Array<Scalars['Float']['output']>>;
+  email: Scalars['String']['output'];
+  mobile: Scalars['String']['output'];
   preferredName: Scalars['String']['output'];
   rating: UserRating;
-  username: Scalars['String']['output'];
 };
 
 export type UserRating = {

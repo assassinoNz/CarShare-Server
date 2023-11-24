@@ -22,16 +22,20 @@ generates:
     config:
       template: "imports.ts"
       scalars: 
-        ObjectId: Scalars["ID"]["input"]
+        ObjectId: ObjectId
         Date: Date
     plugins:
       - typescript
+      - add:
+          content: 'import { ObjectId } from "mongodb";'
   "../Client/src/lib/graphql.ts":
     schema: "graphql/external.graphql"
     config:
       template: "imports.ts"
       scalars: 
-        ObjectId: Scalars["ID"]["input"]
+        ObjectId: ObjectId
         Date: Date
     plugins:
       - typescript
+      - add:
+          content: 'import { ObjectId } from "mongodb";'

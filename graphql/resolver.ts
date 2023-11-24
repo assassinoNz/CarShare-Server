@@ -130,7 +130,7 @@ export const QueryResolver: Resolver<Internal.Query, External.Query> = {
 export const MutationResolver: Resolver<Internal.Mutation, External.Mutation> = {
     SignIn: async (parent, args: External.MutationSignInArgs, ctx, info) => {
         const user = await Server.db.collection<Internal.User>("users").findOne({
-            username: args.username
+            mobile: args.mobile
         });
 
         if (user) {
@@ -138,10 +138,10 @@ export const MutationResolver: Resolver<Internal.Mutation, External.Mutation> = 
             if (generatedHash === user.secret!.hash) {
                 return jwt.sign({ userId: ScalarResolver.ObjectId.serialize(user._id) }, SECRET_JWT);
             } else {
-                throw new Error.PasswordMismatch(args.username);
+                throw new Error.PasswordMismatch(args.mobile);
             }
         } else {
-            throw new Error.ItemDoesNotExist("user", "username", args.username);
+            throw new Error.ItemDoesNotExist("user", "mobile", args.mobile);
         }
     },
 };
@@ -193,23 +193,6 @@ export const ScalarResolver = {
         },
     }),
 }
-
-export const PermissionResolver: Resolver<Internal.Permission, External.Permission> = {
-    value: async (parent, args, ctx, info) => parent.value,
-
-    module: async (parent, args, ctx, info) => {
-        //WARNING: Module details can be accessed by anyone
-        const item = await Server.db.collection<Internal.Module>("modules").findOne({
-            _id: parent.moduleId
-        });
-
-        if (item) {
-            return item;
-        } else {
-            throw new Error.ItemDoesNotExist("module", "id", args.id.toHexString());
-        }
-    },
-};
 
 export const HostedTripResolver: Resolver<Internal.HostedTrip, External.HostedTrip> = {
     _id: async (parent, args, ctx, info) => parent._id,

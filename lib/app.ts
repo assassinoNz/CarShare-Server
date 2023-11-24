@@ -9,7 +9,7 @@ import { Db, MongoClient, ObjectId } from "mongodb";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 
-import { HostedTripResolver, MutationResolver, NotificationResolver, PermissionResolver, QueryResolver, RequestedTripResolver, ScalarResolver, TripBillingResolver } from "../graphql/resolver";
+import { HostedTripResolver, MutationResolver, NotificationResolver, QueryResolver, RequestedTripResolver, ScalarResolver, TripBillingResolver } from "../graphql/resolver";
 import { DB_MONGO, DB_POSTGRES, HOST_POSTGRES, PASSWORD_POSTGRES, PORT_EXPRESS, PORT_POSTGRES, SECRET_JWT, URL_MONGO, USER_POSTGRES } from "../config";
 import { Role, User } from "../graphql/internal";
 import { Context } from "./interface";
@@ -32,7 +32,6 @@ export class Server {
             Date: ScalarResolver.Date,
             Query: QueryResolver,
             Mutation: MutationResolver,
-            Permission: PermissionResolver,
             HostedTrip: HostedTripResolver,
             TripBilling: TripBillingResolver,
             RequestedTrip: RequestedTripResolver,

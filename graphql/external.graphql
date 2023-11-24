@@ -20,23 +20,14 @@ type Query {
 
 type User {
     _id: ObjectId!
-    username: String!
+    mobile: String!
+    email: String!
     preferredName: String!
     currentCoord: [Float!]
     rating: UserRating!
 }
 
 type Role {
-    name: String!
-    permissions: [Permission!]!
-}
-
-type Permission {
-    module: Module!
-    value: String!
-}
-
-type Module {
     name: String!
 }
 
@@ -150,5 +141,5 @@ type TripMatchResult {
 
 #MUTATION========================================
 type Mutation {
-    SignIn(username: String!, password: String!): String!
+    SignIn(mobile: String!, password: String!): String!
 }

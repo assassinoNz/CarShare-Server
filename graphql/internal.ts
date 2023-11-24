@@ -55,8 +55,8 @@ export type Mutation = {
 
 
 export type MutationSignInArgs = {
+  mobile: Scalars['String']['input'];
   password: Scalars['String']['input'];
-  username: Scalars['String']['input'];
 };
 
 export type Notification = {
@@ -183,12 +183,13 @@ export type User = {
   bankAccountIds: Array<Scalars['ObjectId']['output']>;
   bankAccounts: Array<BankAccount>;
   currentCoord?: Maybe<Array<Scalars['Float']['output']>>;
+  email: Scalars['String']['output'];
+  mobile: Scalars['String']['output'];
   preferredName: Scalars['String']['output'];
   rating: UserRating;
   role: Role;
   roleId: Scalars['ObjectId']['output'];
   secret: Secret;
-  username: Scalars['String']['output'];
   vehicleIds: Array<Scalars['ObjectId']['output']>;
   vehicles: Array<Vehicle>;
 };

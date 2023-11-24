@@ -20,7 +20,8 @@ type Query {
 
 type User {
     _id: ObjectId!
-    username: String!
+    mobile: String!
+    email: String!
     preferredName: String!
     roleId: ObjectId!
     role: Role!
@@ -179,5 +180,5 @@ type TripMatchResult {
 
 #MUTATION========================================
 type Mutation {
-    SignIn(username: String!, password: String!): String!
+    SignIn(mobile: String!, password: String!): String!
 }
