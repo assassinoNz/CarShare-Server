@@ -1,11 +1,11 @@
 import * as pl from "@googlemaps/polyline-codec";
 import * as wkx from "wkx";
 
+import * as In from "../graphql/internal";
 import * as Error from "./error";
-import * as Internal from "../graphql/internal";
 
 import { Server } from "./app";
-import { ModuleId, OperationIndex } from "./enum";
+import { ModuleId, Operation } from "./enum";
 import { Context } from "./interface";
 
 export class PermissionManager {
@@ -17,9 +17,9 @@ export class PermissionManager {
         }
     }
 
-    static async queryPermission(user: Internal.User | null, moduleId: ModuleId, operationIndex: OperationIndex) {
+    static async queryPermission(user: In.User | null, moduleId: ModuleId, operationIndex: Operation) {
         if (user) {
-            const role = await Server.db.collection<Internal.Role>("roles").findOne({
+            const role = await Server.db.collection<In.Role>("roles").findOne({
                 _id: user.roleId
             });
     

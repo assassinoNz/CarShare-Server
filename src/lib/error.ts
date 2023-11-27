@@ -1,5 +1,5 @@
-import { ModuleId, ModuleName, OperationIndex, OperationName } from "./enum";
 import * as Internal from "../graphql/internal";
+import { ModuleId, ModuleName, Operation } from "./enum";
 import { GraphQLError } from "graphql";
 
 export class PasswordMismatch extends GraphQLError {
@@ -16,8 +16,8 @@ export class PasswordMismatch extends GraphQLError {
 }
 
 export class NoPermissions extends GraphQLError {
-    constructor(role: Internal.Role, moduleId: ModuleId, operationIndex: OperationIndex) {
-        super(`Permissions denied to perform operation ${operationIndex} on module ${moduleId} for role ${role.name}`, {
+    constructor(role: Internal.Role, moduleId: ModuleId, operation: Operation) {
+        super(`Permissions denied to perform operation ${Operation[operation]} on module ${ModuleName[moduleId]} for role ${role.name}`, {
             extensions: {
                 title: `Whoa! Go no further`,
                 suggestion: `Check your permissions`,
@@ -55,8 +55,8 @@ export class AttemptedSelfDestruction extends GraphQLError {
 }
 
 export class CouldNotPerformOperation extends GraphQLError {
-    constructor(moduleName: ModuleName, operationName: OperationName) {
-        super(`Could not perform operation ${operationName} on module ${moduleName}`, {
+    constructor(moduleId: ModuleId, operation: Operation) {
+        super(`Could not perform operation ${Operation[operation]} on module ${ModuleName[moduleId]}`, {
             extensions: {
                 title: `Oops! something went wrong`,
                 suggestion: `Try again`,

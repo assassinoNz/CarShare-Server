@@ -1,11 +1,4 @@
-export enum OperationIndex { CREATE, RETRIEVE, UPDATE, DELETE }
-
-export enum OperationName {
-    CREATE = "CREATE",
-    RETRIEVE = "RETRIEVE",
-    UPDATE = "UPDATE",
-    DELETE = "DELETE"
-}
+export enum Operation { CREATE, RETRIEVE, UPDATE, DELETE }
 
 export enum ModuleId {
     ROLES = "000000000000000000000000",
@@ -17,12 +10,9 @@ export enum ModuleId {
     BANK_ACCOUNTS = "000000000000000000000006",
 }
 
-export enum ModuleName {
-    ROLES = "ROLES",
-    USERS = "USERS",
-    VEHICLES = "VEHICLES",
-    HOSTED_TRIPS = "HOSTED_TRIPS",
-    REQUESTED_TRIPS = "REQUESTED_TRIPS",
-    NOTIFICATIONS = "NOTIFICATIONS",
-    BANK_ACCOUNTS = "BANK_ACCOUNTS",
-}
+//A dictionary that maps each moduleId to its name
+export const ModuleName: { [_ in ModuleId]: string } = (Object.keys(ModuleId) as (keyof typeof ModuleId)[])
+    .reduce((acc, key) => {
+        acc[ModuleId[key]] = key;
+        return acc;
+    }, {} as { [_ in ModuleId]: string });
