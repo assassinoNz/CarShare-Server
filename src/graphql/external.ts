@@ -40,12 +40,12 @@ export type HostedTrip = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  AddUser: Scalars['ObjectId']['output'];
+  CreateUser: Scalars['ObjectId']['output'];
   SignIn: Scalars['String']['output'];
 };
 
 
-export type MutationAddUserArgs = {
+export type MutationCreateUserArgs = {
   user: UserInput;
 };
 

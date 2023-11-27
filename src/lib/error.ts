@@ -9,7 +9,7 @@ export class PasswordMismatch extends GraphQLError {
             extensions: {
                 title: `Oops! password mismatch`,
                 suggestion: `Type your password again`,
-                description: `The password you typed is incorrect`,
+                description: `The password provided is incorrect`,
                 code: `PASSWORD_MISMATCH`
             }
         });
@@ -22,7 +22,7 @@ export class NoPermissions extends GraphQLError {
             extensions: {
                 title: `Whoa! Go no further`,
                 suggestion: `Check your permissions`,
-                description: `Looks like you don't have sufficient permissions for the requested operation`,
+                description: `Current user doesn't have sufficient permissions for the requested operation`,
                 code: `NO_PERMISSIONS`
             }
         });
@@ -35,7 +35,7 @@ export class NotSignedIn extends GraphQLError {
             extensions: {
                 title: `You're not signed in`,
                 suggestion: `Just sign in to the system`,
-                description: `Some operations in the system require the user to be validated. Therefore, signing in with a valid user account is compulsory`,
+                description: `Some operations in the system require the user to be validated. Therefore, signing in with a valid user account is compulsory.`,
                 code: `NOT_SIGNED_IN`
             }
         });
@@ -44,11 +44,11 @@ export class NotSignedIn extends GraphQLError {
 
 export class AttemptedSelfDestruction extends GraphQLError {
     constructor() {
-        super(`Cannot delete yourself`, {
+        super(`Attempted to delete yourself`, {
             extensions: {
-                title: `Attempted to delete yourself`,
+                title: `Hey! Cannot delete yourself`,
                 suggestion: `Sign in as another user`,
-                description: `You are signed in as the user you attempted to delete. You cannot delete the user you are signed in as.`,
+                description: `The user that got attempted to delete is the same user that attempted the operation. You cannot delete the user you are signed in as.`,
                 code: `ATTEMPTED_SELF_DESTRUCTION`
             }
         });
@@ -61,8 +61,21 @@ export class CouldNotPerformOperation extends GraphQLError {
             extensions: {
                 title: `Oops! something went wrong`,
                 suggestion: `Try again`,
-                description: `Couldn't perform the operation. Please try again`,
+                description: `Couldn't perform the operation. This is most probably due to an undisclosed error. Please try again`,
                 code: `COULD_NOT_PERFORM_OPERATION`
+            }
+        });
+    }
+}
+
+export class ItemNotAccessibleByUser extends GraphQLError {
+    constructor(itemCategory: string, uniqueKey: string, uniqueKeyValue: string) {
+        super(`Denied access to ${itemCategory} with ${uniqueKey} set to ${uniqueKeyValue}`, {
+            extensions: {
+                title: `Whoa! You aren't allowed to access that ${itemCategory}`,
+                suggestion: `Try retrieving valid arguments before invoking procedure calls`,
+                description: `You've tried to access ${itemCategory} with ${uniqueKey} set to ${uniqueKeyValue} and got denied by the system. Some algorithms need to access items that needs to be accessible by a specific user`,
+                code: `ITEM_NOT_ACCESSIBLE_BY_USER`
             }
         });
     }
@@ -70,9 +83,9 @@ export class CouldNotPerformOperation extends GraphQLError {
 
 export class ItemAlreadyExists extends GraphQLError {
     constructor(itemCategory: string, uniqueKey: string, uniqueKeyValue: string) {
-        super(`That ${itemCategory} already exists`, {
+        super(`That ${itemCategory} already exists with ${uniqueKey} set to ${uniqueKeyValue}`, {
             extensions: {
-                title: `That ${itemCategory} already exists with ${uniqueKey} set to ${uniqueKeyValue}`,
+                title: `Oops! It already exists`,
                 suggestion: `Change the value provided for ${uniqueKey}`,
                 description: `A ${itemCategory} with the same ${uniqueKey} set to ${uniqueKeyValue} already exists in the database. Please provide a new ${uniqueKey}`,
                 code: `ITEM_ALREADY_EXISTS`
@@ -83,9 +96,9 @@ export class ItemAlreadyExists extends GraphQLError {
 
 export class ItemDoesNotExist extends GraphQLError {
     constructor(itemCategory: string, uniqueKey: string, uniqueKeyValue: string) {
-        super(`No such ${itemCategory} exists`, {
+        super(`Couldn't find that ${itemCategory} with ${uniqueKey} set to ${uniqueKeyValue}`, {
             extensions: {
-                title: `Couldn't find that ${itemCategory} with ${uniqueKey} set to ${uniqueKeyValue}`,
+                title: `No such ${itemCategory} exists`,
                 suggestion: `Check the value provided for ${uniqueKey} field`,
                 description: `Couldn't find a ${itemCategory} with ${uniqueKey} set to ${uniqueKeyValue}. Please provide an existing ${uniqueKey}`,
                 code: `ITEM_DOES_NOT_EXIST`

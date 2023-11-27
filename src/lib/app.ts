@@ -12,8 +12,8 @@ import { expressMiddleware } from "@apollo/server/express4";
 import * as Config from "../../config";
 import * as In from "../graphql/internal";
 import { Context, JwtValue } from "./interface";
-import { NominatimResolver, OsrmResolver } from "../rest/resolver";
-import { resolver } from "../graphql/resolver";
+import { resolver as RestResolver } from "../rest/resolver";
+import { resolver as GraphQLResolver } from "../graphql/resolver";
 
 export class Server {
     static readonly postgresDriver = new Client({
@@ -29,7 +29,7 @@ export class Server {
     static readonly appolo = new ApolloServer({
         includeStacktraceInErrorResponses: false,
         typeDefs: fs.readFileSync(path.resolve(__dirname + "/../graphql/external.graphql"), "utf-8"),
-        resolvers: resolver
+        resolvers: GraphQLResolver
     });
 
     static async connectDatabaseDrivers() {
@@ -77,10 +77,10 @@ export class Server {
         this.express.use("/", express.static("public"));
 
         //Bind OSRM
-        this.express.use("/osrm/route/v1/driving/:keyCoords", OsrmResolver.calculatePossibleRoutes);
+        this.express.use("/osrm/route/v1/driving/:keyCoords", RestResolver.Osrm.CalculatePossibleRoutes);
 
         //Bind Nominatim
-        this.express.use("/nominatim/search", NominatimResolver.searchForCoords);
+        this.express.use("/nominatim/search", RestResolver.Nominatim.SearchForCoords);
 
         this.express.listen(Config.PORT_EXPRESS, () => {
             console.log({

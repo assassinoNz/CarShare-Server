@@ -119,60 +119,62 @@ export const resolver = {
         GetMatchingRequestedTrips: async (parent, args: Ex.QueryGetMatchingRequestedTripsArgs, ctx, info) => {
             await PermissionManager.queryPermission(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
 
-            //Retrieve the hosted trip
-            const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>("hostedTrips").findOne({
+            const hostedTrip = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>("hostedTrips").findOne({
                 _id: args.hostedTripId
             });
 
-            //TODO: Test if hosted trip's host is current user
+            if (!hostedTrip) {
+                throw new Error.ItemDoesNotExist("hosted trip", "id", args.hostedTripId.toHexString());
+            }
 
-            if (item) {
-                const hostedTripPolyLines = item.route.polyLines!;
-                const requestedTripMatches: Ex.RequestedTripMatch[] = [];
+            //Validate if hosted trip's host is current user
+            if (hostedTrip.hostId !== ctx.user?._id) {
+                throw new Error.ItemNotAccessibleByUser("hosted trip", "id", args.hostedTripId.toHexString());
+            }
 
-                //DANGER: Must me optimized. Find a better way than retrieving all requested trips 
-                //Get all requested trips
-                const items = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>("requestedTrips").find().toArray();
+            const hostedTripPolyLines = hostedTrip.route.polyLines!;
+            const requestedTripMatches: Ex.RequestedTripMatch[] = [];
 
-                //For each requested trip, calculate match results
-                for (const requestedTrip of items) {
-                    //Query all possible routes of the requested trip using OSRM
-                    const routes = await fetch(`${Config.URL_OSRM}/${requestedTrip.route.keyCoords?.map(keyCoord => keyCoord.join(",")).join(";")}?overview=false&steps=true`)
-                        .then((res: any) => res.json())
-                        .then((res: any) => res.routes);
+            //DANGER//TODO: Must me optimized. Find a better way than retrieving all requested trips 
+            //Get all requested trips
+            const requestedTrips = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>("requestedTrips").find().toArray();
 
-                    const tripMatchResults: Ex.TripMatchResult[] = [];
+            //For each requested trip, calculate match results
+            for (const requestedTrip of requestedTrips) {
+                //Query all possible routes of the requested trip using OSRM
+                const routes = await fetch(`${Config.URL_OSRM}/${requestedTrip.route.keyCoords?.map(keyCoord => keyCoord.join(",")).join(";")}?overview=false&steps=true`)
+                    .then((res: any) => res.json())
+                    .then((res: any) => res.routes);
 
-                    //For each possible route calculate trip match result
-                    for (const route of routes) {
-                        const requestedTripPolyLines: string[] = [];
-                        for (const step of route.legs[0].steps) {
-                            requestedTripPolyLines.push(step.geometry);
-                        }
+                const tripMatchResults: Ex.TripMatchResult[] = [];
 
-                        const tripMatchResult = await PostGIS.calculateRouteMatchResult(hostedTripPolyLines, requestedTripPolyLines);
-
-                        tripMatchResults.push({
-                            hostedTripLength: tripMatchResult.mainRouteLength,
-                            requestedTripLength: tripMatchResult.secondaryRouteLength,
-                            hostedTripCoverage: tripMatchResult.mainRouteCoverage,
-                            requestedTripCoverage: tripMatchResult.secondaryRouteCoverage,
-                            intersectionLength: tripMatchResult.intersectionLength,
-                            intersectionPolyLine: tripMatchResult.intersectionPolyLine
-                        });
+                //For each possible route calculate trip match result
+                for (const route of routes) {
+                    const requestedTripPolyLines: string[] = [];
+                    for (const step of route.legs[0].steps) {
+                        requestedTripPolyLines.push(step.geometry);
                     }
 
-                    requestedTripMatches.push({
-                        hostedTrip: item,
-                        requestedTrip: requestedTrip,
-                        results: tripMatchResults
+                    const tripMatchResult = await PostGIS.calculateRouteMatchResult(hostedTripPolyLines, requestedTripPolyLines);
+
+                    tripMatchResults.push({
+                        hostedTripLength: tripMatchResult.mainRouteLength,
+                        requestedTripLength: tripMatchResult.secondaryRouteLength,
+                        hostedTripCoverage: tripMatchResult.mainRouteCoverage,
+                        requestedTripCoverage: tripMatchResult.secondaryRouteCoverage,
+                        intersectionLength: tripMatchResult.intersectionLength,
+                        intersectionPolyLine: tripMatchResult.intersectionPolyLine
                     });
                 }
 
-                return requestedTripMatches;
-            } else {
-                throw new Error.ItemDoesNotExist("hosted trip", "id", args.hostedTripId.toHexString());
+                requestedTripMatches.push({
+                    hostedTrip: hostedTrip,
+                    requestedTrip: requestedTrip,
+                    results: tripMatchResults
+                });
             }
+
+            return requestedTripMatches;
         },
     } as Resolver<In.Query, Ex.Query>,
 
@@ -186,8 +188,8 @@ export const resolver = {
                 const generatedHash = crypto.createHash("sha1").update(args.password).digest("hex");
                 if (generatedHash === user.secret!.hash) {
                     return jwt.sign({
-                            userId: user._id.toHexString()
-                        } as JwtValue,
+                        userId: user._id.toHexString()
+                    } as JwtValue,
                         Config.SECRET_JWT,
                         {
                             expiresIn: "7d"
@@ -200,7 +202,7 @@ export const resolver = {
             }
         },
 
-        AddUser: async (parent, args: Ex.MutationAddUserArgs, ctx, info) => {
+        CreateUser: async (parent, args: Ex.MutationCreateUserArgs, ctx, info) => {
             await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.CREATE);
 
             const newItem = await Server.db.collection<In.UserInput>("users").insertOne({
@@ -276,99 +278,99 @@ export const resolver = {
             const item = await Server.db.collection<In.BankAccount>("bankAccounts").findOne({
                 _id: parent.bankAccountId
             });
-    
+
             if (item) {
                 return item;
             } else {
                 throw new Error.ItemDoesNotExist("bank account", "id", args.id.toHexString());
             }
         },
-    
+
         priceFirstKm: async (parent, args, ctx, info) => parent.priceFirstKm,
-    
+
         priceNextKm: async (parent, args, ctx, info) => parent.priceNextKm,
     } as Resolver<In.TripBilling, Ex.TripBilling>,
 
     RequestedTrip: {
         _id: async (parent, args, ctx, info) => parent._id,
-    
+
         requester: async (parent, args, ctx, info) => {
             await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User & Ex.User>("users").findOne({
                 _id: parent.requesterId
             });
-    
+
             if (item) {
                 return item;
             } else {
                 throw new Error.ItemDoesNotExist("user/requester", "id", args.id.toHexString());
             }
         },
-    
+
         route: async (parent, args, ctx, info) => parent.route,
-    
+
         time: async (parent, args, ctx, info) => parent.time,
-    
+
         seats: async (parent, args, ctx, info) => parent.seats,
     } as Resolver<In.RequestedTrip, Ex.RequestedTrip>,
 
     Notification: {
         _id: async (parent, args, ctx, info) => parent._id,
-    
+
         sender: async (parent, args, ctx, info) => {
             await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User>("users").findOne({
                 _id: parent.senderId
             });
-    
+
             if (item) {
                 return item;
             } else {
                 throw new Error.ItemDoesNotExist("user/sender", "id", args.id.toHexString());
             }
         },
-    
+
         recipient: async (parent, args, ctx, info) => {
             await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User>("users").findOne({
                 _id: parent.recipientId
             });
-    
+
             if (item) {
                 return item;
             } else {
                 throw new Error.ItemDoesNotExist("user/recipient", "id", args.id.toHexString());
             }
         },
-    
+
         hostedTrip: async (parent, args, ctx, info) => {
             await PermissionManager.queryPermission(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>("hostedTrips").findOne({
                 _id: parent.hostedTripId
             });
-    
+
             if (item) {
                 return item;
             } else {
                 throw new Error.ItemDoesNotExist("hosted trip", "id", args.id.toHexString());
             }
         },
-    
+
         requestedTrip: async (parent, args, ctx, info) => {
             await PermissionManager.queryPermission(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>("requestedTrips").findOne({
                 _id: parent.requestedTripId
             });
-    
+
             if (item) {
                 return item;
             } else {
                 throw new Error.ItemDoesNotExist("requested trip", "id", args.id.toHexString());
             }
         },
-    
+
         acceptedByRecipient: async (parent, args, ctx, info) => parent.acceptedByRecipient,
-    
+
         payment: async (parent, args, ctx, info) => parent.payment,
     } as Resolver<In.Notification, Ex.Notification>,
 };
