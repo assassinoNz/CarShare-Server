@@ -9,52 +9,43 @@ import { Db, MongoClient, ObjectId } from "mongodb";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 
-import { HostedTripResolver, MutationResolver, NotificationResolver, QueryResolver, RequestedTripResolver, ScalarResolver, TripBillingResolver } from "../graphql/resolver";
-import { DB_MONGO, DB_POSTGRES, HOST_POSTGRES, PASSWORD_POSTGRES, PORT_EXPRESS, PORT_POSTGRES, SECRET_JWT, URL_MONGO, USER_POSTGRES } from "../../config";
+import * as Config from "../../config";
 import * as In from "../graphql/internal";
 import { Context, JwtValue } from "./interface";
 import { NominatimResolver, OsrmResolver } from "../rest/resolver";
+import { resolver } from "../graphql/resolver";
 
 export class Server {
     static readonly postgresDriver = new Client({
-        host: HOST_POSTGRES,
-        user: USER_POSTGRES,
-        password: PASSWORD_POSTGRES,
-        database: DB_POSTGRES,
-        port: PORT_POSTGRES,
+        host: Config.HOST_POSTGRES,
+        user: Config.USER_POSTGRES,
+        password: Config.PASSWORD_POSTGRES,
+        database: Config.DB_POSTGRES,
+        port: Config.PORT_POSTGRES,
     });
-    private static readonly mongoDriver = new MongoClient(URL_MONGO);
+    private static readonly mongoDriver = new MongoClient(Config.URL_MONGO);
     static db: Db;
     static readonly express = express();
     static readonly appolo = new ApolloServer({
         includeStacktraceInErrorResponses: false,
         typeDefs: fs.readFileSync(path.resolve(__dirname + "/../graphql/external.graphql"), "utf-8"),
-        resolvers: {
-            ObjectId: ScalarResolver.ObjectId,
-            Date: ScalarResolver.Date,
-            Query: QueryResolver,
-            Mutation: MutationResolver,
-            HostedTrip: HostedTripResolver,
-            TripBilling: TripBillingResolver,
-            RequestedTrip: RequestedTripResolver,
-            Notification: NotificationResolver,
-        }
+        resolvers: resolver
     });
 
     static async connectDatabaseDrivers() {
         await this.mongoDriver.connect();
-        this.db = this.mongoDriver.db(DB_MONGO);
+        this.db = this.mongoDriver.db(Config.DB_MONGO);
         console.log({
             component: "MongoDB Driver",
             status: true,
-            database: DB_MONGO
+            database: Config.DB_MONGO
         });
 
         await this.postgresDriver.connect();
         console.log({
             component: "PostgreSQL Driver",
             status: true,
-            database: DB_MONGO
+            database: Config.DB_MONGO
         });
     }
 
@@ -68,7 +59,7 @@ export class Server {
                 const token = req.headers.authorization || "";
 
                 try {
-                    const result = jwt.verify(token, SECRET_JWT) as JwtValue;
+                    const result = jwt.verify(token, Config.SECRET_JWT) as JwtValue;
 
                     //Retrieve the user and their role based on the JWT token
                     const user = await Server.db.collection<In.User>("users").findOne({ _id: new ObjectId(result.userId) }) as In.User;
@@ -91,11 +82,11 @@ export class Server {
         //Bind Nominatim
         this.express.use("/nominatim/search", NominatimResolver.searchForCoords);
 
-        this.express.listen(PORT_EXPRESS, () => {
+        this.express.listen(Config.PORT_EXPRESS, () => {
             console.log({
                 component: "Server",
                 status: true,
-                port: PORT_EXPRESS,
+                port: Config.PORT_EXPRESS,
                 cwd: __dirname
             });
         });
