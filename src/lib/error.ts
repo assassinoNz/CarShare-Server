@@ -119,3 +119,16 @@ export class ItemIsNotActive extends GraphQLError {
         });
     }
 }
+
+export class FieldValueIsInvalid extends GraphQLError {
+    constructor(itemCategory: string, key: string, keyValue: string) {
+        super(`The value ${keyValue} provided for the ${key} field is invalid`, {
+            extensions: {
+                title: `The value provided is invalid`,
+                suggestion: `Try providing a valid value`,
+                description: `The ${itemCategory} input with ${key} set to ${keyValue} is not valid.`,
+                code: `FIELD_VALUE_IS_INVALID`
+            }
+        });
+    }
+}

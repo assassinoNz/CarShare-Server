@@ -198,12 +198,6 @@ const hostedTripsInsertion = db.hostedTrips.insertMany([
             priceFirstKm: 100,
             priceNextKm: 50,
         },
-        rating: {
-            punctuality: 0.8,
-            politeness: 0.9,
-            driving: 0.6,
-            meetsCondition: 0.8,
-        }
     },
     {
         _id: ObjectId("400000000000000000000001"),
@@ -250,12 +244,6 @@ const hostedTripsInsertion = db.hostedTrips.insertMany([
             bankAccountId: bankAccountsInsertion.insertedIds[2],
             priceFirstKm: 150,
             priceNextKm: 75,
-        },
-        rating: {
-            punctuality: 0.9,
-            politeness: 0.7,
-            driving: 0.5,
-            meetsCondition: 0.8,
         }
     },
 ]);
@@ -312,6 +300,12 @@ const notificationsInsertion = db.notifications.insertMany([
         payment: {
             amount: -1,
             time: null,
-        }
+        },
+        rating: {
+            punctuality: 0.8,
+            politeness: 0.9,
+            driving: 0.6,
+            meetsCondition: 0.8,
+        },
     }
 ]);

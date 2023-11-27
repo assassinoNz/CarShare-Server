@@ -191,6 +191,32 @@ export const resolver = {
     } as Resolver<In.Query, Ex.Query>,
 
     Mutation: {
+        CreateUser: async (parent, args: Ex.MutationCreateUserArgs, ctx, info) => {
+            await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.CREATE);
+
+            const result = await Server.db.collection<In.UserInput>("users").insertOne({
+                isActive: true,
+                mobile: args.user.mobile,
+                email: args.user.email,
+                preferredName: args.user.preferredName,
+                roleId: new ObjectId(Default.ID_ROLE),
+                rating: {
+                    driving: 0.0,
+                    politeness: 0.0,
+                    punctuality: 0.0,
+                },
+                secret: {
+                    hash: crypto.createHash("sha1").update(args.user.password).digest("hex")
+                }
+            });
+
+            if (result.acknowledged) {
+                return result.insertedId;
+            } else {
+                throw new Error.CouldNotPerformOperation(ModuleId.USERS, OperationIndex.CREATE);
+            }
+        },
+
         SignIn: async (parent, args: Ex.MutationSignInArgs, ctx, info) => {
             const item = await Server.db.collection<In.User>("users").findOne({
                 mobile: args.mobile
@@ -218,27 +244,64 @@ export const resolver = {
             }
         },
 
-        CreateUser: async (parent, args: Ex.MutationCreateUserArgs, ctx, info) => {
-            await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.CREATE);
+        CreateHostedTrip: async (parent, args: Ex.MutationCreateHostedTripArgs, ctx, info) => {
+            await PermissionManager.queryPermission(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.CREATE);
 
-            const newItem = await Server.db.collection<In.UserInput>("users").insertOne({
-                isActive: true,
-                mobile: args.user.mobile,
-                email: args.user.email,
-                preferredName: args.user.preferredName,
-                roleId: new ObjectId(Default.ID_ROLE),
-                rating: {
-                    driving: 0.0,
-                    politeness: 0.0,
-                    punctuality: 0.0,
-                },
-                secret: {
-                    hash: crypto.createHash("sha1").update(args.user.password).digest("hex")
+            const tripToBeInserted: In.HostedTripInput = {
+                route: args.hostedTrip.route,
+                time: args.hostedTrip.time,
+                seats: args.hostedTrip.seats,
+                billing: args.hostedTrip.billing,
+            };
+
+            if (args.hostedTrip.vehicleId) {
+                //CASE: User has assigned a saved vehicle
+                //Validate vehicle
+                const vehicle = await Server.db.collection<In.Vehicle & Ex.Vehicle>("vehicles").findOne({
+                    _id: args.hostedTrip.vehicleId
+                });
+
+                if (!vehicle) {
+                    throw new Error.ItemDoesNotExist("vehicle", "id", args.hostedTrip.vehicleId.toHexString());
                 }
+
+                if (!vehicle.isActive) {
+                    throw new Error.ItemIsNotActive("vehicle", "id", args.hostedTrip.vehicleId.toHexString());
+                }
+
+                tripToBeInserted.vehicleId = args.hostedTrip.vehicleId;
+            } else if (args.hostedTrip.vehicle) {
+                //CASE: User has assigned a temporary vehicle
+                tripToBeInserted.vehicle = {
+                    ...args.hostedTrip.vehicle,
+                    isActive: true,
+                }
+            } else {
+                //CASE: User hasn't provided any vehicleId or vehicle
+                throw new Error.FieldValueIsInvalid("hosted trip", "vehicleId", "null");
+            }
+
+            //Validate bank account
+            const bankAccount = await Server.db.collection<In.BankAccount & Ex.BankAccount>("bankAccounts").findOne({
+                _id: args.hostedTrip.billing.bankAccountId
             });
 
-            return newItem.insertedId;
-        },
+            if (!bankAccount) {
+                throw new Error.ItemDoesNotExist("bank account", "id", args.hostedTrip.billing.bankAccountId.toHexString());
+            }
+
+            if (!bankAccount.isActive) {
+                throw new Error.ItemIsNotActive("bank account", "id", args.hostedTrip.billing.bankAccountId.toHexString());
+            }
+
+            const result = await Server.db.collection<In.HostedTripInput>("hostedTrips").insertOne(tripToBeInserted);
+
+            if (result.acknowledged) {
+                return result.insertedId;
+            } else {
+                throw new Error.CouldNotPerformOperation(ModuleId.HOSTED_TRIPS, OperationIndex.CREATE);
+            }
+        }
     } as Resolver<In.Mutation, Ex.Mutation>,
 
     HostedTrip: {
@@ -285,8 +348,6 @@ export const resolver = {
         seats: async (parent, args, ctx, info) => parent.seats,
 
         billing: async (parent, args, ctx, info) => parent.billing,
-
-        rating: async (parent, args, ctx, info) => parent.rating,
     } as Resolver<In.HostedTrip, Ex.HostedTrip>,
 
     TripBilling: {
@@ -391,5 +452,7 @@ export const resolver = {
         time: async (parent, args, ctx, info) => parent.time,
 
         payment: async (parent, args, ctx, info) => parent.payment,
+
+        rating: async (parent, args, ctx, info) => parent.rating,
     } as Resolver<In.Notification, Ex.Notification>,
 };

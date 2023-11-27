@@ -42,7 +42,6 @@ type HostedTrip {
     vehicle: Vehicle! #Could be a temporary or saved
     seats: Int!
     billing: TripBilling!
-    rating: TripRating!
 }
 
 type Route {
@@ -117,6 +116,7 @@ type Notification {
     requestedTrip: RequestedTrip!
     time: NotificationTime!
     payment: Payment!
+    rating: TripRating!
 }
 
 type NotificationTime {
@@ -146,9 +146,10 @@ type TripMatchResult {
 
 #MUTATION========================================
 type Mutation {
+    CreateUser(user: UserInput!): ObjectId!
     SignIn(mobile: String!, password: String!): String!
 
-    CreateUser(user: UserInput!): ObjectId!
+    CreateHostedTrip(hostedTrip: HostedTripInput!): ObjectId!
 }
 
 input UserInput {
@@ -156,4 +157,42 @@ input UserInput {
     password: String!
     email: String!
     preferredName: String!
+}
+
+input HostedTripInput {
+    route: RouteInput!
+    time: TripTimeInput!
+    vehicleId: ObjectId #If vehicle is null, then this must not
+    vehicle: VehicleInput  #If vehicleId is null, then this must not
+    seats: Int!
+    billing: TripBillingInput!
+}
+
+input RouteInput {
+    from: String!
+    to: String!
+    polyLines: [String!]
+    keyCoords: [[Float!]!]
+}
+
+input TripTimeInput {
+    schedule: Date!
+}
+
+input VehicleInput {
+    name: String!
+    number: String!
+    model: String!
+    features: VehicleFeaturesInput!
+}
+
+input TripBillingInput {
+    bankAccountId: ObjectId!
+    priceFirstKm: Float!
+    priceNextKm: Float!
+}
+
+input VehicleFeaturesInput {
+    ac: Boolean!
+    luggage: Boolean!
 }

@@ -33,12 +33,20 @@ export type HostedTrip = {
   _id: Scalars['ObjectId']['output'];
   billing: TripBilling;
   hostId: Scalars['ObjectId']['output'];
-  rating: TripRating;
   route: Route;
   seats: Scalars['Int']['output'];
   time: TripTime;
   vehicle?: Maybe<Vehicle>;
   vehicleId?: Maybe<Scalars['ObjectId']['output']>;
+};
+
+export type HostedTripInput = {
+  billing: TripBillingInput;
+  route: RouteInput;
+  seats: Scalars['Int']['input'];
+  time: TripTimeInput;
+  vehicle?: InputMaybe<VehicleInput>;
+  vehicleId?: InputMaybe<Scalars['ObjectId']['input']>;
 };
 
 export type Module = {
@@ -49,8 +57,14 @@ export type Module = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  CreateHostedTrip: Scalars['ObjectId']['output'];
   CreateUser: Scalars['ObjectId']['output'];
   SignIn: Scalars['String']['output'];
+};
+
+
+export type MutationCreateHostedTripArgs = {
+  hostedTrip: HostedTripInput;
 };
 
 
@@ -69,6 +83,7 @@ export type Notification = {
   _id: Scalars['ObjectId']['output'];
   hostedTripId: Scalars['ObjectId']['output'];
   payment: Payment;
+  rating: TripRating;
   recipientId: Scalars['ObjectId']['output'];
   requestedTripId: Scalars['ObjectId']['output'];
   senderId: Scalars['ObjectId']['output'];
@@ -142,6 +157,13 @@ export type Route = {
   to: Scalars['String']['output'];
 };
 
+export type RouteInput = {
+  from: Scalars['String']['input'];
+  keyCoords?: InputMaybe<Array<Array<Scalars['Float']['input']>>>;
+  polyLines?: InputMaybe<Array<Scalars['String']['input']>>;
+  to: Scalars['String']['input'];
+};
+
 export type Secret = {
   __typename?: 'Secret';
   hash: Scalars['String']['output'];
@@ -152,6 +174,12 @@ export type TripBilling = {
   bankAccountId: Scalars['ObjectId']['output'];
   priceFirstKm: Scalars['Float']['output'];
   priceNextKm: Scalars['Float']['output'];
+};
+
+export type TripBillingInput = {
+  bankAccountId: Scalars['ObjectId']['input'];
+  priceFirstKm: Scalars['Float']['input'];
+  priceNextKm: Scalars['Float']['input'];
 };
 
 export type TripMatchResult = {
@@ -177,6 +205,10 @@ export type TripTime = {
   end?: Maybe<Scalars['Date']['output']>;
   schedule: Scalars['Date']['output'];
   start?: Maybe<Scalars['Date']['output']>;
+};
+
+export type TripTimeInput = {
+  schedule: Scalars['Date']['input'];
 };
 
 export type User = {
@@ -225,6 +257,19 @@ export type VehicleFeatures = {
   __typename?: 'VehicleFeatures';
   ac: Scalars['Boolean']['output'];
   luggage: Scalars['Boolean']['output'];
+};
+
+export type VehicleFeaturesInput = {
+  ac: Scalars['Boolean']['input'];
+  luggage: Scalars['Boolean']['input'];
+};
+
+export type VehicleInput = {
+  features: VehicleFeaturesInput;
+  isActive: Scalars['Boolean']['input'];
+  model: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  number: Scalars['String']['input'];
 };
 
 export type VehicleRating = {
