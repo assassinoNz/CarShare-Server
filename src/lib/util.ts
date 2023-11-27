@@ -3,9 +3,8 @@ import * as wkx from "wkx";
 
 import * as In from "../graphql/internal";
 import * as Error from "./error";
-
 import { Server } from "./app";
-import { ModuleId, Operation } from "./enum";
+import { ModuleId, OperationIndex } from "./enum";
 import { Context } from "./interface";
 
 export class PermissionManager {
@@ -17,7 +16,7 @@ export class PermissionManager {
         }
     }
 
-    static async queryPermission(user: In.User | null, moduleId: ModuleId, operationIndex: Operation) {
+    static async queryPermission(user: In.User | null, moduleId: ModuleId, operationIndex: OperationIndex) {
         if (user) {
             const role = await Server.db.collection<In.Role>("roles").findOne({
                 _id: user.roleId

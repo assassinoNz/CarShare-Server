@@ -1,18 +1,18 @@
 import * as crypto from "crypto";
-import fetch from "node-fetch";
 import * as jwt from "jsonwebtoken";
+import fetch from "node-fetch";
 import { ObjectId } from "mongodb";
 import { GraphQLError, GraphQLScalarType, Kind } from "graphql";
 
+import * as Config from "../../config";
+import * as Default from "../lib/default";
 import * as Error from "../lib/error";
 import * as In from "./internal";
 import * as Ex from "./external";
 import { Server } from "../lib/app";
-import { ModuleId, Operation } from "../lib/enum";
+import { ModuleId, OperationIndex } from "../lib/enum";
 import { JwtValue, Resolver } from "../lib/interface";
 import { PermissionManager, PostGIS } from "../lib/util";
-import { SECRET_JWT, URL_OSRM } from "../../config";
-import { ID_ROLE } from "../lib/default";
 
 export const resolver = {
     ObjectId: new GraphQLScalarType<ObjectId | null, string>({
@@ -68,7 +68,7 @@ export const resolver = {
         },
 
         GetMyVehicles: async (parent, args, ctx, info) => {
-            await PermissionManager.queryPermission(ctx.user, ModuleId.VEHICLES, Operation.RETRIEVE);
+            await PermissionManager.queryPermission(ctx.user, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
             const me = PermissionManager.getMe(ctx);
             return await Server.db.collection<In.Vehicle>("vehicles").find({
                 ownerId: me._id
@@ -76,7 +76,7 @@ export const resolver = {
         },
 
         GetMyBankAccounts: async (parent, args, ctx, info) => {
-            await PermissionManager.queryPermission(ctx.user, ModuleId.BANK_ACCOUNTS, Operation.RETRIEVE);
+            await PermissionManager.queryPermission(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
             const me = PermissionManager.getMe(ctx);
             return await Server.db.collection<In.BankAccount>("bankAccounts").find({
                 ownerId: me._id
@@ -84,7 +84,7 @@ export const resolver = {
         },
 
         GetMyHostedTrips: async (parent, args, ctx, info) => {
-            await PermissionManager.queryPermission(ctx.user, ModuleId.HOSTED_TRIPS, Operation.RETRIEVE);
+            await PermissionManager.queryPermission(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
             const me = PermissionManager.getMe(ctx);
             return await Server.db.collection<In.HostedTrip & Ex.HostedTrip>("hostedTrips").find({
                 hostId: me._id
@@ -92,7 +92,7 @@ export const resolver = {
         },
 
         GetMyRequestedTrips: async (parent, args, ctx, info) => {
-            await PermissionManager.queryPermission(ctx.user, ModuleId.REQUESTED_TRIPS, Operation.RETRIEVE);
+            await PermissionManager.queryPermission(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
             const me = PermissionManager.getMe(ctx);
             return await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>("requestedTrips").find({
                 requesterId: me._id
@@ -100,7 +100,7 @@ export const resolver = {
         },
 
         GetMySentNotifications: async (parent, args, ctx, info) => {
-            await PermissionManager.queryPermission(ctx.user, ModuleId.NOTIFICATIONS, Operation.RETRIEVE);
+            await PermissionManager.queryPermission(ctx.user, ModuleId.NOTIFICATIONS, OperationIndex.RETRIEVE);
             const me = PermissionManager.getMe(ctx);
             return await Server.db.collection<In.Notification & Ex.Notification>("notifications").find({
                 senderId: me._id
@@ -108,7 +108,7 @@ export const resolver = {
         },
 
         GetMyReceivedNotifications: async (parent, args, ctx, info) => {
-            await PermissionManager.queryPermission(ctx.user, ModuleId.NOTIFICATIONS, Operation.RETRIEVE);
+            await PermissionManager.queryPermission(ctx.user, ModuleId.NOTIFICATIONS, OperationIndex.RETRIEVE);
             const me = PermissionManager.getMe(ctx);
             return await Server.db.collection<In.Notification & Ex.Notification>("notifications").find({
                 recipientId: me._id
@@ -116,7 +116,7 @@ export const resolver = {
         },
 
         GetMatchingRequestedTrips: async (parent, args: Ex.QueryGetMatchingRequestedTripsArgs, ctx, info) => {
-            await PermissionManager.queryPermission(ctx.user, ModuleId.REQUESTED_TRIPS, Operation.RETRIEVE);
+            await PermissionManager.queryPermission(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
 
             //Retrieve the hosted trip
             const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>("hostedTrips").findOne({
@@ -136,7 +136,7 @@ export const resolver = {
                 //For each requested trip, calculate match results
                 for (const requestedTrip of items) {
                     //Query all possible routes of the requested trip using OSRM
-                    const routes = await fetch(`${URL_OSRM}/${requestedTrip.route.keyCoords?.map(keyCoord => keyCoord.join(",")).join(";")}?overview=false&steps=true`)
+                    const routes = await fetch(`${Config.URL_OSRM}/${requestedTrip.route.keyCoords?.map(keyCoord => keyCoord.join(",")).join(";")}?overview=false&steps=true`)
                         .then((res: any) => res.json())
                         .then((res: any) => res.routes);
 
@@ -185,9 +185,9 @@ export const resolver = {
                 const generatedHash = crypto.createHash("sha1").update(args.password).digest("hex");
                 if (generatedHash === user.secret!.hash) {
                     return jwt.sign({
-                        userId: user._id.toHexString()
-                    } as JwtValue,
-                        SECRET_JWT,
+                            userId: user._id.toHexString()
+                        } as JwtValue,
+                        Config.SECRET_JWT,
                         {
                             expiresIn: "7d"
                         });
@@ -200,13 +200,13 @@ export const resolver = {
         },
 
         AddUser: async (parent, args: Ex.MutationAddUserArgs, ctx, info) => {
-            await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, Operation.CREATE);
+            await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.CREATE);
 
             const newItem = await Server.db.collection<In.UserInput>("users").insertOne({
                 mobile: args.user.mobile,
                 email: args.user.email,
                 preferredName: args.user.preferredName,
-                roleId: new ObjectId(ID_ROLE),
+                roleId: new ObjectId(Default.ID_ROLE),
                 rating: {
                     driving: 0.0,
                     politeness: 0.0,
@@ -225,7 +225,7 @@ export const resolver = {
         _id: async (parent, args, ctx, info) => parent._id,
 
         host: async (parent, args, ctx, info) => {
-            await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, Operation.RETRIEVE);
+            await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User>("users").findOne({
                 _id: parent.hostId
             });
@@ -245,7 +245,7 @@ export const resolver = {
             if (parent.vehicleId) {
                 //CASE: vehicleId exists.
                 //User has assigned a saved vehicle. It must be retrieved from database
-                await PermissionManager.queryPermission(ctx.user, ModuleId.VEHICLES, Operation.RETRIEVE);
+                await PermissionManager.queryPermission(ctx.user, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
                 const item = await Server.db.collection<In.Vehicle & Ex.Vehicle>("vehicles").findOne({
                     _id: parent.vehicleId
                 });
@@ -271,7 +271,7 @@ export const resolver = {
 
     TripBilling: {
         bankAccount: async (parent, args, ctx, info) => {
-            await PermissionManager.queryPermission(ctx.user, ModuleId.BANK_ACCOUNTS, Operation.RETRIEVE);
+            await PermissionManager.queryPermission(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.BankAccount>("bankAccounts").findOne({
                 _id: parent.bankAccountId
             });
@@ -292,7 +292,7 @@ export const resolver = {
         _id: async (parent, args, ctx, info) => parent._id,
     
         requester: async (parent, args, ctx, info) => {
-            await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, Operation.RETRIEVE);
+            await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User & Ex.User>("users").findOne({
                 _id: parent.requesterId
             });
@@ -315,7 +315,7 @@ export const resolver = {
         _id: async (parent, args, ctx, info) => parent._id,
     
         sender: async (parent, args, ctx, info) => {
-            await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, Operation.RETRIEVE);
+            await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User>("users").findOne({
                 _id: parent.senderId
             });
@@ -328,7 +328,7 @@ export const resolver = {
         },
     
         recipient: async (parent, args, ctx, info) => {
-            await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, Operation.RETRIEVE);
+            await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User>("users").findOne({
                 _id: parent.recipientId
             });
@@ -341,7 +341,7 @@ export const resolver = {
         },
     
         hostedTrip: async (parent, args, ctx, info) => {
-            await PermissionManager.queryPermission(ctx.user, ModuleId.HOSTED_TRIPS, Operation.RETRIEVE);
+            await PermissionManager.queryPermission(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>("hostedTrips").findOne({
                 _id: parent.hostedTripId
             });
@@ -354,7 +354,7 @@ export const resolver = {
         },
     
         requestedTrip: async (parent, args, ctx, info) => {
-            await PermissionManager.queryPermission(ctx.user, ModuleId.REQUESTED_TRIPS, Operation.RETRIEVE);
+            await PermissionManager.queryPermission(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>("requestedTrips").findOne({
                 _id: parent.requestedTripId
             });
