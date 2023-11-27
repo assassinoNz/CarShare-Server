@@ -20,6 +20,7 @@ type Query {
 
 type User {
     _id: ObjectId!
+    isActive: Boolean!
     mobile: String!
     email: String!
     preferredName: String!
@@ -83,6 +84,7 @@ type TripTime {
 
 type Vehicle {
     _id: ObjectId!
+    isActive: Boolean!
     ownerId: ObjectId!
     name: String!
     number: String!
@@ -109,6 +111,7 @@ type TripBilling {
 
 type BankAccount {
     _id: ObjectId!
+    isActive: Boolean!
     ownerId: ObjectId!
     name: String!
     bank: String!
@@ -137,8 +140,13 @@ type Notification {
     recipientId: ObjectId!
     hostedTripId: ObjectId!
     requestedTripId: ObjectId!
-    acceptedByRecipient: Boolean!
+    time: NotificationTime!
     payment: Payment!
+}
+
+type NotificationTime {
+    sent: Date!
+    accepted: Date #When there is a time, notification is accepted by recipient
 }
 
 type Payment {
@@ -169,6 +177,7 @@ type Mutation {
 }
 
 input UserInput {
+    isActive: Boolean!
     mobile: String!
     roleId: ObjectId!
     rating: UserRating!

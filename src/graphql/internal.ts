@@ -23,6 +23,7 @@ export type BankAccount = {
   account: Scalars['String']['output'];
   bank: Scalars['String']['output'];
   branch: Scalars['String']['output'];
+  isActive: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
   ownerId: Scalars['ObjectId']['output'];
 };
@@ -66,12 +67,18 @@ export type MutationSignInArgs = {
 export type Notification = {
   __typename?: 'Notification';
   _id: Scalars['ObjectId']['output'];
-  acceptedByRecipient: Scalars['Boolean']['output'];
   hostedTripId: Scalars['ObjectId']['output'];
   payment: Payment;
   recipientId: Scalars['ObjectId']['output'];
   requestedTripId: Scalars['ObjectId']['output'];
   senderId: Scalars['ObjectId']['output'];
+  time: NotificationTime;
+};
+
+export type NotificationTime = {
+  __typename?: 'NotificationTime';
+  accepted?: Maybe<Scalars['Date']['output']>;
+  sent: Scalars['Date']['output'];
 };
 
 export type Payment = {
@@ -177,6 +184,7 @@ export type User = {
   _id: Scalars['ObjectId']['output'];
   currentCoord?: Maybe<Array<Scalars['Float']['output']>>;
   email: Scalars['String']['output'];
+  isActive: Scalars['Boolean']['output'];
   mobile: Scalars['String']['output'];
   preferredName: Scalars['String']['output'];
   rating: UserRating;
@@ -186,6 +194,7 @@ export type User = {
 
 export type UserInput = {
   email: Scalars['String']['input'];
+  isActive: Scalars['Boolean']['input'];
   mobile: Scalars['String']['input'];
   preferredName: Scalars['String']['input'];
   rating: UserRating;
@@ -204,6 +213,7 @@ export type Vehicle = {
   __typename?: 'Vehicle';
   _id: Scalars['ObjectId']['output'];
   features: VehicleFeatures;
+  isActive: Scalars['Boolean']['output'];
   model: Scalars['String']['output'];
   name: Scalars['String']['output'];
   number: Scalars['String']['output'];

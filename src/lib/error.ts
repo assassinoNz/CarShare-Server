@@ -106,3 +106,16 @@ export class ItemDoesNotExist extends GraphQLError {
         });
     }
 }
+
+export class ItemIsNotActive extends GraphQLError {
+    constructor(itemCategory: string, uniqueKey: string, uniqueKeyValue: string) {
+        super(`That ${itemCategory} with ${uniqueKey} set to ${uniqueKeyValue} is not active or expired`, {
+            extensions: {
+                title: `That ${itemCategory} is inactive or expired`,
+                suggestion: `Try providing an active item`,
+                description: `That ${itemCategory} with ${uniqueKey} set to ${uniqueKeyValue} is not active or expired. If the item is time based, it may already have ended else it may have been disabled by user`,
+                code: `ITEM_IS_NOT_ACTIVE`
+            }
+        });
+    }
+}

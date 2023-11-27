@@ -20,6 +20,7 @@ type Query {
 
 type User {
     _id: ObjectId!
+    isActive: Boolean!
     mobile: String!
     email: String!
     preferredName: String!
@@ -59,6 +60,7 @@ type TripTime {
 
 type Vehicle {
     _id: ObjectId!
+    isActive: Boolean!
     name: String!
     number: String!
     model: String!
@@ -84,6 +86,7 @@ type TripBilling {
 
 type BankAccount {
     _id: ObjectId!
+    isActive: Boolean!
     name: String!
     bank: String!
     account: String!
@@ -107,12 +110,18 @@ type RequestedTrip {
 
 type Notification {
     _id: ObjectId!
+    isActive: Boolean!
     sender: User!
     recipient: User!
     hostedTrip: HostedTrip!
     requestedTrip: RequestedTrip!
-    acceptedByRecipient: Boolean!
+    time: NotificationTime!
     payment: Payment!
+}
+
+type NotificationTime {
+    sent: Date!
+    accepted: Date #When there is a time, notification is accepted by recipient
 }
 
 type Payment {

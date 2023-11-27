@@ -1,7 +1,7 @@
 use('carshare');
 
 db.modules.drop();
-const moduleInsertionResult = db.modules.insertMany([
+const modulesInsertion = db.modules.insertMany([
     { _id: ObjectId("000000000000000000000000"), name: "Roles" },
     { _id: ObjectId("000000000000000000000001"), name: "Users" },
     { _id: ObjectId("000000000000000000000002"), name: "Vehicles" },
@@ -12,31 +12,31 @@ const moduleInsertionResult = db.modules.insertMany([
 ]);
 
 db.roles.drop();
-const roleInsertionResult = db.roles.insertMany([
+const rolesInsertion = db.roles.insertMany([
     {
         _id: ObjectId("100000000000000000000000"),
         name: "Admin",
         permissions: [
-            { moduleId: moduleInsertionResult.insertedIds["0"], value: "1111" },
-            { moduleId: moduleInsertionResult.insertedIds["1"], value: "1111" },
-            { moduleId: moduleInsertionResult.insertedIds["2"], value: "1111" },
-            { moduleId: moduleInsertionResult.insertedIds["3"], value: "1111" },
-            { moduleId: moduleInsertionResult.insertedIds["4"], value: "1111" },
-            { moduleId: moduleInsertionResult.insertedIds["5"], value: "1111" },
-            { moduleId: moduleInsertionResult.insertedIds["6"], value: "1111" },
+            { moduleId: modulesInsertion.insertedIds["0"], value: "1111" },
+            { moduleId: modulesInsertion.insertedIds["1"], value: "1111" },
+            { moduleId: modulesInsertion.insertedIds["2"], value: "1111" },
+            { moduleId: modulesInsertion.insertedIds["3"], value: "1111" },
+            { moduleId: modulesInsertion.insertedIds["4"], value: "1111" },
+            { moduleId: modulesInsertion.insertedIds["5"], value: "1111" },
+            { moduleId: modulesInsertion.insertedIds["6"], value: "1111" },
         ]
     },
     {
         _id: ObjectId("100000000000000000000001"),
         name: "Standard",
         permissions: [
-            { moduleId: moduleInsertionResult.insertedIds["0"], value: "0100" },
-            { moduleId: moduleInsertionResult.insertedIds["1"], value: "0100" },
-            { moduleId: moduleInsertionResult.insertedIds["2"], value: "0100" },
-            { moduleId: moduleInsertionResult.insertedIds["3"], value: "0100" },
-            { moduleId: moduleInsertionResult.insertedIds["4"], value: "0100" },
-            { moduleId: moduleInsertionResult.insertedIds["5"], value: "0100" },
-            { moduleId: moduleInsertionResult.insertedIds["6"], value: "0100" },
+            { moduleId: modulesInsertion.insertedIds["0"], value: "0100" },
+            { moduleId: modulesInsertion.insertedIds["1"], value: "0100" },
+            { moduleId: modulesInsertion.insertedIds["2"], value: "0100" },
+            { moduleId: modulesInsertion.insertedIds["3"], value: "0100" },
+            { moduleId: modulesInsertion.insertedIds["4"], value: "0100" },
+            { moduleId: modulesInsertion.insertedIds["5"], value: "0100" },
+            { moduleId: modulesInsertion.insertedIds["6"], value: "0100" },
         ]
     }
 ]);
@@ -44,13 +44,14 @@ const roleInsertionResult = db.roles.insertMany([
 db.users.drop();
 db.users.createIndex( { "mobile": 1 }, { unique: true } );
 db.users.createIndex( { "email": 1 }, { unique: true } );
-const userInsertionResult = db.users.insertMany([
+const usersInsertion = db.users.insertMany([
     {
         _id: ObjectId("200000000000000000000000"),
+        isActive: true,
         mobile: "0711234567",
         email: "abc@gmail.com",
         preferredName: "ABC Dias",
-        roleId: roleInsertionResult.insertedIds["0"],
+        roleId: rolesInsertion.insertedIds["0"],
         secret: { 
             hash: "7110eda4d09e062aa5e4a390b0a572ac0d2c0220"
         },
@@ -63,10 +64,11 @@ const userInsertionResult = db.users.insertMany([
     },
     {
         _id: ObjectId("200000000000000000000001"),
+        isActive: true,
         mobile: "0779874563",
         email: "def@gmail.com",
         preferredName: "DEF Gunarathnae",
-        roleId: roleInsertionResult.insertedIds["1"],
+        roleId: rolesInsertion.insertedIds["1"],
         secret: {
             hash: "2abd55e001c524cb2cf6300a89ca6366848a77d5"
         },
@@ -80,10 +82,11 @@ const userInsertionResult = db.users.insertMany([
 ]);
 
 db.vehicles.drop();
-const vehicleInsertionResult = db.vehicles.insertMany([
+const vehiclesInsertion = db.vehicles.insertMany([
     {
         _id: ObjectId("300000000000000000000000"),
-        ownerId: userInsertionResult.insertedIds[0],
+        isActive: true,
+        ownerId: usersInsertion.insertedIds[0],
         name: "Lightning Mc.Queen",
         number: "CAR-911",
         model: "Toyota Corolla",
@@ -98,7 +101,8 @@ const vehicleInsertionResult = db.vehicles.insertMany([
     },
     {
         _id: ObjectId("300000000000000000000001"),
-        ownerId: userInsertionResult.insertedIds[1],
+        isActive: true,
+        ownerId: usersInsertion.insertedIds[1],
         name: "KITT",
         number: "KNIGHT-007",
         model: "Pontiac T",
@@ -113,7 +117,8 @@ const vehicleInsertionResult = db.vehicles.insertMany([
     },
     {
         _id: ObjectId("300000000000000000000002"),
-        ownerId: userInsertionResult.insertedIds[1],
+        isActive: true,
+        ownerId: usersInsertion.insertedIds[1],
         name: "Batmobile",
         number: "JB-007",
         model: "Porsche",
@@ -129,10 +134,11 @@ const vehicleInsertionResult = db.vehicles.insertMany([
 ]);
 
 db.bankAccounts.drop();
-const bankAccountInsertionResult = db.bankAccounts.insertMany([
+const bankAccountsInsertion = db.bankAccounts.insertMany([
     {
         _id: ObjectId("500000000000000000000000"),
-        ownerId: userInsertionResult.insertedIds[0],
+        isActive: true,
+        ownerId: usersInsertion.insertedIds[0],
         name: "ABC",
         bank: "Commercial Bank",
         account: "800900300400",
@@ -140,7 +146,8 @@ const bankAccountInsertionResult = db.bankAccounts.insertMany([
     },
     {
         _id: ObjectId("500000000000000000000001"),
-        ownerId: userInsertionResult.insertedIds[0],
+        isActive: true,
+        ownerId: usersInsertion.insertedIds[0],
         name: "ABC Dias",
         bank: "Commercial Bank",
         account: "800900300401",
@@ -148,7 +155,8 @@ const bankAccountInsertionResult = db.bankAccounts.insertMany([
     },
     {
         _id: ObjectId("500000000000000000000002"),
-        ownerId: userInsertionResult.insertedIds[1],
+        isActive: true,
+        ownerId: usersInsertion.insertedIds[1],
         name: "DEF Gunarathne",
         bank: "People's Bank",
         account: "255665345123",
@@ -157,10 +165,10 @@ const bankAccountInsertionResult = db.bankAccounts.insertMany([
 ]);
 
 db.hostedTrips.drop();
-const hostedTripInsertionResult = db.hostedTrips.insertMany([
+const hostedTripsInsertion = db.hostedTrips.insertMany([
     {
         _id: ObjectId("400000000000000000000000"),
-        hostId: userInsertionResult.insertedIds[0],
+        hostId: usersInsertion.insertedIds[0],
         route: {
             from: "Gampaha Railway",
             to: "Miriswatta Junction",
@@ -183,10 +191,10 @@ const hostedTripInsertionResult = db.hostedTrips.insertMany([
             start: null,
             end: null,
         },
-        vehicleId: vehicleInsertionResult.insertedIds[0],
+        vehicleId: vehiclesInsertion.insertedIds[0],
         seats: 3,
         billing: {
-            bankAccountId: bankAccountInsertionResult.insertedIds[0],
+            bankAccountId: bankAccountsInsertion.insertedIds[0],
             priceFirstKm: 100,
             priceNextKm: 50,
         },
@@ -199,7 +207,7 @@ const hostedTripInsertionResult = db.hostedTrips.insertMany([
     },
     {
         _id: ObjectId("400000000000000000000001"),
-        hostId: userInsertionResult.insertedIds[1],
+        hostId: usersInsertion.insertedIds[1],
         route: {
             from: "Gampaha Railway",
             to: "Weliveriya",
@@ -239,7 +247,7 @@ const hostedTripInsertionResult = db.hostedTrips.insertMany([
         },
         seats: 2,
         billing: {
-            bankAccountId: bankAccountInsertionResult.insertedIds[2],
+            bankAccountId: bankAccountsInsertion.insertedIds[2],
             priceFirstKm: 150,
             priceNextKm: 75,
         },
@@ -253,10 +261,10 @@ const hostedTripInsertionResult = db.hostedTrips.insertMany([
 ]);
 
 db.requestedTrips.drop();
-const requestedTripInsertionResult = db.requestedTrips.insertMany([
+const requestedTripsInsertion = db.requestedTrips.insertMany([
     {
         _id: ObjectId("600000000000000000000000"),
-        requesterId: userInsertionResult.insertedIds[1],
+        requesterId: usersInsertion.insertedIds[1],
         route: {
             from: "Piliyandala",
             to: "Cybertron",
@@ -267,13 +275,13 @@ const requestedTripInsertionResult = db.requestedTrips.insertMany([
             ]
         },
         time: {
-            schedule: new Date(),
+            schedule: new Date(2023, 12, 10, 10, 40),
         },
         seats: 1,
     },
     {
         _id: ObjectId("600000000000000000000001"),
-        requesterId: userInsertionResult.insertedIds[1],
+        requesterId: usersInsertion.insertedIds[1],
         route: {
             from: "Gampaha Railway",
             to: "Miriswatta",
@@ -284,21 +292,23 @@ const requestedTripInsertionResult = db.requestedTrips.insertMany([
             ]
         },
         time: {
-            schedule: new Date(),
+            schedule: new Date(2023, 12, 10, 10, 40),
         },
         seats: 2,
     }
 ]);
 
 db.notifications.drop();
-const notificationInsertionResult = db.notifications.insertMany([
+const notificationsInsertion = db.notifications.insertMany([
     {
         _id: ObjectId("700000000000000000000000"),
-        senderId: userInsertionResult.insertedIds[0],
-        recipientId: userInsertionResult.insertedIds[1],
-        hostedTripId: hostedTripInsertionResult.insertedIds[0],
-        requestedTripId: requestedTripInsertionResult.insertedIds[0],
-        acceptedByRecipient: false,
+        senderId: usersInsertion.insertedIds[0],
+        recipientId: usersInsertion.insertedIds[1],
+        hostedTripId: hostedTripsInsertion.insertedIds[0],
+        requestedTripId: requestedTripsInsertion.insertedIds[0],
+        time: {
+            sent: new Date(2023, 12, 10, 9, 20)
+        },
         payment: {
             amount: -1,
             time: null,

@@ -123,6 +123,7 @@ export const resolver = {
                 _id: args.hostedTripId
             });
 
+            //Validate if hosted trip exists
             if (!hostedTrip) {
                 throw new Error.ItemDoesNotExist("hosted trip", "id", args.hostedTripId.toHexString());
             }
@@ -132,12 +133,23 @@ export const resolver = {
                 throw new Error.ItemNotAccessibleByUser("hosted trip", "id", args.hostedTripId.toHexString());
             }
 
+            //Validate if hosted trip is not expired
+            if (hostedTrip.time.end) {
+                throw new Error.ItemIsNotActive("hosted trip", "id", args.hostedTripId.toHexString());
+            }
+
             const hostedTripPolyLines = hostedTrip.route.polyLines!;
             const requestedTripMatches: Ex.RequestedTripMatch[] = [];
 
             //DANGER//TODO: Must me optimized. Find a better way than retrieving all requested trips 
             //Get all requested trips
-            const requestedTrips = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>("requestedTrips").find().toArray();
+            const requestedTrips = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>("requestedTrips").find({
+                //Filter requested trips that are +-1h to hosted trip
+                "time.schedule": {
+                    $gte: hostedTrip.time.schedule.getHours() - 1,
+                    $lt: hostedTrip.time.schedule.getHours() + 1
+                }
+            }).toArray();
 
             //For each requested trip, calculate match results
             for (const requestedTrip of requestedTrips) {
@@ -206,6 +218,7 @@ export const resolver = {
             await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.CREATE);
 
             const newItem = await Server.db.collection<In.UserInput>("users").insertOne({
+                isActive: true,
                 mobile: args.user.mobile,
                 email: args.user.email,
                 preferredName: args.user.preferredName,
@@ -317,6 +330,8 @@ export const resolver = {
     Notification: {
         _id: async (parent, args, ctx, info) => parent._id,
 
+        isActive: async (parent, args, ctx, info) => parent.isActive,
+
         sender: async (parent, args, ctx, info) => {
             await PermissionManager.queryPermission(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User>("users").findOne({
@@ -369,7 +384,7 @@ export const resolver = {
             }
         },
 
-        acceptedByRecipient: async (parent, args, ctx, info) => parent.acceptedByRecipient,
+        time: async (parent, args, ctx, info) => parent.time,
 
         payment: async (parent, args, ctx, info) => parent.payment,
     } as Resolver<In.Notification, Ex.Notification>,
