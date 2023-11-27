@@ -74,7 +74,7 @@ export class ItemNotAccessibleByUser extends GraphQLError {
             extensions: {
                 title: `Whoa! You aren't allowed to access that ${itemCategory}`,
                 suggestion: `Try retrieving valid arguments before invoking procedure calls`,
-                description: `You've tried to access ${itemCategory} with ${uniqueKey} set to ${uniqueKeyValue} and got denied by the system. Some algorithms need to access items that needs to be accessible by a specific user`,
+                description: `You've tried to access ${itemCategory} with ${uniqueKey} set to ${uniqueKeyValue} and got denied by the system. This algorithm need to access a ${itemCategory} that needs to be accessible by a specific user`,
                 code: `ITEM_NOT_ACCESSIBLE_BY_USER`
             }
         });
@@ -85,7 +85,7 @@ export class ItemAlreadyExists extends GraphQLError {
     constructor(itemCategory: string, uniqueKey: string, uniqueKeyValue: string) {
         super(`That ${itemCategory} already exists with ${uniqueKey} set to ${uniqueKeyValue}`, {
             extensions: {
-                title: `Oops! It already exists`,
+                title: `Oops! ${itemCategory} already exists`,
                 suggestion: `Change the value provided for ${uniqueKey}`,
                 description: `A ${itemCategory} with the same ${uniqueKey} set to ${uniqueKeyValue} already exists in the database. Please provide a new ${uniqueKey}`,
                 code: `ITEM_ALREADY_EXISTS`
@@ -112,8 +112,8 @@ export class ItemIsNotActive extends GraphQLError {
         super(`That ${itemCategory} with ${uniqueKey} set to ${uniqueKeyValue} is not active or expired`, {
             extensions: {
                 title: `That ${itemCategory} is inactive or expired`,
-                suggestion: `Try providing an active item`,
-                description: `That ${itemCategory} with ${uniqueKey} set to ${uniqueKeyValue} is not active or expired. If the item is time based, it may already have ended else it may have been disabled by user`,
+                suggestion: `Try providing details regarding an active ${itemCategory}`,
+                description: `That ${itemCategory} with ${uniqueKey} set to ${uniqueKeyValue} is not active or expired. The ${itemCategory} may have ended its lifetime or may have been disabled by a user`,
                 code: `ITEM_IS_NOT_ACTIVE`
             }
         });

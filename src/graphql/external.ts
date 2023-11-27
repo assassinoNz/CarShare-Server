@@ -20,11 +20,11 @@ export type Scalars = {
 export type BankAccount = {
   __typename?: 'BankAccount';
   _id: Scalars['ObjectId']['output'];
-  account: Scalars['String']['output'];
   bank: Scalars['String']['output'];
   branch: Scalars['String']['output'];
   isActive: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
+  number: Scalars['String']['output'];
 };
 
 export type HostedTrip = {

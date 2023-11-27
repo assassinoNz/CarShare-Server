@@ -115,7 +115,7 @@ type BankAccount {
     ownerId: ObjectId!
     name: String!
     bank: String!
-    account: String!
+    number: String!
     branch: String!
 }
 

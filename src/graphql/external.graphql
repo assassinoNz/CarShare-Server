@@ -89,7 +89,7 @@ type BankAccount {
     isActive: Boolean!
     name: String!
     bank: String!
-    account: String!
+    number: String!
     branch: String!
 }
 

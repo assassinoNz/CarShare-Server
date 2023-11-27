@@ -141,7 +141,7 @@ const bankAccountsInsertion = db.bankAccounts.insertMany([
         ownerId: usersInsertion.insertedIds[0],
         name: "ABC",
         bank: "Commercial Bank",
-        account: "800900300400",
+        number: "800900300400",
         branch: "Cinnamon Gardens"
     },
     {
@@ -150,7 +150,7 @@ const bankAccountsInsertion = db.bankAccounts.insertMany([
         ownerId: usersInsertion.insertedIds[0],
         name: "ABC Dias",
         bank: "Commercial Bank",
-        account: "800900300401",
+        number: "800900300401",
         branch: "Thimbirigasyaya"
     },
     {
@@ -159,7 +159,7 @@ const bankAccountsInsertion = db.bankAccounts.insertMany([
         ownerId: usersInsertion.insertedIds[1],
         name: "DEF Gunarathne",
         bank: "People's Bank",
-        account: "255665345123",
+        number: "255665345123",
         branch: "Fort"
     },
 ]);

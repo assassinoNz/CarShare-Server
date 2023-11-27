@@ -192,25 +192,29 @@ export const resolver = {
 
     Mutation: {
         SignIn: async (parent, args: Ex.MutationSignInArgs, ctx, info) => {
-            const user = await Server.db.collection<In.User>("users").findOne({
+            const item = await Server.db.collection<In.User>("users").findOne({
                 mobile: args.mobile
             });
 
-            if (user) {
-                const generatedHash = crypto.createHash("sha1").update(args.password).digest("hex");
-                if (generatedHash === user.secret!.hash) {
-                    return jwt.sign({
-                        userId: user._id.toHexString()
-                    } as JwtValue,
-                        Config.SECRET_JWT,
-                        {
-                            expiresIn: "7d"
-                        });
-                } else {
-                    throw new Error.PasswordMismatch(args.mobile);
-                }
-            } else {
+            if (!item) {
                 throw new Error.ItemDoesNotExist("user", "mobile", args.mobile);
+            }
+
+            if (!item.isActive) {
+                throw new Error.ItemIsNotActive("user", "mobile", args.mobile);
+            }
+
+            const generatedHash = crypto.createHash("sha1").update(args.password).digest("hex");
+            if (generatedHash === item.secret!.hash) {
+                return jwt.sign({
+                    userId: item._id.toHexString()
+                } as JwtValue,
+                    Config.SECRET_JWT,
+                    {
+                        expiresIn: "7d"
+                    });
+            } else {
+                throw new Error.PasswordMismatch(args.mobile);
             }
         },
 
