@@ -59,6 +59,20 @@ export class PostGIS {
         return lineString;
     }
 
+    private static makePolyString(coords: number[][]) {
+        let polyString = "POLYGON((";
+        for (const coord of coords) {
+            polyString += coord[1];
+            polyString += " ";
+            polyString += coord[0];
+            polyString += ",";
+        }
+        polyString = polyString.slice(0, -1);
+        polyString += "))";
+    
+        return polyString;
+    }
+
     private static wkb2Coords(wkbEncoding: string) {
         const geometry = wkx.Geometry.parse(Buffer.from(wkbEncoding, 'hex'));
     
