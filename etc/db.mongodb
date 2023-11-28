@@ -48,7 +48,7 @@ const usersInsertion = db.users.insertMany([
     {
         _id: ObjectId("200000000000000000000000"),
         isActive: true,
-        mobile: "0711234567",
+        mobile: "+94711234567",
         email: "abc@gmail.com",
         preferredName: "ABC Dias",
         roleId: rolesInsertion.insertedIds["0"],
@@ -65,7 +65,7 @@ const usersInsertion = db.users.insertMany([
     {
         _id: ObjectId("200000000000000000000001"),
         isActive: true,
-        mobile: "0779874563",
+        mobile: "+94779874563",
         email: "def@gmail.com",
         preferredName: "DEF Gunarathnae",
         roleId: rolesInsertion.insertedIds["1"],

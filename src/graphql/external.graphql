@@ -153,10 +153,10 @@ type Mutation {
 }
 
 input UserInput {
-    mobile: String!
-    password: String!
+    mobile: String! @constraint(pattern: "^\\+94\\d{9}$")
+    password: String! @constraint(minLength: 4)
     email: String! @constraint(format: "email")
-    preferredName: String!
+    preferredName: String! @constraint(pattern: "^[a-zA-Z]{3,20}*$")
 }
 
 input HostedTripInput {
@@ -164,13 +164,13 @@ input HostedTripInput {
     time: TripTimeInput!
     vehicleId: ObjectId #If vehicle is null, then this must not
     vehicle: VehicleInput  #If vehicleId is null, then this must not
-    seats: Int!
+    seats: Int! @constraint(min: 1)
     billing: TripBillingInput!
 }
 
 input RouteInput {
-    from: String!
-    to: String!
+    from: String! @constraint(pattern: "^[a-zA-Z]{5,30}*$")
+    to: String! @constraint(pattern: "^[a-zA-Z]{5,30}*$")
     polyLines: [String!]
     keyCoords: [[Float!]!]
 }
@@ -180,9 +180,9 @@ input TripTimeInput {
 }
 
 input VehicleInput {
-    name: String!
-    number: String!
-    model: String!
+    name: String! @constraint(pattern: "^[a-zA-Z]{3,20}*$")
+    number: String! @constraint(pattern: "^[0-9a-zA-Z]{3,10}*$")
+    model: String! @constraint(pattern: "^[0-9a-zA-Z]{3,20}*$")
     features: VehicleFeaturesInput!
 }
 
