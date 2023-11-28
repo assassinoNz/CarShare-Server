@@ -171,8 +171,8 @@ input HostedTripInput {
 input RouteInput {
     from: String! @constraint(pattern: "^[a-zA-Z]{5,30}*$")
     to: String! @constraint(pattern: "^[a-zA-Z]{5,30}*$")
-    polyLines: [String!]
-    keyCoords: [[Float!]!]
+    polyLines: [String!]!
+    keyCoords: [[Float!]!]!
 }
 
 input TripTimeInput {
