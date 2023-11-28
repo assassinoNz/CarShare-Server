@@ -7,7 +7,7 @@ import { Server } from "./app";
 import { ModuleId, OperationIndex } from "./enum";
 import { Context } from "./interface";
 
-export class Permission {
+export class PermissionManager {
     static me(ctx: Context) {
         if (ctx.user) {
             return ctx.user;
