@@ -7,8 +7,8 @@ import { Server } from "./app";
 import { ModuleId, OperationIndex } from "./enum";
 import { Context } from "./interface";
 
-export class PermissionManager {
-    static getMe(ctx: Context) {
+export class Permission {
+    static me(ctx: Context) {
         if (ctx.user) {
             return ctx.user;
         } else {
@@ -16,7 +16,7 @@ export class PermissionManager {
         }
     }
 
-    static async queryPermission(user: In.User | null, moduleId: ModuleId, operationIndex: OperationIndex) {
+    static async query(user: In.User | null, moduleId: ModuleId, operationIndex: OperationIndex) {
         if (user) {
             const role = await Server.db.collection<In.Role>("roles").findOne({
                 _id: user.roleId

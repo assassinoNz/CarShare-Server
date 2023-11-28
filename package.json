@@ -12,16 +12,18 @@
     },
     "dependencies": {
         "@apollo/server": "^4.9.5",
+        "@googlemaps/polyline-codec": "^1.0.28",
         "cors": "^2.8.5",
         "express": "^4.18.2",
         "graphql": "^16.8.1",
+        "graphql-constraint-directive": "^5.3.0",
+        "graphql-scalars": "^1.22.4",
         "jsonwebtoken": "^9.0.1",
         "mongodb": "^5.7.0",
         "node-fetch": "^2.6.1",
+        "pg": "^8.11.3",
         "ts-node": "^10.9.1",
         "typescript": "^5.2.2",
-        "@googlemaps/polyline-codec": "^1.0.28",
-        "pg": "^8.11.3",
         "wkx": "^0.5.0"
     },
     "scripts": {

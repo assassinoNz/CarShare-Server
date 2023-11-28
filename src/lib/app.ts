@@ -8,6 +8,7 @@ import { Client } from "pg";
 import { Db, MongoClient, ObjectId } from "mongodb";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
+import { createApollo4QueryValidationPlugin, constraintDirectiveTypeDefsGql } from "graphql-constraint-directive/apollo4";
 
 import * as Config from "../../config";
 import * as In from "../graphql/internal";
@@ -28,8 +29,11 @@ export class Server {
     static readonly express = express();
     static readonly appolo = new ApolloServer({
         includeStacktraceInErrorResponses: false,
-        typeDefs: fs.readFileSync(path.resolve(__dirname + "/../graphql/external.graphql"), "utf-8"),
-        resolvers: GraphQLResolver
+        typeDefs: [constraintDirectiveTypeDefsGql, fs.readFileSync(path.resolve(__dirname + "/../graphql/external.graphql"), "utf-8")],
+        resolvers: GraphQLResolver,
+        plugins: [
+            createApollo4QueryValidationPlugin({})
+        ]
     });
 
     static async connectDatabaseDrivers() {

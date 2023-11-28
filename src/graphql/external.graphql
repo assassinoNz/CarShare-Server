@@ -155,7 +155,7 @@ type Mutation {
 input UserInput {
     mobile: String!
     password: String!
-    email: String!
+    email: String! @constraint(format: "email")
     preferredName: String!
 }
 
