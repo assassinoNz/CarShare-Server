@@ -224,6 +224,7 @@ input VehicleInput {
     number: String!
     model: String!
     features: VehicleFeaturesInput!
+    rating: VehicleRating!
 }
 
 input TripBillingInput {

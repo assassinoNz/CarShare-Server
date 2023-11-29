@@ -282,6 +282,7 @@ export type VehicleInput = {
   model: Scalars['String']['input'];
   name: Scalars['String']['input'];
   number: Scalars['String']['input'];
+  rating: VehicleRating;
 };
 
 export type VehicleRating = {

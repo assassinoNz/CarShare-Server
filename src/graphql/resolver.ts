@@ -274,6 +274,10 @@ export const root: {
                 tripToBeInserted.vehicle = {
                     ...args.hostedTrip.vehicle,
                     isActive: true,
+                    rating: {
+                        ac: 0.0,
+                        cleanliness: 0.0
+                    }
                 }
             } else {
                 //CASE: User hasn't provided any vehicleId or vehicle
