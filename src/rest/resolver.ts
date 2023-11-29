@@ -1,8 +1,8 @@
-import * as jwt from "jsonwebtoken";
 import fetch from "node-fetch";
 import { Request, Response } from "express";
 import { SECRET_JWT, URL_NOMINATIM, URL_OSRM } from "../../config";
 import { JwtPayload } from "../lib/interface";
+import { Server } from "../lib/app";
 
 export const osrm = {
     CalculatePossibleRoutes: async (req: Request, res: Response): Promise<void> => {
@@ -10,7 +10,7 @@ export const osrm = {
         const token = req.headers.authorization || "";
 
         try {
-            jwt.verify(token, SECRET_JWT) as JwtPayload;
+            await Server.jwtr.verify(token, SECRET_JWT) as JwtPayload;
 
             try {
                 const data = await fetch(`${URL_OSRM}/${encodeURIComponent(req.params.keyCoords)}?overview=false&steps=true`)
@@ -35,7 +35,7 @@ export const nominatim = {
         const token = req.headers.authorization || "";
 
         try {
-            jwt.verify(token, SECRET_JWT) as JwtPayload;
+            await Server.jwtr.verify(token, SECRET_JWT) as JwtPayload;
 
             try {
                 const data = await fetch(`${URL_NOMINATIM}?format=json&q=${encodeURIComponent(req.query.q as string)}`)
