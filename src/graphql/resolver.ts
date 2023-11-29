@@ -352,7 +352,12 @@ export const type: {
 
         seats: async (parent, args, ctx, info) => parent.seats,
 
-        billing: async (parent, args, ctx, info) => parent.billing,
+        billing: async (parent, args, ctx, info) => {
+            return {
+                ...parent.billing,
+                bankAccount: {} as In.BankAccount
+            }
+        },
     },
 
     TripBilling: {

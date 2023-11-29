@@ -9,5 +9,5 @@ export interface Context {
 }
 
 export type Resolver<InParent, ExParent> = {
-    [K in keyof ExParent]: (parent: InParent & ExParent, args: any, ctx: Context, info: any) => Promise<ExParent[K]>;
+    [K in keyof ExParent]: (parent: InParent, args: any, ctx: Context, info: any) => Promise<ExParent[K]>;
 }
