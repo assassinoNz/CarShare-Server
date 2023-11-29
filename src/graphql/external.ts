@@ -27,6 +27,24 @@ export type BankAccount = {
   number: Scalars['String']['output'];
 };
 
+export type Handshake = {
+  __typename?: 'Handshake';
+  _id: Scalars['ObjectId']['output'];
+  hostedTrip: HostedTrip;
+  payment: Payment;
+  rating: TripRating;
+  recipient: User;
+  requestedTrip: RequestedTrip;
+  sender: User;
+  time: HandshakeTime;
+};
+
+export type HandshakeTime = {
+  __typename?: 'HandshakeTime';
+  accepted?: Maybe<Scalars['Date']['output']>;
+  sent: Scalars['Date']['output'];
+};
+
 export type HostedTrip = {
   __typename?: 'HostedTrip';
   _id: Scalars['ObjectId']['output'];
@@ -70,25 +88,6 @@ export type MutationSignInArgs = {
   password: Scalars['String']['input'];
 };
 
-export type Notification = {
-  __typename?: 'Notification';
-  _id: Scalars['ObjectId']['output'];
-  hostedTrip: HostedTrip;
-  isActive: Scalars['Boolean']['output'];
-  payment: Payment;
-  rating: TripRating;
-  recipient: User;
-  requestedTrip: RequestedTrip;
-  sender: User;
-  time: NotificationTime;
-};
-
-export type NotificationTime = {
-  __typename?: 'NotificationTime';
-  accepted?: Maybe<Scalars['Date']['output']>;
-  sent: Scalars['Date']['output'];
-};
-
 export type Payment = {
   __typename?: 'Payment';
   amount: Scalars['Float']['output'];
@@ -101,9 +100,9 @@ export type Query = {
   GetMe: User;
   GetMyBankAccounts: Array<BankAccount>;
   GetMyHostedTrips: Array<Maybe<HostedTrip>>;
-  GetMyReceivedNotifications: Array<Maybe<Notification>>;
+  GetMyReceivedHandshakes: Array<Maybe<Handshake>>;
   GetMyRequestedTrips: Array<Maybe<RequestedTrip>>;
-  GetMySentNotifications: Array<Maybe<Notification>>;
+  GetMySentHandshakes: Array<Maybe<Handshake>>;
   GetMyVehicles: Array<Vehicle>;
 };
 
@@ -138,8 +137,8 @@ export type Route = {
 
 export type RouteInput = {
   from: Scalars['String']['input'];
-  keyCoords?: InputMaybe<Array<Array<Scalars['Float']['input']>>>;
-  polyLines?: InputMaybe<Array<Scalars['String']['input']>>;
+  keyCoords: Array<Array<Scalars['Float']['input']>>;
+  polyLines: Array<Scalars['String']['input']>;
   to: Scalars['String']['input'];
 };
 

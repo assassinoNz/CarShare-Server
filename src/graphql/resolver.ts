@@ -98,18 +98,18 @@ export const root = {
             }).toArray();
         },
 
-        GetMySentNotifications: async (parent, args, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.NOTIFICATIONS, OperationIndex.RETRIEVE);
+        GetMySentHandshakes: async (parent, args, ctx, info) => {
+            await PermissionManager.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
-            return await Server.db.collection<In.Notification & Ex.Notification>("notifications").find({
+            return await Server.db.collection<In.Handshake & Ex.Handshake>("handshakes").find({
                 senderId: me._id
             }).toArray();
         },
 
-        GetMyReceivedNotifications: async (parent, args, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.NOTIFICATIONS, OperationIndex.RETRIEVE);
+        GetMyReceivedHandshakes: async (parent, args, ctx, info) => {
+            await PermissionManager.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
-            return await Server.db.collection<In.Notification & Ex.Notification>("notifications").find({
+            return await Server.db.collection<In.Handshake & Ex.Handshake>("handshakes").find({
                 recipientId: me._id
             }).toArray();
         },
@@ -378,10 +378,8 @@ export const type = {
         seats: async (parent, args, ctx, info) => parent.seats,
     } as Resolver<In.RequestedTrip, Ex.RequestedTrip>,
 
-    Notification: {
+    Handshake: {
         _id: async (parent, args, ctx, info) => parent._id,
-
-        isActive: async (parent, args, ctx, info) => parent.isActive,
 
         sender: async (parent, args, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
@@ -436,5 +434,5 @@ export const type = {
         payment: async (parent, args, ctx, info) => parent.payment,
 
         rating: async (parent, args, ctx, info) => parent.rating,
-    } as Resolver<In.Notification, Ex.Notification>,
+    } as Resolver<In.Handshake, Ex.Handshake>,
 };

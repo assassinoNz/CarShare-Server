@@ -28,6 +28,24 @@ export type BankAccount = {
   ownerId: Scalars['ObjectId']['output'];
 };
 
+export type Handshake = {
+  __typename?: 'Handshake';
+  _id: Scalars['ObjectId']['output'];
+  hostedTripId: Scalars['ObjectId']['output'];
+  payment: Payment;
+  rating: TripRating;
+  recipientId: Scalars['ObjectId']['output'];
+  requestedTripId: Scalars['ObjectId']['output'];
+  senderId: Scalars['ObjectId']['output'];
+  time: HandshakeTime;
+};
+
+export type HandshakeTime = {
+  __typename?: 'HandshakeTime';
+  accepted?: Maybe<Scalars['Date']['output']>;
+  sent: Scalars['Date']['output'];
+};
+
 export type HostedTrip = {
   __typename?: 'HostedTrip';
   _id: Scalars['ObjectId']['output'];
@@ -78,24 +96,6 @@ export type MutationSignInArgs = {
   password: Scalars['String']['input'];
 };
 
-export type Notification = {
-  __typename?: 'Notification';
-  _id: Scalars['ObjectId']['output'];
-  hostedTripId: Scalars['ObjectId']['output'];
-  payment: Payment;
-  rating: TripRating;
-  recipientId: Scalars['ObjectId']['output'];
-  requestedTripId: Scalars['ObjectId']['output'];
-  senderId: Scalars['ObjectId']['output'];
-  time: NotificationTime;
-};
-
-export type NotificationTime = {
-  __typename?: 'NotificationTime';
-  accepted?: Maybe<Scalars['Date']['output']>;
-  sent: Scalars['Date']['output'];
-};
-
 export type Payment = {
   __typename?: 'Payment';
   amount: Scalars['Float']['output'];
@@ -115,9 +115,9 @@ export type Query = {
   GetMe: User;
   GetMyBankAccounts: Array<BankAccount>;
   GetMyHostedTrips: Array<Maybe<HostedTrip>>;
-  GetMyReceivedNotifications: Array<Maybe<Notification>>;
+  GetMyReceivedHandshakes: Array<Maybe<Handshake>>;
   GetMyRequestedTrips: Array<Maybe<RequestedTrip>>;
-  GetMySentNotifications: Array<Maybe<Notification>>;
+  GetMySentHandshakes: Array<Maybe<Handshake>>;
   GetMyVehicles: Array<Vehicle>;
 };
 

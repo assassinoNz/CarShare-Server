@@ -7,7 +7,7 @@ const modulesInsertion = db.modules.insertMany([
     { _id: ObjectId("000000000000000000000002"), name: "Vehicles" },
     { _id: ObjectId("000000000000000000000003"), name: "Hosted Trips" },
     { _id: ObjectId("000000000000000000000004"), name: "Requested Trips" },
-    { _id: ObjectId("000000000000000000000005"), name: "Notifications" },
+    { _id: ObjectId("000000000000000000000005"), name: "Handshakes" },
     { _id: ObjectId("000000000000000000000006"), name: "Bank Accounts" },
 ]);
 
@@ -286,8 +286,8 @@ const requestedTripsInsertion = db.requestedTrips.insertMany([
     }
 ]);
 
-db.notifications.drop();
-const notificationsInsertion = db.notifications.insertMany([
+db.handshakes.drop();
+const handshakesInsertion = db.handshakes.insertMany([
     {
         _id: ObjectId("700000000000000000000000"),
         senderId: usersInsertion.insertedIds[0],

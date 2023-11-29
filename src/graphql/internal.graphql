@@ -12,8 +12,8 @@ type Query {
     GetMyHostedTrips: [HostedTrip]!
     GetMyRequestedTrips: [RequestedTrip]!
 
-    GetMySentNotifications: [Notification]!
-    GetMyReceivedNotifications: [Notification]!
+    GetMySentHandshakes: [Handshake]!
+    GetMyReceivedHandshakes: [Handshake]!
 
     GetMatchingRequestedTrips(hostedTripId: ObjectId!): [RequestedTripMatch!]!
 }
@@ -133,20 +133,20 @@ type RequestedTrip {
     seats: Int!
 }
 
-type Notification {
+type Handshake {
     _id: ObjectId!
     senderId: ObjectId!
     recipientId: ObjectId!
     hostedTripId: ObjectId!
     requestedTripId: ObjectId!
-    time: NotificationTime!
+    time: HandshakeTime!
     payment: Payment!
     rating: TripRating!
 }
 
-type NotificationTime {
+type HandshakeTime {
     sent: Date!
-    accepted: Date #When there is a time, notification is accepted by recipient
+    accepted: Date #When there is a time, handshake is accepted by recipient
 }
 
 type Payment {
