@@ -63,7 +63,10 @@ export const scalar = {
     }),
 }
 
-export const root = {
+export const root: {
+    Query: Resolver<In.Query, Ex.Query>,
+    Mutation: Resolver<In.Mutation, Ex.Mutation>,
+} = {
     Query: {
         GetMe: async (parent, args, ctx, info) => {
             //WARNING: GetMe doesn't need any permission validation
@@ -185,7 +188,7 @@ export const root = {
 
             return requestedTripMatches;
         },
-    } as Resolver<In.Query, Ex.Query>,
+    },
 
     Mutation: {
         CreateUser: async (parent, args: Ex.MutationCreateUserArgs, ctx, info) => {
@@ -288,10 +291,15 @@ export const root = {
 
             return result.insertedId;
         }
-    } as Resolver<In.Mutation, Ex.Mutation>,
+    },
 }
 
-export const type = {
+export const type: {
+    HostedTrip: Resolver<In.HostedTrip, Ex.HostedTrip>,
+    TripBilling: Resolver<In.TripBilling, Ex.TripBilling>,
+    RequestedTrip: Resolver<In.RequestedTrip, Ex.RequestedTrip>,
+    Handshake: Resolver<In.Handshake, Ex.Handshake>,
+} = {
     HostedTrip: {
         _id: async (parent, args, ctx, info) => parent._id,
 
@@ -334,7 +342,7 @@ export const type = {
         seats: async (parent, args, ctx, info) => parent.seats,
 
         billing: async (parent, args, ctx, info) => parent.billing,
-    } as Resolver<In.HostedTrip, Ex.HostedTrip>,
+    },
 
     TripBilling: {
         bankAccount: async (parent, args, ctx, info) => {
@@ -353,7 +361,7 @@ export const type = {
         priceFirstKm: async (parent, args, ctx, info) => parent.priceFirstKm,
 
         priceNextKm: async (parent, args, ctx, info) => parent.priceNextKm,
-    } as Resolver<In.TripBilling, Ex.TripBilling>,
+    },
 
     RequestedTrip: {
         _id: async (parent, args, ctx, info) => parent._id,
@@ -376,7 +384,7 @@ export const type = {
         time: async (parent, args, ctx, info) => parent.time,
 
         seats: async (parent, args, ctx, info) => parent.seats,
-    } as Resolver<In.RequestedTrip, Ex.RequestedTrip>,
+    },
 
     Handshake: {
         _id: async (parent, args, ctx, info) => parent._id,
@@ -434,5 +442,5 @@ export const type = {
         payment: async (parent, args, ctx, info) => parent.payment,
 
         rating: async (parent, args, ctx, info) => parent.rating,
-    } as Resolver<In.Handshake, Ex.Handshake>,
+    },
 };
