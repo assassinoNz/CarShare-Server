@@ -15,7 +15,7 @@ import { ModuleId, OperationIndex } from "../lib/enum";
 import { JwtValue, Resolver } from "../lib/interface";
 import { PermissionManager, PostGIS } from "../lib/util";
 
-export const resolver = {
+export const scalar = {
     ObjectId: new GraphQLScalarType<ObjectId | null, string>({
         name: "ObjectId",
         description: "The GraphQL frontend for BSON.ObjectId from MongoDB",
@@ -61,7 +61,9 @@ export const resolver = {
             return null;
         },
     }),
+}
 
+export const root = {
     Query: {
         GetMe: async (parent, args, ctx, info) => {
             //WARNING: GetMe doesn't need any permission validation
@@ -287,7 +289,9 @@ export const resolver = {
             return result.insertedId;
         }
     } as Resolver<In.Mutation, Ex.Mutation>,
+}
 
+export const type = {
     HostedTrip: {
         _id: async (parent, args, ctx, info) => parent._id,
 

@@ -13,10 +13,11 @@ import { createApollo4QueryValidationPlugin, constraintDirectiveTypeDefsGql } fr
 import * as Config from "../../config";
 import * as In from "../graphql/internal";
 import { Context, JwtValue } from "./interface";
-import { resolver as RestResolver } from "../rest/resolver";
-import { resolver as GraphQLResolver } from "../graphql/resolver";
+import { osrm, nominatim } from "../rest/resolver";
+import { scalar, root, type } from "../graphql/resolver";
 
 export class Server {
+    //PostgresSQL
     static readonly postgresDriver = new Client({
         host: Config.HOST_POSTGRES,
         user: Config.USER_POSTGRES,
@@ -24,40 +25,68 @@ export class Server {
         database: Config.DB_POSTGRES,
         port: Config.PORT_POSTGRES,
     });
+
+    //MongoDB
     private static readonly mongoDriver = new MongoClient(Config.URL_MONGO);
     static db: Db;
+
+    //Express
     static readonly express = express();
-    static readonly appolo = new ApolloServer({
+
+    //Apollo
+    static readonly apollo = new ApolloServer({
         includeStacktraceInErrorResponses: false,
         typeDefs: [constraintDirectiveTypeDefsGql, fs.readFileSync(path.resolve(__dirname + "/../graphql/external.graphql"), "utf-8")],
-        resolvers: GraphQLResolver,
+        resolvers: {
+            ...scalar,
+            ...root,
+            ...type
+        },
         plugins: [
             createApollo4QueryValidationPlugin({})
         ]
     });
 
-    static async connectDatabaseDrivers() {
-        await this.mongoDriver.connect();
-        this.db = this.mongoDriver.db(Config.DB_MONGO);
-        console.log({
-            component: "MongoDB Driver",
-            status: true,
-            database: Config.DB_MONGO
-        });
-
-        await this.postgresDriver.connect();
-        console.log({
-            component: "PostgreSQL Driver",
-            status: true,
-            database: Config.DB_MONGO
-        });
+    static async connectMongoDriver() {
+        try {
+            await this.mongoDriver.connect();
+            this.db = this.mongoDriver.db(Config.DB_MONGO);
+            console.log({
+                component: "MongoDB Driver",
+                status: true,
+                database: Config.DB_MONGO
+            });
+        } catch(err: any) {
+            console.error({
+                component: "MongoDB Driver",
+                status: false,
+                error: err.message
+            });
+        }
     }
 
-    static async start() {
-        await this.appolo.start();
+    static async connectPostgresDriver() {
+        try {
+            await this.postgresDriver.connect();
+            console.log({
+                component: "PostgreSQL Driver",
+                status: true,
+                database: Config.DB_POSTGRES
+            });
+        } catch(err: any) {
+            console.error({
+                component: "PostgreSQL Driver",
+                status: false,
+                error: err.message
+            });
+        }
+    }
+
+    private static async bindRoutes() {
+        await this.apollo.start();
 
         //Bind Apollo server
-        this.express.use("/graphql", cors(), express.json(), expressMiddleware(this.appolo, {
+        this.express.use("/graphql", cors(), express.json(), expressMiddleware(this.apollo, {
             context: async ({ req, res }): Promise<Context> => {
                 //Get JWT token from the header or make it empty
                 const token = req.headers.authorization || "";
@@ -70,8 +99,7 @@ export class Server {
 
                     //Add the user and their role to the context
                     return { user };
-                } catch(err) {
-                    console.error(err);
+                } catch(err: any) {
                     return { user: null };
                 }
             }
@@ -81,10 +109,14 @@ export class Server {
         this.express.use("/", express.static("public"));
 
         //Bind OSRM
-        this.express.use("/osrm/route/v1/driving/:keyCoords", RestResolver.Osrm.CalculatePossibleRoutes);
+        this.express.use("/osrm/route/v1/driving/:keyCoords", osrm.CalculatePossibleRoutes);
 
         //Bind Nominatim
-        this.express.use("/nominatim/search", RestResolver.Nominatim.SearchForCoords);
+        this.express.use("/nominatim/search", nominatim.SearchForCoords);
+    }
+
+    static async start() {
+        await this.bindRoutes();
 
         this.express.listen(Config.PORT_EXPRESS, () => {
             console.log({
