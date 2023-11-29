@@ -67,6 +67,7 @@ export class Server {
                 status: false,
                 error: err.message
             });
+            throw err;
         }
     }
 
@@ -84,6 +85,7 @@ export class Server {
                 status: false,
                 error: err.message
             });
+            throw err;
         }
     }
 
@@ -103,6 +105,7 @@ export class Server {
                 status: false,
                 error: err.errors[0]
             });
+            throw err;
         }
     }
 
