@@ -53,6 +53,10 @@ Withing the previously created OSRM data directory, run the following.
 
 - `docker run -t -i -p 5000:5000 -v "${PWD}:/data" ghcr.io/project-osrm/osrm-backend osrm-routed --algorithm mld /data/sri-lanka-latest.osrm`
 
+### Start Redis
+
+- `docker run -p 6379:6379 -it redis/redis-stack-server:latest`
+
 ### Start API server
 
 - `$ npm start`
