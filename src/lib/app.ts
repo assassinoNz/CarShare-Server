@@ -88,9 +88,22 @@ export class Server {
     }
 
     static async startAuthenticator() {
-        await this.redisDriver.connect();
-        //@ts-ignore
-        this.jwtr = new JWTR(this.redisDriver);
+        try {
+            await this.redisDriver.connect();
+            //@ts-ignore
+            this.jwtr = new JWTR(this.redisDriver);
+            console.log({
+                component: "Redis Driver",
+                status: true,
+                database: Config.DB_POSTGRES
+            });
+        } catch (err: any) {
+            console.error({
+                component: "Redis Driver",
+                status: false,
+                error: err.errors[0]
+            });
+        }
     }
 
     private static async bindRoutes() {
