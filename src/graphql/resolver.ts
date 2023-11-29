@@ -1,6 +1,5 @@
 import * as crypto from "crypto";
 
-import * as jwt from "jsonwebtoken";
 import fetch from "node-fetch";
 import { ObjectId } from "mongodb";
 import { GraphQLError, GraphQLScalarType, Kind } from "graphql";
@@ -237,7 +236,7 @@ export const root: {
                 throw new Error.PasswordMismatch(args.mobile);
             }
 
-            return jwt.sign(
+            return await Server.jwtr.sign(
                 { userId: item._id.toHexString()} as JwtPayload,
                 Config.SECRET_JWT,
                 { expiresIn: "7d" }

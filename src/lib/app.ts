@@ -1,9 +1,10 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import * as jwt from "jsonwebtoken";
 import * as express from "express";
 import * as cors from "cors";
+import * as redis from "redis";
+import JWTR from "jwt-redis";
 import { Client } from "pg";
 import { Db, MongoClient, ObjectId } from "mongodb";
 import { ApolloServer } from "@apollo/server";
@@ -29,6 +30,10 @@ export class Server {
     //MongoDB
     private static readonly mongoDriver = new MongoClient(Config.URL_MONGO);
     static db: Db;
+
+    //Redis & Jwtr
+    private static readonly redisDriver = redis.createClient();
+    static jwtr: any = null;
 
     //Express
     static readonly express = express();
@@ -56,7 +61,7 @@ export class Server {
                 status: true,
                 database: Config.DB_MONGO
             });
-        } catch(err: any) {
+        } catch (err: any) {
             console.error({
                 component: "MongoDB Driver",
                 status: false,
@@ -73,13 +78,19 @@ export class Server {
                 status: true,
                 database: Config.DB_POSTGRES
             });
-        } catch(err: any) {
+        } catch (err: any) {
             console.error({
                 component: "PostgreSQL Driver",
                 status: false,
                 error: err.message
             });
         }
+    }
+
+    static async startAuthenticator() {
+        await this.redisDriver.connect();
+        //@ts-ignore
+        this.jwtr = new JWTR(this.redisDriver);
     }
 
     private static async bindRoutes() {
@@ -92,7 +103,7 @@ export class Server {
                 const token = req.headers.authorization || "";
 
                 try {
-                    const result = jwt.verify(token, Config.SECRET_JWT) as JwtPayload;
+                    const result = await this.jwtr.verify(token, Config.SECRET_JWT) as JwtPayload;
 
                     //Retrieve the user and their role based on the JWT token
                     const user = await Server.db.collection<In.User>("users").findOne({
@@ -101,7 +112,7 @@ export class Server {
 
                     //Add the user and their role to the context
                     return { user };
-                } catch(err: any) {
+                } catch (err: any) {
                     return { user: null };
                 }
             }
