@@ -199,9 +199,16 @@ export const root: {
                 isActive: true,
                 roleId: new ObjectId(Default.ID_ROLE),
                 rating: {
-                    driving: 0.0,
-                    politeness: 0.0,
-                    punctuality: 0.0,
+                    asHost: {
+                        driving: 0.0,
+                        politeness: 0.0,
+                        punctuality: 0.0,
+                        meetsCondition: 0.0,
+                    },
+                    asRequester: {
+                        politeness: 0.0,
+                        punctuality: 0.0,
+                    }
                 },
                 secret: {
                     hash: crypto.createHash("sha1").update(args.user.password).digest("hex")

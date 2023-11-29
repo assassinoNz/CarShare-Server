@@ -57,9 +57,16 @@ const usersInsertion = db.users.insertMany([
         },
         currentCoord: [7.086671208262996, 79.9984498524246].reverse(),
         rating: {
-            politeness: 0.8,
-            punctuality: 0.1,
-            driving: 0.2,
+            asHost: {
+                politeness: 0.8,
+                punctuality: 0.1,
+                driving: 0.2,
+                meetsCondition: 0.3,
+            },
+            asRequester: {
+                politeness: 0.8,
+                punctuality: 0.1,
+            }
         },
     },
     {
@@ -302,10 +309,20 @@ const handshakesInsertion = db.handshakes.insertMany([
             time: null,
         },
         rating: {
-            punctuality: 0.8,
-            politeness: 0.9,
-            driving: 0.6,
-            meetsCondition: 0.8,
+            host: {
+                politeness: 0.8,
+                punctuality: 0.1,
+                driving: 0.2,
+                meetsCondition: 0.8,
+            },
+            requester: {
+                politeness: 0.8,
+                punctuality: 0.1,
+            },
+            vehicle: {
+                cleanliness: 0.8,
+                ac: 0.0,
+            }
         },
     }
 ]);

@@ -29,9 +29,20 @@ type User {
 }
 
 type UserRating{
-    politeness: Float!
-    punctuality: Float!
-    driving: Float!
+    asHost: HostRating!
+    asRequester: RequesterRating!
+}
+
+type HostRating {
+    politeness: Float!,
+    punctuality: Float!,
+    driving: Float!,
+    meetsCondition: Float!,
+}
+
+type RequesterRating {
+    politeness: Float!,
+    punctuality: Float!,
 }
 
 type HostedTrip {
@@ -92,13 +103,6 @@ type BankAccount {
     branch: String!
 }
 
-type TripRating {
-    punctuality: Float!
-    politeness: Float!
-    driving: Float!
-    meetsCondition: Float!
-}
-
 type RequestedTrip {
     _id: ObjectId!
     requester: User!
@@ -126,6 +130,12 @@ type HandshakeTime {
 type Payment {
     amount: Float!
     time: Date #When there is a time, payment is done
+}
+
+type TripRating {
+    host: HostRating!
+    requester: RequesterRating!
+    vehicle: VehicleRating!
 }
 
 type RequestedTripMatch {

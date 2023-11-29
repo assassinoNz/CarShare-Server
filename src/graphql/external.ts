@@ -45,6 +45,14 @@ export type HandshakeTime = {
   sent: Scalars['Date']['output'];
 };
 
+export type HostRating = {
+  __typename?: 'HostRating';
+  driving: Scalars['Float']['output'];
+  meetsCondition: Scalars['Float']['output'];
+  politeness: Scalars['Float']['output'];
+  punctuality: Scalars['Float']['output'];
+};
+
 export type HostedTrip = {
   __typename?: 'HostedTrip';
   _id: Scalars['ObjectId']['output'];
@@ -127,6 +135,12 @@ export type RequestedTripMatch = {
   results: Array<TripMatchResult>;
 };
 
+export type RequesterRating = {
+  __typename?: 'RequesterRating';
+  politeness: Scalars['Float']['output'];
+  punctuality: Scalars['Float']['output'];
+};
+
 export type Route = {
   __typename?: 'Route';
   from: Scalars['String']['output'];
@@ -167,10 +181,9 @@ export type TripMatchResult = {
 
 export type TripRating = {
   __typename?: 'TripRating';
-  driving: Scalars['Float']['output'];
-  meetsCondition: Scalars['Float']['output'];
-  politeness: Scalars['Float']['output'];
-  punctuality: Scalars['Float']['output'];
+  host: HostRating;
+  requester: RequesterRating;
+  vehicle: VehicleRating;
 };
 
 export type TripTime = {
@@ -204,9 +217,8 @@ export type UserInput = {
 
 export type UserRating = {
   __typename?: 'UserRating';
-  driving: Scalars['Float']['output'];
-  politeness: Scalars['Float']['output'];
-  punctuality: Scalars['Float']['output'];
+  asHost: HostRating;
+  asRequester: RequesterRating;
 };
 
 export type Vehicle = {
