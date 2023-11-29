@@ -12,7 +12,7 @@ import { createApollo4QueryValidationPlugin, constraintDirectiveTypeDefsGql } fr
 
 import * as Config from "../../config";
 import * as In from "../graphql/internal";
-import { Context, JwtValue } from "./interface";
+import { Context, JwtPayload } from "./interface";
 import { osrm, nominatim } from "../rest/resolver";
 import { scalar, root, type } from "../graphql/resolver";
 
@@ -92,10 +92,12 @@ export class Server {
                 const token = req.headers.authorization || "";
 
                 try {
-                    const result = jwt.verify(token, Config.SECRET_JWT) as JwtValue;
+                    const result = jwt.verify(token, Config.SECRET_JWT) as JwtPayload;
 
                     //Retrieve the user and their role based on the JWT token
-                    const user = await Server.db.collection<In.User>("users").findOne({ _id: new ObjectId(result.userId) }) as In.User;
+                    const user = await Server.db.collection<In.User>("users").findOne({
+                        _id: new ObjectId(result.userId)
+                    }) as In.User;
 
                     //Add the user and their role to the context
                     return { user };

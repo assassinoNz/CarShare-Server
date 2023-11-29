@@ -1,6 +1,6 @@
 import * as In from "../graphql/internal";
 
-export interface JwtValue {
+export interface JwtPayload {
     userId: string;
 }
 

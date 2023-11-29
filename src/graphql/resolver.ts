@@ -12,7 +12,7 @@ import * as In from "./internal";
 import * as Ex from "./external";
 import { Server } from "../lib/app";
 import { ModuleId, OperationIndex } from "../lib/enum";
-import { JwtValue, Resolver } from "../lib/interface";
+import { JwtPayload, Resolver } from "../lib/interface";
 import { PermissionManager, PostGIS } from "../lib/util";
 
 export const scalar = {
@@ -228,7 +228,7 @@ export const root = {
             }
 
             return jwt.sign(
-                { userId: item._id.toHexString()} as JwtValue,
+                { userId: item._id.toHexString()} as JwtPayload,
                 Config.SECRET_JWT,
                 { expiresIn: "7d" }
             );
