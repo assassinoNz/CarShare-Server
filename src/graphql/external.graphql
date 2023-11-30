@@ -42,7 +42,7 @@ input UserInput {
     mobile: String! @constraint(pattern: "^\\+94\\d{9}$")
     password: String! @constraint(minLength: 4)
     email: String! @constraint(format: "email")
-    preferredName: String! @constraint(pattern: "^[a-zA-Z]{3,20}*$")
+    preferredName: String! @constraint(pattern: "^[a-zA-Z]{3,20}$")
 }
 
 #RATING=========================================
