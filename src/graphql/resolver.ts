@@ -11,7 +11,7 @@ import * as In from "./internal";
 import * as Ex from "./external";
 import { Server } from "../lib/app";
 import { ModuleId, OperationIndex } from "../lib/enum";
-import { JwtPayload, Resolver } from "../lib/interface";
+import { JwtPayload, TypeResolver, RootResolver } from "../lib/interface";
 import { PermissionManager, PostGIS } from "../lib/util";
 
 export const scalar = {
@@ -63,8 +63,8 @@ export const scalar = {
 }
 
 export const root: {
-    Query: Resolver<In.Query, Ex.Query>,
-    Mutation: Resolver<In.Mutation, Ex.Mutation>,
+    Query: RootResolver<In.Query, Ex.Query>,
+    Mutation: RootResolver<In.Mutation, Ex.Mutation>,
 } = {
     Query: {
         GetMe: async (parent, args, ctx, info) => {
@@ -305,14 +305,12 @@ export const root: {
 }
 
 export const type: {
-    HostedTrip: Resolver<In.HostedTrip, Ex.HostedTrip>,
-    TripBilling: Resolver<In.TripBilling, Ex.TripBilling>,
-    RequestedTrip: Resolver<In.RequestedTrip, Ex.RequestedTrip>,
-    Handshake: Resolver<In.Handshake, Ex.Handshake>,
+    HostedTrip: TypeResolver<In.HostedTrip, Ex.HostedTrip>,
+    TripBilling: TypeResolver<In.TripBilling, Ex.TripBilling>,
+    RequestedTrip: TypeResolver<In.RequestedTrip, Ex.RequestedTrip>,
+    Handshake: TypeResolver<In.Handshake, Ex.Handshake>,
 } = {
     HostedTrip: {
-        _id: async (parent, args, ctx, info) => parent._id,
-
         host: async (parent, args, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User>("users").findOne({ _id: parent.hostId });
@@ -323,10 +321,6 @@ export const type: {
 
             return item;
         },
-
-        route: async (parent, args, ctx, info) => parent.route,
-
-        time: async (parent, args, ctx, info) => parent.time,
 
         vehicle: async (parent, args, ctx, info) => {
             if (parent.vehicleId) {
@@ -349,8 +343,6 @@ export const type: {
             }
         },
 
-        seats: async (parent, args, ctx, info) => parent.seats,
-
         billing: async (parent, args, ctx, info) => {
             return {
                 ...parent.billing,
@@ -372,15 +364,9 @@ export const type: {
             
             return item;
         },
-
-        priceFirstKm: async (parent, args, ctx, info) => parent.priceFirstKm,
-
-        priceNextKm: async (parent, args, ctx, info) => parent.priceNextKm,
     },
 
     RequestedTrip: {
-        _id: async (parent, args, ctx, info) => parent._id,
-
         requester: async (parent, args, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User & Ex.User>("users").findOne({
@@ -393,17 +379,9 @@ export const type: {
 
             return item;
         },
-
-        route: async (parent, args, ctx, info) => parent.route,
-
-        time: async (parent, args, ctx, info) => parent.time,
-
-        seats: async (parent, args, ctx, info) => parent.seats,
     },
 
     Handshake: {
-        _id: async (parent, args, ctx, info) => parent._id,
-
         sender: async (parent, args, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User>("users").findOne({ _id: parent.senderId });
@@ -451,11 +429,5 @@ export const type: {
             
             return item;
         },
-
-        time: async (parent, args, ctx, info) => parent.time,
-
-        payment: async (parent, args, ctx, info) => parent.payment,
-
-        rating: async (parent, args, ctx, info) => parent.rating,
     },
 };
