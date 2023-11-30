@@ -137,8 +137,11 @@ export type Query = {
   GetMatchingRequestedTrips: Array<RequestedTripMatch>;
   GetMe: User;
   GetMyBankAccounts: Array<BankAccount>;
+  GetMyHandshake: Handshake;
+  GetMyHostedTrip: HostedTrip;
   GetMyHostedTrips: Array<Maybe<HostedTrip>>;
   GetMyReceivedHandshakes: Array<Maybe<Handshake>>;
+  GetMyRequestedTrip: RequestedTrip;
   GetMyRequestedTrips: Array<Maybe<RequestedTrip>>;
   GetMySentHandshakes: Array<Maybe<Handshake>>;
   GetMyVehicles: Array<Vehicle>;
@@ -147,6 +150,57 @@ export type Query = {
 
 export type QueryGetMatchingRequestedTripsArgs = {
   hostedTripId: Scalars['ObjectId']['input'];
+};
+
+
+export type QueryGetMyBankAccountsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryGetMyHandshakeArgs = {
+  _id: Scalars['ObjectId']['input'];
+};
+
+
+export type QueryGetMyHostedTripArgs = {
+  _id: Scalars['ObjectId']['input'];
+};
+
+
+export type QueryGetMyHostedTripsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryGetMyReceivedHandshakesArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryGetMyRequestedTripArgs = {
+  _id: Scalars['ObjectId']['input'];
+};
+
+
+export type QueryGetMyRequestedTripsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryGetMySentHandshakesArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryGetMyVehiclesArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type RequestedTrip = {

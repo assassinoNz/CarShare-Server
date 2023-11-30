@@ -4,14 +4,18 @@ scalar Date
 #ROOT===========================================
 type Query {
     GetMe: User!
-    GetMyVehicles: [Vehicle!]!
-    GetMyBankAccounts: [BankAccount!]!
+    GetMyVehicles(skip: Int, limit: Int @constraint(max: 10)): [Vehicle!]!
+    GetMyBankAccounts(skip: Int, limit: Int @constraint(max: 10)): [BankAccount!]!
 
-    GetMyHostedTrips: [HostedTrip]!
-    GetMyRequestedTrips: [RequestedTrip]!
+    GetMyHostedTrips(skip: Int, limit: Int @constraint(max: 10)): [HostedTrip]!
+    GetMyHostedTrip(_id: ObjectId!): HostedTrip!
 
-    GetMySentHandshakes: [Handshake]!
-    GetMyReceivedHandshakes: [Handshake]!
+    GetMyRequestedTrips(skip: Int, limit: Int @constraint(max: 10)): [RequestedTrip]!
+    GetMyRequestedTrip(_id: ObjectId!): RequestedTrip!
+
+    GetMySentHandshakes(skip: Int, limit: Int @constraint(max: 10)): [Handshake]!
+    GetMyReceivedHandshakes(skip: Int, limit: Int @constraint(max: 10)): [Handshake]!
+    GetMyHandshake(_id: ObjectId!): Handshake!
 
     GetMatchingRequestedTrips(hostedTripId: ObjectId!): [RequestedTripMatch!]!
 }

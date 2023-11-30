@@ -72,48 +72,107 @@ export const root: {
             return PermissionManager.me(ctx);
         },
 
-        GetMyVehicles: async (parent, args, ctx, info) => {
+        GetMyVehicles: async (parent, args: Ex.QueryGetMyVehiclesArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
-            return await Server.db.collection<In.Vehicle>("vehicles").find({ ownerId: me._id }).toArray();
+            return await Server.db.collection<In.Vehicle>("vehicles").find({ ownerId: me._id })
+                .skip(args.skip || 0)
+                .limit(args.limit || 10)
+                .toArray();
         },
 
-        GetMyBankAccounts: async (parent, args, ctx, info) => {
+        GetMyBankAccounts: async (parent, args: Ex.QueryGetMyBankAccountsArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
-            return await Server.db.collection<In.BankAccount>("bankAccounts").find({ ownerId: me._id }).toArray();
+            return await Server.db.collection<In.BankAccount>("bankAccounts").find({ ownerId: me._id })
+                .skip(args.skip || 0)
+                .limit(args.limit || 10)
+                .toArray();
         },
 
-        GetMyHostedTrips: async (parent, args, ctx, info) => {
+        GetMyHostedTrips: async (parent, args: Ex.QueryGetMyHostedTripsArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
             return await Server.db.collection<In.HostedTrip & Ex.HostedTrip>("hostedTrips").find({
                 hostId: me._id
-            }).toArray();
+            }).skip(args.skip || 0)
+                .limit(args.limit || 10)
+                .toArray();
         },
 
-        GetMyRequestedTrips: async (parent, args, ctx, info) => {
+        GetMyHostedTrip: async (parent, args: Ex.QueryGetMyHostedTripArgs, ctx, info) => {
+            await PermissionManager.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
+            const me = PermissionManager.me(ctx);
+            const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>("hostedTrips").findOne({
+                _id: args._id,
+                hostId: me._id
+            });
+
+            if (!item) {
+                throw new Error.ItemDoesNotExist("hosted trip", "id", args._id.toHexString());
+            }
+
+            return item;
+        },
+
+        GetMyRequestedTrips: async (parent, args: Ex.QueryGetMyRequestedTripsArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
             return await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>("requestedTrips").find({
                 requesterId: me._id
-            }).toArray();
+            }).skip(args.skip || 0)
+                .limit(args.limit || 10)
+                .toArray();
         },
 
-        GetMySentHandshakes: async (parent, args, ctx, info) => {
+        GetMyRequestedTrip: async (parent, args: Ex.QueryGetMyRequestedTripArgs, ctx, info) => {
+            await PermissionManager.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
+            const me = PermissionManager.me(ctx);
+            const item = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>("requestedTrips").findOne({
+                _id: args._id,
+                hostId: me._id
+            });
+
+            if (!item) {
+                throw new Error.ItemDoesNotExist("requested trip", "id", args._id.toHexString());
+            }
+
+            return item;
+        },
+
+        GetMySentHandshakes: async (parent, args: Ex.QueryGetMySentHandshakesArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
             return await Server.db.collection<In.Handshake & Ex.Handshake>("handshakes").find({
                 senderId: me._id
-            }).toArray();
+            }).skip(args.skip || 0)
+                .limit(args.limit || 10)
+                .toArray();
         },
 
-        GetMyReceivedHandshakes: async (parent, args, ctx, info) => {
+        GetMyHandshake: async (parent, args: Ex.QueryGetMyHandshakeArgs, ctx, info) => {
+            await PermissionManager.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
+            const me = PermissionManager.me(ctx);
+            const item = await Server.db.collection<In.Handshake & Ex.Handshake>("handshakes").findOne({
+                _id: args._id,
+                hostId: me._id
+            });
+
+            if (!item) {
+                throw new Error.ItemDoesNotExist("handshake", "id", args._id.toHexString());
+            }
+
+            return item;
+        },
+
+        GetMyReceivedHandshakes: async (parent, args: Ex.QueryGetMyReceivedHandshakesArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
             return await Server.db.collection<In.Handshake & Ex.Handshake>("handshakes").find({
                 recipientId: me._id
-            }).toArray();
+            }).skip(args.skip || 0)
+                .limit(args.limit || 10)
+                .toArray();
         },
 
         GetMatchingRequestedTrips: async (parent, args: Ex.QueryGetMatchingRequestedTripsArgs, ctx, info) => {
