@@ -10,7 +10,7 @@ import * as Error from "../lib/error";
 import * as In from "./internal";
 import * as Ex from "./external";
 import { Server } from "../lib/app";
-import { ModuleId, OperationIndex } from "../lib/enum";
+import { CollectionName, ModuleId, OperationIndex } from "../lib/enum";
 import { JwtPayload, TypeResolver, RootResolver } from "../lib/interface";
 import { PermissionManager, PostGIS } from "../lib/util";
 
@@ -75,7 +75,7 @@ export const root: {
         GetMyVehicles: async (parent, args: Ex.QueryGetMyVehiclesArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
-            return await Server.db.collection<In.Vehicle>("vehicles").find({ ownerId: me._id })
+            return await Server.db.collection<In.Vehicle>(CollectionName.VEHICLES).find({ ownerId: me._id })
                 .skip(args.skip || 0)
                 .limit(args.limit || 10)
                 .toArray();
@@ -84,7 +84,7 @@ export const root: {
         GetMyBankAccounts: async (parent, args: Ex.QueryGetMyBankAccountsArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
-            return await Server.db.collection<In.BankAccount>("bankAccounts").find({ ownerId: me._id })
+            return await Server.db.collection<In.BankAccount>(CollectionName.BANK_ACCOUNTS).find({ ownerId: me._id })
                 .skip(args.skip || 0)
                 .limit(args.limit || 10)
                 .toArray();
@@ -93,7 +93,7 @@ export const root: {
         GetMyHostedTrips: async (parent, args: Ex.QueryGetMyHostedTripsArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
-            return await Server.db.collection<In.HostedTrip & Ex.HostedTrip>("hostedTrips").find({
+            return await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(CollectionName.HOSTED_TRIPS).find({
                 hostId: me._id
             }).skip(args.skip || 0)
                 .limit(args.limit || 10)
@@ -103,7 +103,7 @@ export const root: {
         GetMyHostedTrip: async (parent, args: Ex.QueryGetMyHostedTripArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
-            const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>("hostedTrips").findOne({
+            const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(CollectionName.HOSTED_TRIPS).findOne({
                 _id: args._id,
                 hostId: me._id
             });
@@ -118,7 +118,7 @@ export const root: {
         GetMyRequestedTrips: async (parent, args: Ex.QueryGetMyRequestedTripsArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
-            return await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>("requestedTrips").find({
+            return await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(CollectionName.REQUESTED_TRIPS).find({
                 requesterId: me._id
             }).skip(args.skip || 0)
                 .limit(args.limit || 10)
@@ -128,7 +128,7 @@ export const root: {
         GetMyRequestedTrip: async (parent, args: Ex.QueryGetMyRequestedTripArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
-            const item = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>("requestedTrips").findOne({
+            const item = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(CollectionName.REQUESTED_TRIPS).findOne({
                 _id: args._id,
                 hostId: me._id
             });
@@ -143,7 +143,7 @@ export const root: {
         GetMySentHandshakes: async (parent, args: Ex.QueryGetMySentHandshakesArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
-            return await Server.db.collection<In.Handshake & Ex.Handshake>("handshakes").find({
+            return await Server.db.collection<In.Handshake & Ex.Handshake>(CollectionName.HANDSHAKES).find({
                 senderId: me._id
             }).skip(args.skip || 0)
                 .limit(args.limit || 10)
@@ -153,7 +153,7 @@ export const root: {
         GetMyHandshake: async (parent, args: Ex.QueryGetMyHandshakeArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
-            const item = await Server.db.collection<In.Handshake & Ex.Handshake>("handshakes").findOne({
+            const item = await Server.db.collection<In.Handshake & Ex.Handshake>(CollectionName.HANDSHAKES).findOne({
                 _id: args._id,
                 hostId: me._id
             });
@@ -168,7 +168,7 @@ export const root: {
         GetMyReceivedHandshakes: async (parent, args: Ex.QueryGetMyReceivedHandshakesArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
-            return await Server.db.collection<In.Handshake & Ex.Handshake>("handshakes").find({
+            return await Server.db.collection<In.Handshake & Ex.Handshake>(CollectionName.HANDSHAKES).find({
                 recipientId: me._id
             }).skip(args.skip || 0)
                 .limit(args.limit || 10)
@@ -178,7 +178,7 @@ export const root: {
         GetMatchingRequestedTrips: async (parent, args: Ex.QueryGetMatchingRequestedTripsArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
 
-            const hostedTrip = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>("hostedTrips").findOne({
+            const hostedTrip = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(CollectionName.HOSTED_TRIPS).findOne({
                 _id: args.hostedTripId
             });
             
@@ -187,7 +187,8 @@ export const root: {
             }
 
             //Validate if hosted trip's host is current user
-            if (!hostedTrip.hostId.equals(ctx.user!._id)) {
+            const me = PermissionManager.me(ctx);
+            if (!hostedTrip.hostId.equals(me._id)) {
                 throw new Error.ItemNotAccessibleByUser("hosted trip", "id", args.hostedTripId.toHexString());
             }
 
@@ -201,7 +202,7 @@ export const root: {
 
             //DANGER//TODO: Must me optimized. Find a better way than retrieving all requested trips 
             //Get all requested trips
-            const requestedTrips = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>("requestedTrips").find({
+            const requestedTrips = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(CollectionName.REQUESTED_TRIPS).find({
                 //Filter requested trips that are +-1h to hosted trip
                 // "time.schedule": {
                 //     $gte: hostedTrip.time.schedule.getHours() - 1,
@@ -216,7 +217,12 @@ export const root: {
                     .then((res: any) => res.json())
                     .then((res: any) => res.routes);
 
-                const tripMatchResults: Ex.TripMatchResult[] = [];
+                const requestedTripMatch: Ex.RequestedTripMatch = {
+                    requestedTrip,
+                    results: [
+                        //NOTE: For each possible route of the requestedTrip, there is a result
+                    ]
+                };
 
                 //For each possible route calculate trip match result
                 for (const route of routes) {
@@ -227,8 +233,8 @@ export const root: {
 
                     const tripMatchResult = await PostGIS.calculateRouteMatchResult(hostedTripPolyLines, requestedTripPolyLines);
 
-                    //TODO: Remove results 
-                    tripMatchResults.push({
+                    //TODO: Remove results with no intersection
+                    requestedTripMatch.results.push({
                         hostedTripLength: tripMatchResult.mainRouteLength,
                         requestedTripLength: tripMatchResult.secondaryRouteLength,
                         hostedTripCoverage: tripMatchResult.mainRouteCoverage,
@@ -238,10 +244,7 @@ export const root: {
                     });
                 }
 
-                requestedTripMatches.push({
-                    requestedTrip: requestedTrip,
-                    results: tripMatchResults
-                });
+                requestedTripMatches.push(requestedTripMatch);
             }
 
             return requestedTripMatches;
@@ -252,7 +255,7 @@ export const root: {
         CreateUser: async (parent, args: Ex.MutationCreateUserArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.USERS, OperationIndex.CREATE);
 
-            const result = await Server.db.collection<In.UserInput>("users").insertOne({
+            const result = await Server.db.collection<In.UserInput>(CollectionName.USERS).insertOne({
                 ...args.user,
                 isActive: true,
                 roleId: new ObjectId(Default.ID_ROLE),
@@ -280,7 +283,7 @@ export const root: {
         },
 
         SignIn: async (parent, args: Ex.MutationSignInArgs, ctx, info) => {
-            const item = await Server.db.collection<In.User>("users").findOne({ mobile: args.mobile });
+            const item = await Server.db.collection<In.User>(CollectionName.USERS).findOne({ mobile: args.mobile });
 
             if (!item) {
                 throw new Error.ItemDoesNotExist("user", "mobile", args.mobile);
@@ -314,7 +317,7 @@ export const root: {
             if (args.hostedTrip.vehicleId) {
                 //CASE: User has assigned a saved vehicle
                 //Validate vehicle
-                const vehicle = await Server.db.collection<In.Vehicle & Ex.Vehicle>("vehicles").findOne({
+                const vehicle = await Server.db.collection<In.Vehicle & Ex.Vehicle>(CollectionName.VEHICLES).findOne({
                     _id: args.hostedTrip.vehicleId
                 });
 
@@ -343,7 +346,9 @@ export const root: {
             }
 
             //Validate bank account
-            const bankAccount = await Server.db.collection<In.BankAccount & Ex.BankAccount>("bankAccounts").findOne({ _id: args.hostedTrip.billing.bankAccountId });
+            const bankAccount = await Server.db.collection<In.BankAccount & Ex.BankAccount>(CollectionName.BANK_ACCOUNTS).findOne({
+                _id: args.hostedTrip.billing.bankAccountId
+            });
 
             if (!bankAccount) {
                 throw new Error.ItemDoesNotExist("bank account", "id", args.hostedTrip.billing.bankAccountId.toHexString());
@@ -353,7 +358,7 @@ export const root: {
                 throw new Error.ItemIsNotActive("bank account", "id", args.hostedTrip.billing.bankAccountId.toHexString());
             }
 
-            const result = await Server.db.collection<In.HostedTripInput>("hostedTrips").insertOne(tripToBeInserted);
+            const result = await Server.db.collection<In.HostedTripInput>(CollectionName.HOSTED_TRIPS).insertOne(tripToBeInserted);
             if (!result.acknowledged) {
                 throw new Error.CouldNotPerformOperation(ModuleId.HOSTED_TRIPS, OperationIndex.CREATE);
             }
