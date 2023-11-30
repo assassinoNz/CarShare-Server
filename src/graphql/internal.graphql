@@ -147,7 +147,7 @@ input VehicleFeaturesInput {
 type HostedTrip {
     _id: ObjectId!
     hostId: ObjectId!
-    route: Route!
+    route: HostedTripRoute!
     time: TripTime!
     vehicleId: ObjectId
     vehicle: Vehicle
@@ -156,26 +156,12 @@ type HostedTrip {
 }
 
 input HostedTripInput {
-    route: RouteInput!
+    route: HostedTripRouteInput!
     time: TripTimeInput!
     vehicleId: ObjectId
     vehicle: VehicleInput
     seats: Int!
     billing: TripBillingInput!
-}
-
-type Route {
-    from: String!
-    to: String!
-    polyLines: [String!]
-    keyCoords: [[Float!]!]!
-}
-
-input RouteInput {
-    from: String!
-    to: String!
-    polyLines: [String!]
-    keyCoords: [[Float!]!]
 }
 
 type TripBilling {
@@ -193,9 +179,30 @@ input TripBillingInput {
 type RequestedTrip {
     _id: ObjectId!
     requesterId: ObjectId!
-    route: Route!
+    route: RequestedTripRoute!
     time: TripTime!
     seats: Int!
+}
+
+#ROUTE==========================================
+type HostedTripRoute {
+    from: String!
+    to: String!
+    polyLines: [String!]!
+    keyCoords: [[Float!]!]!
+}
+
+input HostedTripRouteInput {
+    from: String! @constraint(pattern: "^[a-zA-Z]{5,30}*$")
+    to: String! @constraint(pattern: "^[a-zA-Z]{5,30}*$")
+    polyLines: [String!]!
+    keyCoords: [[Float!]!]!
+}
+
+type RequestedTripRoute {
+    from: String!
+    to: String!
+    keyCoords: [[Float!]!]!
 }
 
 #HANDSHAKE======================================
@@ -217,7 +224,6 @@ type Payment {
 
 #TRIP_MATCH====================================
 type RequestedTripMatch {
-    hostedTripId: ObjectId!
     requestedTripId: ObjectId!
     results: [TripMatchResult!]!
 }

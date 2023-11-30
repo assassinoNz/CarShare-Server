@@ -58,7 +58,7 @@ export type HostedTrip = {
   _id: Scalars['ObjectId']['output'];
   billing: TripBilling;
   host: User;
-  route: Route;
+  route: HostedTripRoute;
   seats: Scalars['Int']['output'];
   time: TripTime;
   vehicle: Vehicle;
@@ -66,11 +66,26 @@ export type HostedTrip = {
 
 export type HostedTripInput = {
   billing: TripBillingInput;
-  route: RouteInput;
+  route: HostedTripRouteInput;
   seats: Scalars['Int']['input'];
   time: TripTimeInput;
   vehicle?: InputMaybe<VehicleInput>;
   vehicleId?: InputMaybe<Scalars['ObjectId']['input']>;
+};
+
+export type HostedTripRoute = {
+  __typename?: 'HostedTripRoute';
+  from: Scalars['String']['output'];
+  keyCoords: Array<Array<Scalars['Float']['output']>>;
+  polyLines: Array<Scalars['String']['output']>;
+  to: Scalars['String']['output'];
+};
+
+export type HostedTripRouteInput = {
+  from: Scalars['String']['input'];
+  keyCoords: Array<Array<Scalars['Float']['input']>>;
+  polyLines: Array<Scalars['String']['input']>;
+  to: Scalars['String']['input'];
 };
 
 export type Mutation = {
@@ -123,37 +138,28 @@ export type RequestedTrip = {
   __typename?: 'RequestedTrip';
   _id: Scalars['ObjectId']['output'];
   requester: User;
-  route: Route;
+  route: RequestedTripRoute;
   seats: Scalars['Int']['output'];
   time: TripTime;
 };
 
 export type RequestedTripMatch = {
   __typename?: 'RequestedTripMatch';
-  hostedTrip: HostedTrip;
   requestedTrip: RequestedTrip;
   results: Array<TripMatchResult>;
+};
+
+export type RequestedTripRoute = {
+  __typename?: 'RequestedTripRoute';
+  from: Scalars['String']['output'];
+  keyCoords: Array<Array<Scalars['Float']['output']>>;
+  to: Scalars['String']['output'];
 };
 
 export type RequesterRating = {
   __typename?: 'RequesterRating';
   politeness: Scalars['Float']['output'];
   punctuality: Scalars['Float']['output'];
-};
-
-export type Route = {
-  __typename?: 'Route';
-  from: Scalars['String']['output'];
-  keyCoords: Array<Array<Scalars['Float']['output']>>;
-  polyLines?: Maybe<Array<Scalars['String']['output']>>;
-  to: Scalars['String']['output'];
-};
-
-export type RouteInput = {
-  from: Scalars['String']['input'];
-  keyCoords: Array<Array<Scalars['Float']['input']>>;
-  polyLines?: InputMaybe<Array<Scalars['String']['input']>>;
-  to: Scalars['String']['input'];
 };
 
 export type TripBilling = {

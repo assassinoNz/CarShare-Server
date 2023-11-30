@@ -59,7 +59,7 @@ export type HostedTrip = {
   _id: Scalars['ObjectId']['output'];
   billing: TripBilling;
   hostId: Scalars['ObjectId']['output'];
-  route: Route;
+  route: HostedTripRoute;
   seats: Scalars['Int']['output'];
   time: TripTime;
   vehicle?: Maybe<Vehicle>;
@@ -68,11 +68,26 @@ export type HostedTrip = {
 
 export type HostedTripInput = {
   billing: TripBillingInput;
-  route: RouteInput;
+  route: HostedTripRouteInput;
   seats: Scalars['Int']['input'];
   time: TripTimeInput;
   vehicle?: InputMaybe<VehicleInput>;
   vehicleId?: InputMaybe<Scalars['ObjectId']['input']>;
+};
+
+export type HostedTripRoute = {
+  __typename?: 'HostedTripRoute';
+  from: Scalars['String']['output'];
+  keyCoords: Array<Array<Scalars['Float']['output']>>;
+  polyLines: Array<Scalars['String']['output']>;
+  to: Scalars['String']['output'];
+};
+
+export type HostedTripRouteInput = {
+  from: Scalars['String']['input'];
+  keyCoords: Array<Array<Scalars['Float']['input']>>;
+  polyLines: Array<Scalars['String']['input']>;
+  to: Scalars['String']['input'];
 };
 
 export type Module = {
@@ -138,16 +153,22 @@ export type RequestedTrip = {
   __typename?: 'RequestedTrip';
   _id: Scalars['ObjectId']['output'];
   requesterId: Scalars['ObjectId']['output'];
-  route: Route;
+  route: RequestedTripRoute;
   seats: Scalars['Int']['output'];
   time: TripTime;
 };
 
 export type RequestedTripMatch = {
   __typename?: 'RequestedTripMatch';
-  hostedTripId: Scalars['ObjectId']['output'];
   requestedTripId: Scalars['ObjectId']['output'];
   results: Array<TripMatchResult>;
+};
+
+export type RequestedTripRoute = {
+  __typename?: 'RequestedTripRoute';
+  from: Scalars['String']['output'];
+  keyCoords: Array<Array<Scalars['Float']['output']>>;
+  to: Scalars['String']['output'];
 };
 
 export type RequesterRating = {
@@ -161,21 +182,6 @@ export type Role = {
   _id: Scalars['ObjectId']['output'];
   name: Scalars['String']['output'];
   permissions: Array<Permission>;
-};
-
-export type Route = {
-  __typename?: 'Route';
-  from: Scalars['String']['output'];
-  keyCoords: Array<Array<Scalars['Float']['output']>>;
-  polyLines?: Maybe<Array<Scalars['String']['output']>>;
-  to: Scalars['String']['output'];
-};
-
-export type RouteInput = {
-  from: Scalars['String']['input'];
-  keyCoords?: InputMaybe<Array<Array<Scalars['Float']['input']>>>;
-  polyLines?: InputMaybe<Array<Scalars['String']['input']>>;
-  to: Scalars['String']['input'];
 };
 
 export type Secret = {

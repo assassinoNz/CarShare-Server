@@ -128,7 +128,7 @@ export const root: {
             }
 
             //Validate if hosted trip's host is current user
-            if (hostedTrip.hostId !== ctx.user?._id) {
+            if (!hostedTrip.hostId.equals(ctx.user!._id)) {
                 throw new Error.ItemNotAccessibleByUser("hosted trip", "id", args.hostedTripId.toHexString());
             }
 
@@ -144,10 +144,10 @@ export const root: {
             //Get all requested trips
             const requestedTrips = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>("requestedTrips").find({
                 //Filter requested trips that are +-1h to hosted trip
-                "time.schedule": {
-                    $gte: hostedTrip.time.schedule.getHours() - 1,
-                    $lt: hostedTrip.time.schedule.getHours() + 1
-                }
+                // "time.schedule": {
+                //     $gte: hostedTrip.time.schedule.getHours() - 1,
+                //     $lt: hostedTrip.time.schedule.getHours() + 1
+                // }
             }).toArray();
 
             //For each requested trip, calculate match results
@@ -168,6 +168,7 @@ export const root: {
 
                     const tripMatchResult = await PostGIS.calculateRouteMatchResult(hostedTripPolyLines, requestedTripPolyLines);
 
+                    //TODO: Remove results 
                     tripMatchResults.push({
                         hostedTripLength: tripMatchResult.mainRouteLength,
                         requestedTripLength: tripMatchResult.secondaryRouteLength,
@@ -179,7 +180,6 @@ export const root: {
                 }
 
                 requestedTripMatches.push({
-                    hostedTrip: hostedTrip,
                     requestedTrip: requestedTrip,
                     results: tripMatchResults
                 });

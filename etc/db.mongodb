@@ -263,7 +263,6 @@ const requestedTripsInsertion = db.requestedTrips.insertMany([
         route: {
             from: "Piliyandala",
             to: "Cybertron",
-            polyLines: null,
             keyCoords: [
                 [6.829470024356559, 79.90957546009602].reverse(),
                 [6.815242592352088, 79.95746412416065].reverse(),
@@ -280,7 +279,6 @@ const requestedTripsInsertion = db.requestedTrips.insertMany([
         route: {
             from: "Gampaha Railway",
             to: "Miriswatta",
-            polyLines: null,
             keyCoords: [
                 [7.092252219283498, 79.99299056862273].reverse(),
                 [7.072965706899689, 80.01593012768988].reverse(),
