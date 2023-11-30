@@ -400,6 +400,13 @@ export const root: {
     },
 }
 
+/**
+ * The union of the types that has resolvers
+**/
+export type Resolved = (
+    Ex.HostedTrip | Ex.TripBilling | Ex.RequestedTrip | Ex.Handshake
+);
+
 export const type: {
     HostedTrip: TypeResolver<In.HostedTrip, Ex.HostedTrip>,
     TripBilling: TypeResolver<In.TripBilling, Ex.TripBilling>,
