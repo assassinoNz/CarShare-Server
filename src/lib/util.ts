@@ -7,6 +7,15 @@ import { Server } from "./app";
 import { ModuleId, OperationIndex } from "./enum";
 import { Context } from "./interface";
 
+export class StringUtil {
+    static toCamelCase(screamingSnakeCase: string) {
+        return screamingSnakeCase.toLowerCase()
+            .split("_")
+            .map((word, index) => index !== 0 ? word[0].toUpperCase() + word.slice(1) : word)
+            .join("");
+    }
+}
+
 export class PermissionManager {
     static me(ctx: Context) {
         if (ctx.user) {
@@ -74,7 +83,7 @@ export class PostGIS {
     // }
 
     private static wkb2Coords(wkbEncoding: string) {
-        const geometry = wkx.Geometry.parse(Buffer.from(wkbEncoding, 'hex'));
+        const geometry = wkx.Geometry.parse(Buffer.from(wkbEncoding, "hex"));
     
         const coords: number[][] = [];
         //@ts-ignore
@@ -112,8 +121,8 @@ export class PostGIS {
                         ST_Intersection(main_route, secondary_route) AS intersection_route
                     FROM (
                         SELECT
-                            ST_GeomFromText('${this.makeLineString(mainRoutePolyLines)}') AS main_route,
-                            ST_GeomFromText('${this.makeLineString(secondaryRoutePolyLines)}') AS secondary_route
+                            ST_GeomFromText("${this.makeLineString(mainRoutePolyLines)}") AS main_route,
+                            ST_GeomFromText("${this.makeLineString(secondaryRoutePolyLines)}") AS secondary_route
                     )
                 )
             );

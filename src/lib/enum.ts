@@ -1,3 +1,5 @@
+import { StringUtil } from "./util";
+
 export enum OperationIndex { CREATE, RETRIEVE, UPDATE, DELETE }
 
 export enum ModuleId {
@@ -16,3 +18,10 @@ export const ModuleName: { [_ in ModuleId]: string } = (Object.keys(ModuleId) as
         acc[ModuleId[key]] = key;
         return acc;
     }, {} as { [_ in ModuleId]: string });
+
+//A dictionary that maps each module id to its name
+export const CollectionName: { -readonly [_ in keyof typeof ModuleId]: string } = (Object.keys(ModuleId) as (keyof typeof ModuleId)[])
+    .reduce((acc, key) => {
+        acc[key] = StringUtil.toCamelCase(key);
+        return acc;
+    }, {} as { -readonly [_ in keyof typeof ModuleId]: string });
