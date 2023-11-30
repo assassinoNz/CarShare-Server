@@ -277,7 +277,12 @@ export const root: {
             if (!result.acknowledged) {
                 throw new Error.CouldNotPerformOperation(ModuleId.USERS, OperationIndex.CREATE);
             }
-            return result.insertedId;
+
+            return await Server.jwtr.sign(
+                { userId: result.insertedId.toHexString()} as JwtPayload,
+                Config.SECRET_JWT,
+                { expiresIn: "5d" }
+            );
         },
 
         SignIn: async (parent, args: Ex.MutationSignInArgs, ctx, info) => {
