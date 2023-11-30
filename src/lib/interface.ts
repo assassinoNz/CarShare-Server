@@ -1,6 +1,4 @@
 import * as In from "../graphql/internal";
-import * as Ex from "../graphql/external";
-import { Resolved } from "../graphql/resolver";
 
 export interface JwtPayload {
     userId: string;
@@ -26,10 +24,10 @@ export type RootResolver<InParent, ExParent> = {
         //Yes -> Remove ExKey from ExParent
         //No -> Keep ExKey
     //No -> Keep ExKey
-type ExUnique<InParent, ExParent> = {
-    [ExKey in keyof ExParent as (
-        ExKey extends keyof InParent ? (ExParent[ExKey] extends (InParent[ExKey] | Resolved) ? never : ExKey) : ExKey
-    )]: ExParent[ExKey];
+type ExUnique<In, Ex> = {
+    [K in keyof Ex as (
+        K extends keyof In ? ((Ex[K] | In[K]) extends (Ex[K] & In[K]) ? never : K) : K
+    )]: Ex[K];
 };
 
 //Maps every field of a type to its corresponding promise resolver after removing the scalar fields

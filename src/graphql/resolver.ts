@@ -405,13 +405,6 @@ export const root: {
     },
 }
 
-/**
- * The union of the types that has resolvers
-**/
-export type Resolved = (
-    Ex.HostedTrip | Ex.TripBilling | Ex.RequestedTrip | Ex.Handshake
-);
-
 export const type: {
     HostedTrip: TypeResolver<In.HostedTrip, Ex.HostedTrip>,
     TripBilling: TypeResolver<In.TripBilling, Ex.TripBilling>,
@@ -448,6 +441,13 @@ export const type: {
                 //CASE: vehicleId doesn't exists.
                 //User has assigned a temporary vehicle. It must be available as an embedded document
                 return parent.vehicle as Ex.Vehicle;
+            }
+        },
+
+        billing: async (parent, args, ctx, info) => {
+            return {
+                ...parent.billing,
+                bankAccount: {} as Ex.BankAccount
             }
         },
     },
