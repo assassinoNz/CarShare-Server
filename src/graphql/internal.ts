@@ -110,7 +110,7 @@ export type Mutation = {
   AddBankAccount: Scalars['ObjectId']['output'];
   AddHostedTrip: Scalars['ObjectId']['output'];
   AddVehicle: Scalars['ObjectId']['output'];
-  CreateGenericUser: Scalars['ObjectId']['output'];
+  CreateGenericUser: Scalars['String']['output'];
   SignIn: Scalars['String']['output'];
 };
 
@@ -342,7 +342,7 @@ export type Vehicle = {
   model: Scalars['String']['output'];
   name: Scalars['String']['output'];
   number: Scalars['String']['output'];
-  ownerId: Scalars['ObjectId']['output'];
+  ownerId?: Maybe<Scalars['ObjectId']['output']>;
   rating: VehicleRating;
 };
 

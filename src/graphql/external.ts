@@ -100,7 +100,7 @@ export type Mutation = {
   AddBankAccount: Scalars['ObjectId']['output'];
   AddHostedTrip: Scalars['ObjectId']['output'];
   AddVehicle: Scalars['ObjectId']['output'];
-  CreateGenericUser: Scalars['ObjectId']['output'];
+  CreateGenericUser: Scalars['String']['output'];
   SignIn: Scalars['String']['output'];
 };
 
