@@ -124,7 +124,7 @@ type HandshakeTime {
 type Vehicle {
     _id: ObjectId!
     isActive: Boolean!
-    ownerId: ObjectId!
+    ownerId: ObjectId #Only available for saved vehicles
     name: String!
     number: String!
     model: String!
