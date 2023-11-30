@@ -76,8 +76,8 @@ export const root: {
             await PermissionManager.query(ctx.user, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
             return await Server.db.collection<In.Vehicle>(CollectionName.VEHICLES).find({ ownerId: me._id })
-                .skip(args.skip || 0)
-                .limit(args.limit || 10)
+                .skip(args.skip || Default.VALUE_SKIP)
+                .limit(args.limit || Default.VALUE_LIMIT)
                 .toArray();
         },
 
@@ -85,8 +85,8 @@ export const root: {
             await PermissionManager.query(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
             const me = PermissionManager.me(ctx);
             return await Server.db.collection<In.BankAccount>(CollectionName.BANK_ACCOUNTS).find({ ownerId: me._id })
-                .skip(args.skip || 0)
-                .limit(args.limit || 10)
+                .skip(args.skip || Default.VALUE_SKIP)
+                .limit(args.limit || Default.VALUE_LIMIT)
                 .toArray();
         },
 
@@ -95,8 +95,8 @@ export const root: {
             const me = PermissionManager.me(ctx);
             return await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(CollectionName.HOSTED_TRIPS).find({
                 hostId: me._id
-            }).skip(args.skip || 0)
-                .limit(args.limit || 10)
+            }).skip(args.skip || Default.VALUE_SKIP)
+                .limit(args.limit || Default.VALUE_LIMIT)
                 .toArray();
         },
 
@@ -120,8 +120,8 @@ export const root: {
             const me = PermissionManager.me(ctx);
             return await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(CollectionName.REQUESTED_TRIPS).find({
                 requesterId: me._id
-            }).skip(args.skip || 0)
-                .limit(args.limit || 10)
+            }).skip(args.skip || Default.VALUE_SKIP)
+                .limit(args.limit || Default.VALUE_LIMIT)
                 .toArray();
         },
 
@@ -145,8 +145,8 @@ export const root: {
             const me = PermissionManager.me(ctx);
             return await Server.db.collection<In.Handshake & Ex.Handshake>(CollectionName.HANDSHAKES).find({
                 senderId: me._id
-            }).skip(args.skip || 0)
-                .limit(args.limit || 10)
+            }).skip(args.skip || Default.VALUE_SKIP)
+                .limit(args.limit || Default.VALUE_LIMIT)
                 .toArray();
         },
 
@@ -170,8 +170,8 @@ export const root: {
             const me = PermissionManager.me(ctx);
             return await Server.db.collection<In.Handshake & Ex.Handshake>(CollectionName.HANDSHAKES).find({
                 recipientId: me._id
-            }).skip(args.skip || 0)
-                .limit(args.limit || 10)
+            }).skip(args.skip || Default.VALUE_SKIP)
+                .limit(args.limit || Default.VALUE_LIMIT)
                 .toArray();
         },
 
