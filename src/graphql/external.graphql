@@ -106,9 +106,9 @@ type Vehicle {
 }
 
 input VehicleInput {
-    name: String! @constraint(pattern: "^[a-zA-Z]{3,20}*$")
-    number: String! @constraint(pattern: "^[0-9a-zA-Z]{3,10}*$")
-    model: String! @constraint(pattern: "^[0-9a-zA-Z]{3,20}*$")
+    name: String! @constraint(pattern: "^[a-zA-Z]{3,20}$")
+    number: String! @constraint(pattern: "^[0-9a-zA-Z]{3,10}$")
+    model: String! @constraint(pattern: "^[0-9a-zA-Z]{3,20}$")
     features: VehicleFeaturesInput!
 }
 
@@ -171,8 +171,8 @@ type HostedTripRoute {
 }
 
 input HostedTripRouteInput {
-    from: String! @constraint(pattern: "^[a-zA-Z]{5,30}*$")
-    to: String! @constraint(pattern: "^[a-zA-Z]{5,30}*$")
+    from: String! @constraint(pattern: "^[a-zA-Z]{5,30}$")
+    to: String! @constraint(pattern: "^[a-zA-Z]{5,30}$")
     polyLines: [String!]!
     keyCoords: [[Float!]!]!
 }
