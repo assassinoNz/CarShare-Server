@@ -252,9 +252,7 @@ export const root: {
     },
 
     Mutation: {
-        CreateUser: async (parent, args: Ex.MutationCreateUserArgs, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.USERS, OperationIndex.CREATE);
-
+        CreateGenericUser: async (parent, args: Ex.MutationCreateGenericUserArgs, ctx, info) => {
             const result = await Server.db.collection<In.UserInput>(CollectionName.USERS).insertOne({
                 ...args.user,
                 isActive: true,

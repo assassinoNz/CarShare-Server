@@ -21,7 +21,7 @@ type Query {
 }
 
 type Mutation {
-    CreateUser(user: UserInput!): ObjectId!
+    CreateGenericUser(user: UserInput!): ObjectId!
     SignIn(mobile: String!, password: String!): String!
 
     AddVehicle(vehicle: VehicleInput!): ObjectId!
