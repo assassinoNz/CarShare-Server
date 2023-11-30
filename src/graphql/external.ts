@@ -144,7 +144,7 @@ export type RequesterRating = {
 export type Route = {
   __typename?: 'Route';
   from: Scalars['String']['output'];
-  keyCoords?: Maybe<Array<Array<Scalars['Float']['output']>>>;
+  keyCoords: Array<Array<Scalars['Float']['output']>>;
   polyLines?: Maybe<Array<Scalars['String']['output']>>;
   to: Scalars['String']['output'];
 };
@@ -152,7 +152,7 @@ export type Route = {
 export type RouteInput = {
   from: Scalars['String']['input'];
   keyCoords: Array<Array<Scalars['Float']['input']>>;
-  polyLines: Array<Scalars['String']['input']>;
+  polyLines?: InputMaybe<Array<Scalars['String']['input']>>;
   to: Scalars['String']['input'];
 };
 

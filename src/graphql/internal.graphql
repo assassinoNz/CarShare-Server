@@ -1,12 +1,10 @@
 scalar ObjectId
 scalar Date
 
-#QUERY==========================================
+#ROOT===========================================
 type Query {
     GetMe: User!
-
     GetMyVehicles: [Vehicle!]!
-
     GetMyBankAccounts: [BankAccount!]!
 
     GetMyHostedTrips: [HostedTrip]!
@@ -18,6 +16,14 @@ type Query {
     GetMatchingRequestedTrips(hostedTripId: ObjectId!): [RequestedTripMatch!]!
 }
 
+type Mutation {
+    CreateUser(user: UserInput!): ObjectId!
+    SignIn(mobile: String!, password: String!): String!
+
+    CreateHostedTrip(hostedTrip: HostedTripInput!): ObjectId!
+}
+
+#USER===========================================
 type User {
     _id: ObjectId!
     isActive: Boolean!
@@ -28,6 +34,16 @@ type User {
     secret: Secret!
     currentCoord: [Float!]
     rating: UserRating!
+}
+
+input UserInput {
+    isActive: Boolean!
+    mobile: String!
+    roleId: ObjectId!
+    rating: UserRating!
+    email: String!
+    secret: Secret!
+    preferredName: String!
 }
 
 type Role {
@@ -51,11 +67,7 @@ type Module {
     name: String!
 }
 
-type UserRating{
-    asHost: HostRating!
-    asRequester: RequesterRating!
-}
-
+#RATING=========================================
 type HostRating {
     politeness: Float!,
     punctuality: Float!,
@@ -68,30 +80,39 @@ type RequesterRating {
     punctuality: Float!,
 }
 
-type HostedTrip {
-    _id: ObjectId!
-    hostId: ObjectId!
-    route: Route!
-    time: TripTime!
-    vehicleId: ObjectId #If vehicleId==null, vehicle is temporary
-    vehicle: Vehicle #Could be a temporary or saved
-    seats: Int!
-    billing: TripBilling!
+type VehicleRating {
+    cleanliness: Float!
+    ac: Float!
 }
 
-type Route {
-    from: String!
-    to: String!
-    polyLines: [String!]
-    keyCoords: [[Float!]!]
+type UserRating{
+    asHost: HostRating!
+    asRequester: RequesterRating!
 }
 
+type TripRating {
+    host: HostRating!
+    requester: RequesterRating!
+    vehicle: VehicleRating!
+}
+
+#TIME===========================================
 type TripTime {
     schedule: Date!
     start: Date
     end: Date
 }
 
+input TripTimeInput {
+    schedule: Date!
+}
+
+type HandshakeTime {
+    sent: Date!
+    accepted: Date
+}
+
+#VEHICLE========================================
 type Vehicle {
     _id: ObjectId!
     isActive: Boolean!
@@ -103,14 +124,58 @@ type Vehicle {
     rating: VehicleRating!
 }
 
+input VehicleInput {
+    isActive: Boolean!
+    name: String!
+    number: String!
+    model: String!
+    features: VehicleFeaturesInput!
+    rating: VehicleRating!
+}
+
 type VehicleFeatures {
     ac: Boolean!
     luggage: Boolean!
 }
 
-type VehicleRating {
-    cleanliness: Float!
-    ac: Float!
+input VehicleFeaturesInput {
+    ac: Boolean!
+    luggage: Boolean!
+}
+
+#TRIP===========================================
+type HostedTrip {
+    _id: ObjectId!
+    hostId: ObjectId!
+    route: Route!
+    time: TripTime!
+    vehicleId: ObjectId
+    vehicle: Vehicle
+    seats: Int!
+    billing: TripBilling!
+}
+
+input HostedTripInput {
+    route: RouteInput!
+    time: TripTimeInput!
+    vehicleId: ObjectId
+    vehicle: VehicleInput
+    seats: Int!
+    billing: TripBillingInput!
+}
+
+type Route {
+    from: String!
+    to: String!
+    polyLines: [String!]
+    keyCoords: [[Float!]!]!
+}
+
+input RouteInput {
+    from: String!
+    to: String!
+    polyLines: [String!]
+    keyCoords: [[Float!]!]
 }
 
 type TripBilling {
@@ -119,14 +184,10 @@ type TripBilling {
     priceNextKm: Float!
 }
 
-type BankAccount {
-    _id: ObjectId!
-    isActive: Boolean!
-    ownerId: ObjectId!
-    name: String!
-    bank: String!
-    number: String!
-    branch: String!
+input TripBillingInput {
+    bankAccountId: ObjectId!
+    priceFirstKm: Float!
+    priceNextKm: Float!
 }
 
 type RequestedTrip {
@@ -137,6 +198,7 @@ type RequestedTrip {
     seats: Int!
 }
 
+#HANDSHAKE======================================
 type Handshake {
     _id: ObjectId!
     senderId: ObjectId!
@@ -148,22 +210,12 @@ type Handshake {
     rating: TripRating!
 }
 
-type HandshakeTime {
-    sent: Date!
-    accepted: Date #When there is a time, handshake is accepted by recipient
-}
-
 type Payment {
     amount: Float!
-    time: Date #When there is a time, payment is done
+    time: Date
 }
 
-type TripRating {
-    host: HostRating!
-    requester: RequesterRating!
-    vehicle: VehicleRating!
-}
-
+#TRIP_MATCH====================================
 type RequestedTripMatch {
     hostedTripId: ObjectId!
     requestedTripId: ObjectId!
@@ -179,61 +231,13 @@ type TripMatchResult {
     intersectionPolyLine: String!
 }
 
-#MUTATION========================================
-type Mutation {
-    CreateUser(user: UserInput!): ObjectId!
-    SignIn(mobile: String!, password: String!): String!
-
-    CreateHostedTrip(hostedTrip: HostedTripInput!): ObjectId!
-}
-
-input UserInput {
+#BANK_ACCOUNT=============================
+type BankAccount {
+    _id: ObjectId!
     isActive: Boolean!
-    mobile: String!
-    roleId: ObjectId!
-    rating: UserRating!
-    roleId: ObjectId!
-    email: String!
-    secret: Secret!
-    preferredName: String!
-}
-
-input HostedTripInput {
-    route: RouteInput!
-    time: TripTimeInput!
-    vehicleId: ObjectId #If vehicle is null, then this must not
-    vehicle: VehicleInput  #If vehicleId is null, then this must not
-    seats: Int!
-    billing: TripBillingInput!
-}
-
-input RouteInput {
-    from: String!
-    to: String!
-    polyLines: [String!]
-    keyCoords: [[Float!]!]
-}
-
-input TripTimeInput {
-    schedule: Date!
-}
-
-input VehicleInput {
-    isActive: Boolean!
+    ownerId: ObjectId!
     name: String!
+    bank: String!
     number: String!
-    model: String!
-    features: VehicleFeaturesInput!
-    rating: VehicleRating!
-}
-
-input TripBillingInput {
-    bankAccountId: ObjectId!
-    priceFirstKm: Float!
-    priceNextKm: Float!
-}
-
-input VehicleFeaturesInput {
-    ac: Boolean!
-    luggage: Boolean!
+    branch: String!
 }

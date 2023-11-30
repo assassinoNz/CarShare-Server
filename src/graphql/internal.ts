@@ -166,7 +166,7 @@ export type Role = {
 export type Route = {
   __typename?: 'Route';
   from: Scalars['String']['output'];
-  keyCoords?: Maybe<Array<Array<Scalars['Float']['output']>>>;
+  keyCoords: Array<Array<Scalars['Float']['output']>>;
   polyLines?: Maybe<Array<Scalars['String']['output']>>;
   to: Scalars['String']['output'];
 };
