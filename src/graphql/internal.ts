@@ -28,6 +28,15 @@ export type BankAccount = {
   ownerId: Scalars['ObjectId']['output'];
 };
 
+export type BankAccountInput = {
+  bank: Scalars['String']['input'];
+  branch: Scalars['String']['input'];
+  isActive: Scalars['Boolean']['input'];
+  name: Scalars['String']['input'];
+  number: Scalars['String']['input'];
+  ownerId: Scalars['ObjectId']['input'];
+};
+
 export type Handshake = {
   __typename?: 'Handshake';
   _id: Scalars['ObjectId']['output'];
@@ -98,14 +107,26 @@ export type Module = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  CreateHostedTrip: Scalars['ObjectId']['output'];
+  AddBankAccount: Scalars['ObjectId']['output'];
+  AddHostedTrip: Scalars['ObjectId']['output'];
+  AddVehicle: Scalars['ObjectId']['output'];
   CreateUser: Scalars['ObjectId']['output'];
   SignIn: Scalars['String']['output'];
 };
 
 
-export type MutationCreateHostedTripArgs = {
+export type MutationAddBankAccountArgs = {
+  bankAccount: BankAccountInput;
+};
+
+
+export type MutationAddHostedTripArgs = {
   hostedTrip: HostedTripInput;
+};
+
+
+export type MutationAddVehicleArgs = {
+  vehicle: VehicleInput;
 };
 
 
@@ -342,6 +363,7 @@ export type VehicleInput = {
   model: Scalars['String']['input'];
   name: Scalars['String']['input'];
   number: Scalars['String']['input'];
+  ownerId?: InputMaybe<Scalars['ObjectId']['input']>;
   rating: VehicleRating;
 };
 

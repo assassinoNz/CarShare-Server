@@ -305,7 +305,41 @@ export const root: {
             );
         },
 
-        CreateHostedTrip: async (parent, args: Ex.MutationCreateHostedTripArgs, ctx, info) => {
+        AddVehicle: async (parent, args: Ex.MutationAddVehicleArgs, ctx, info) => {
+            await PermissionManager.query(ctx.user, ModuleId.VEHICLES, OperationIndex.CREATE);
+
+            const result = await Server.db.collection<In.VehicleInput>(CollectionName.VEHICLES).insertOne({
+                ...args.vehicle,
+                ownerId: PermissionManager.me(ctx)._id,
+                isActive: true,
+                rating: {
+                    ac: 0,
+                    cleanliness: 0
+                }
+            });
+
+            if (!result.acknowledged) {
+                throw new Error.CouldNotPerformOperation(ModuleId.VEHICLES, OperationIndex.CREATE);
+            }
+            return result.insertedId;
+        },
+
+        AddBankAccount: async (parent, args: Ex.MutationAddBankAccountArgs, ctx, info) => {
+            await PermissionManager.query(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.CREATE);
+
+            const result = await Server.db.collection<In.BankAccountInput>(CollectionName.BANK_ACCOUNTS).insertOne({
+                ...args.bankAccount,
+                ownerId: PermissionManager.me(ctx)._id,
+                isActive: true
+            });
+
+            if (!result.acknowledged) {
+                throw new Error.CouldNotPerformOperation(ModuleId.BANK_ACCOUNTS, OperationIndex.CREATE);
+            }
+            return result.insertedId;
+        },
+
+        AddHostedTrip: async (parent, args: Ex.MutationAddHostedTripArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.CREATE);
 
             const tripToBeInserted: In.HostedTripInput = {

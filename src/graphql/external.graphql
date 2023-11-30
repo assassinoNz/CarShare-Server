@@ -24,7 +24,11 @@ type Mutation {
     CreateUser(user: UserInput!): ObjectId!
     SignIn(mobile: String!, password: String!): String!
 
-    CreateHostedTrip(hostedTrip: HostedTripInput!): ObjectId!
+    AddVehicle(vehicle: VehicleInput!): ObjectId!
+
+    AddBankAccount(bankAccount: BankAccountInput!): ObjectId!
+
+    AddHostedTrip(hostedTrip: HostedTripInput!): ObjectId!
 }
 
 #USER===========================================
@@ -215,6 +219,13 @@ type TripMatchResult {
 type BankAccount {
     _id: ObjectId!
     isActive: Boolean!
+    name: String!
+    bank: String!
+    number: String!
+    branch: String!
+}
+
+input BankAccountInput {
     name: String!
     bank: String!
     number: String!
