@@ -342,13 +342,6 @@ export const type: {
                 return parent.vehicle as Ex.Vehicle;
             }
         },
-
-        billing: async (parent, args, ctx, info) => {
-            return {
-                ...parent.billing,
-                bankAccount: {} as In.BankAccount
-            }
-        },
     },
 
     TripBilling: {

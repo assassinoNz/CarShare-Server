@@ -19,7 +19,7 @@ export type RootResolver<InParent, ExParent> = {
 //Because they are embedded with their parent types within the database
 type NonResolved = 
     boolean | number | string | ObjectId | Date |
-    Ex.Route | Ex.TripTime | Ex.Payment | Ex.TripRating | Ex.HandshakeTime;
+    Ex.TripBilling | Ex.Route | Ex.TripTime | Ex.Payment | Ex.TripRating | Ex.HandshakeTime;
 
 //Removes fields with that doesn't need resolvers
 //NOTE: The scalar types are boolean, number, string, ObjectId, Date
