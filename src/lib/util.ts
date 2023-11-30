@@ -121,8 +121,8 @@ export class PostGIS {
                         ST_Intersection(main_route, secondary_route) AS intersection_route
                     FROM (
                         SELECT
-                            ST_GeomFromText("${this.makeLineString(mainRoutePolyLines)}") AS main_route,
-                            ST_GeomFromText("${this.makeLineString(secondaryRoutePolyLines)}") AS secondary_route
+                            ST_GeomFromText('${this.makeLineString(mainRoutePolyLines)}') AS main_route,
+                            ST_GeomFromText('${this.makeLineString(secondaryRoutePolyLines)}') AS secondary_route
                     )
                 )
             );
