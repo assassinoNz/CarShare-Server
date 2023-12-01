@@ -48,7 +48,7 @@ input UserInput {
     mobile: String! @constraint(pattern: "^\\+94\\d{9}$")
     password: String! @constraint(minLength: 4)
     email: String! @constraint(format: "email")
-    preferredName: String! @constraint(pattern: "^[a-zA-Z0-9\s]{3,20}$")
+    preferredName: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
 }
 
 #RATING=========================================
@@ -108,9 +108,9 @@ type Vehicle {
 }
 
 input VehicleInput {
-    name: String! @constraint(pattern: "^[a-zA-Z0-9\s]{3,20}$")
-    number: String! @constraint(pattern: "^[a-zA-Z0-9\s]{3,20}$")
-    model: String! @constraint(pattern: "^[a-zA-Z0-9\s]{3,20}$")
+    name: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+    number: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+    model: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
     features: VehicleFeaturesInput!
 }
 
@@ -179,8 +179,8 @@ type HostedTripRoute {
 }
 
 input HostedTripRouteInput {
-    from: String! @constraint(pattern: "^[a-zA-Z0-9\s]{3,20}$")
-    to: String! @constraint(pattern: "^[a-zA-Z0-9\s]{3,20}$")
+    from: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+    to: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
     polyLines: [String!]! @constraint(minItems: 1)
     keyCoords: [[Float!]!]! @constraint(minItems: 2)
 }
@@ -192,8 +192,8 @@ type RequestedTripRoute {
 }
 
 input RequestedTripRouteInput {
-    from: String! @constraint(pattern: "^[a-zA-Z0-9\s]{3,20}$")
-    to: String! @constraint(pattern: "^[a-zA-Z0-9\s]{3,20}$")
+    from: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+    to: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
     keyCoords: [[Float!]!]! @constraint(minItems: 2)
 }
 
@@ -240,8 +240,8 @@ type BankAccount {
 }
 
 input BankAccountInput {
-    name: String! @constraint(pattern: "^[a-zA-Z0-9\s]{3,20}$")
-    bank: String! @constraint(pattern: "^[a-zA-Z0-9\s]{3,20}$")
-    number: String! @constraint(pattern: "^[0-9\s]{3,20}$")
-    branch: String! @constraint(pattern: "^[a-zA-Z0-9\s]{3,20}$")
+    name: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+    bank: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+    number: String! @constraint(pattern: "^[0-9\\s]{3,20}$")
+    branch: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
 }
