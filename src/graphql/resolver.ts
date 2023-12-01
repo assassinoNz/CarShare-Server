@@ -345,8 +345,10 @@ export const root: {
         AddHostedTrip: async (parent, args: Ex.MutationAddHostedTripArgs, ctx, info) => {
             await PermissionManager.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.CREATE);
 
+            const me = PermissionManager.me(ctx);
             const tripToBeInserted: In.HostedTripInput = {
                 ...args.hostedTrip,
+                hostId: me._id,
                 vehicle: undefined
             };
 
