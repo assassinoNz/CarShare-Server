@@ -99,6 +99,7 @@ export type Mutation = {
   __typename?: 'Mutation';
   AddBankAccount: Scalars['ObjectId']['output'];
   AddHostedTrip: Scalars['ObjectId']['output'];
+  AddRequestedTrip: Scalars['ObjectId']['output'];
   AddVehicle: Scalars['ObjectId']['output'];
   CreateGenericUser: Scalars['String']['output'];
   SignIn: Scalars['String']['output'];
@@ -112,6 +113,11 @@ export type MutationAddBankAccountArgs = {
 
 export type MutationAddHostedTripArgs = {
   hostedTrip: HostedTripInput;
+};
+
+
+export type MutationAddRequestedTripArgs = {
+  requestedTrip: RequestedTripInput;
 };
 
 
@@ -216,6 +222,12 @@ export type RequestedTrip = {
   time: TripTime;
 };
 
+export type RequestedTripInput = {
+  route: RequestedTripRouteInput;
+  seats: Scalars['Int']['input'];
+  time: TripTime;
+};
+
 export type RequestedTripMatch = {
   __typename?: 'RequestedTripMatch';
   requestedTrip: RequestedTrip;
@@ -227,6 +239,12 @@ export type RequestedTripRoute = {
   from: Scalars['String']['output'];
   keyCoords: Array<Array<Scalars['Float']['output']>>;
   to: Scalars['String']['output'];
+};
+
+export type RequestedTripRouteInput = {
+  from: Scalars['String']['input'];
+  keyCoords: Array<Array<Scalars['Float']['input']>>;
+  to: Scalars['String']['input'];
 };
 
 export type RequesterRating = {

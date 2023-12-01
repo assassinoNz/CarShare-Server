@@ -403,7 +403,22 @@ export const root: {
             }
 
             return result.insertedId;
-        }
+        },
+
+        AddRequestedTrip: async (parent, args: Ex.MutationAddRequestedTripArgs, ctx, info) => {
+            await PermissionManager.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.CREATE);
+
+            const me = PermissionManager.me(ctx);
+            const result = await Server.db.collection<In.RequestedTripInput>(CollectionName.HOSTED_TRIPS).insertOne({
+                ...args.requestedTrip,
+                requesterId: me._id,
+            });
+            if (!result.acknowledged) {
+                throw new Error.CouldNotPerformOperation(ModuleId.HOSTED_TRIPS, OperationIndex.CREATE);
+            }
+
+            return result.insertedId;
+        },
     },
 }
 

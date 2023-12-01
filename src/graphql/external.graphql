@@ -29,6 +29,8 @@ type Mutation {
     AddBankAccount(bankAccount: BankAccountInput!): ObjectId!
 
     AddHostedTrip(hostedTrip: HostedTripInput!): ObjectId!
+
+    AddRequestedTrip(requestedTrip: RequestedTripInput!): ObjectId!
 }
 
 #USER===========================================
@@ -162,6 +164,12 @@ type RequestedTrip {
     seats: Int!
 }
 
+input RequestedTripInput {
+    route: RequestedTripRouteInput!
+    time: TripTime!
+    seats: Int!
+}
+
 #ROUTE==========================================
 type HostedTripRoute {
     from: String!
@@ -178,6 +186,12 @@ input HostedTripRouteInput {
 }
 
 type RequestedTripRoute {
+    from: String!
+    to: String!
+    keyCoords: [[Float!]!]!
+}
+
+input RequestedTripRouteInput {
     from: String!
     to: String!
     keyCoords: [[Float!]!]!
