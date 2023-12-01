@@ -225,7 +225,7 @@ export type RequestedTrip = {
 export type RequestedTripInput = {
   route: RequestedTripRouteInput;
   seats: Scalars['Int']['input'];
-  time: TripTime;
+  time: TripTimeInput;
 };
 
 export type RequestedTripMatch = {

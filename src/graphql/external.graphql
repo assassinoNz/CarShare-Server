@@ -166,7 +166,7 @@ type RequestedTrip {
 
 input RequestedTripInput {
     route: RequestedTripRouteInput!
-    time: TripTime!
+    time: TripTimeInput!
     seats: Int! @constraint(min: 1)
 }
 

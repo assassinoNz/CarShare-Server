@@ -244,7 +244,7 @@ export type RequestedTripInput = {
   requesterId: Scalars['ObjectId']['input'];
   route: RequestedTripRouteInput;
   seats: Scalars['Int']['input'];
-  time: TripTime;
+  time: TripTimeInput;
 };
 
 export type RequestedTripMatch = {
