@@ -152,8 +152,8 @@ type TripBilling {
 
 input TripBillingInput {
     bankAccountId: ObjectId!
-    priceFirstKm: Float!
-    priceNextKm: Float!
+    priceFirstKm: Float! @constraint(min: 0)
+    priceNextKm: Float! @constraint(min: 0)
 }
 
 type RequestedTrip {
@@ -167,7 +167,7 @@ type RequestedTrip {
 input RequestedTripInput {
     route: RequestedTripRouteInput!
     time: TripTime!
-    seats: Int!
+    seats: Int! @constraint(min: 1)
 }
 
 #ROUTE==========================================
@@ -181,8 +181,8 @@ type HostedTripRoute {
 input HostedTripRouteInput {
     from: String! @constraint(pattern: "^[a-zA-Z]{5,30}$")
     to: String! @constraint(pattern: "^[a-zA-Z]{5,30}$")
-    polyLines: [String!]!
-    keyCoords: [[Float!]!]!
+    polyLines: [String!]! @constraint(minItems: 1)
+    keyCoords: [[Float!]!]! @constraint(minItems: 2)
 }
 
 type RequestedTripRoute {
@@ -192,9 +192,9 @@ type RequestedTripRoute {
 }
 
 input RequestedTripRouteInput {
-    from: String!
-    to: String!
-    keyCoords: [[Float!]!]!
+    from: String! @constraint(pattern: "^[a-zA-Z]{5,30}$")
+    to: String! @constraint(pattern: "^[a-zA-Z]{5,30}$")
+    keyCoords: [[Float!]!]! @constraint(minItems: 2)
 }
 
 #HANDSHAKE======================================
@@ -240,8 +240,8 @@ type BankAccount {
 }
 
 input BankAccountInput {
-    name: String!
-    bank: String!
-    number: String!
-    branch: String!
+    name: String! @constraint(pattern: "^[a-zA-Z]{5,20}$")
+    bank: String! @constraint(pattern: "^[a-zA-Z]{5,20}$")
+    number: String! @constraint(pattern: "^[a-zA-Z]{5,20}$")
+    branch: String! @constraint(pattern: "^[a-zA-Z]{5,20}$")
 }
