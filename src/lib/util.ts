@@ -16,7 +16,7 @@ export class StringUtil {
     }
 }
 
-export class PermissionManager {
+export class Authorizer {
     static me(ctx: Context) {
         if (ctx.user) {
             return ctx.user;

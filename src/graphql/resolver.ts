@@ -12,7 +12,7 @@ import * as Ex from "./external";
 import { Server } from "../lib/app";
 import { CollectionName, ModuleId, OperationIndex } from "../lib/enum";
 import { JwtPayload, TypeResolver, RootResolver } from "../lib/interface";
-import { PermissionManager, PostGIS } from "../lib/util";
+import { Authorizer, PostGIS } from "../lib/util";
 
 export const scalar = {
     ObjectId: new GraphQLScalarType<ObjectId | null, string>({
@@ -69,12 +69,12 @@ export const root: {
     Query: {
         GetMe: async (parent, args, ctx, info) => {
             //WARNING: GetMe doesn't need any permission validation
-            return PermissionManager.me(ctx);
+            return Authorizer.me(ctx);
         },
 
         GetMyVehicles: async (parent, args: Ex.QueryGetMyVehiclesArgs, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
-            const me = PermissionManager.me(ctx);
+            await Authorizer.query(ctx.user, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
+            const me = Authorizer.me(ctx);
             return await Server.db.collection<In.Vehicle>(CollectionName.VEHICLES).find({ ownerId: me._id })
                 .skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
@@ -82,8 +82,8 @@ export const root: {
         },
 
         GetMyBankAccounts: async (parent, args: Ex.QueryGetMyBankAccountsArgs, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
-            const me = PermissionManager.me(ctx);
+            await Authorizer.query(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
+            const me = Authorizer.me(ctx);
             return await Server.db.collection<In.BankAccount>(CollectionName.BANK_ACCOUNTS).find({ ownerId: me._id })
                 .skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
@@ -91,8 +91,8 @@ export const root: {
         },
 
         GetMyHostedTrips: async (parent, args: Ex.QueryGetMyHostedTripsArgs, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
-            const me = PermissionManager.me(ctx);
+            await Authorizer.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
+            const me = Authorizer.me(ctx);
             return await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(CollectionName.HOSTED_TRIPS).find({
                 hostId: me._id
             }).skip(args.skip || Default.VALUE_SKIP)
@@ -101,8 +101,8 @@ export const root: {
         },
 
         GetMyHostedTrip: async (parent, args: Ex.QueryGetMyHostedTripArgs, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
-            const me = PermissionManager.me(ctx);
+            await Authorizer.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
+            const me = Authorizer.me(ctx);
             const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(CollectionName.HOSTED_TRIPS).findOne({
                 _id: args._id,
                 hostId: me._id
@@ -116,8 +116,8 @@ export const root: {
         },
 
         GetMyRequestedTrips: async (parent, args: Ex.QueryGetMyRequestedTripsArgs, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
-            const me = PermissionManager.me(ctx);
+            await Authorizer.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
+            const me = Authorizer.me(ctx);
             return await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(CollectionName.REQUESTED_TRIPS).find({
                 requesterId: me._id
             }).skip(args.skip || Default.VALUE_SKIP)
@@ -126,8 +126,8 @@ export const root: {
         },
 
         GetMyRequestedTrip: async (parent, args: Ex.QueryGetMyRequestedTripArgs, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
-            const me = PermissionManager.me(ctx);
+            await Authorizer.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
+            const me = Authorizer.me(ctx);
             const item = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(CollectionName.REQUESTED_TRIPS).findOne({
                 _id: args._id,
                 hostId: me._id
@@ -141,8 +141,8 @@ export const root: {
         },
 
         GetMySentHandshakes: async (parent, args: Ex.QueryGetMySentHandshakesArgs, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
-            const me = PermissionManager.me(ctx);
+            await Authorizer.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
+            const me = Authorizer.me(ctx);
             return await Server.db.collection<In.Handshake & Ex.Handshake>(CollectionName.HANDSHAKES).find({
                 senderId: me._id
             }).skip(args.skip || Default.VALUE_SKIP)
@@ -151,8 +151,8 @@ export const root: {
         },
 
         GetMyHandshake: async (parent, args: Ex.QueryGetMyHandshakeArgs, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
-            const me = PermissionManager.me(ctx);
+            await Authorizer.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
+            const me = Authorizer.me(ctx);
             const item = await Server.db.collection<In.Handshake & Ex.Handshake>(CollectionName.HANDSHAKES).findOne({
                 _id: args._id,
                 hostId: me._id
@@ -166,8 +166,8 @@ export const root: {
         },
 
         GetMyReceivedHandshakes: async (parent, args: Ex.QueryGetMyReceivedHandshakesArgs, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
-            const me = PermissionManager.me(ctx);
+            await Authorizer.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
+            const me = Authorizer.me(ctx);
             return await Server.db.collection<In.Handshake & Ex.Handshake>(CollectionName.HANDSHAKES).find({
                 recipientId: me._id
             }).skip(args.skip || Default.VALUE_SKIP)
@@ -176,7 +176,7 @@ export const root: {
         },
 
         GetMatchingRequestedTrips: async (parent, args: Ex.QueryGetMatchingRequestedTripsArgs, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
+            await Authorizer.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
 
             const hostedTrip = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(CollectionName.HOSTED_TRIPS).findOne({
                 _id: args.hostedTripId
@@ -187,7 +187,7 @@ export const root: {
             }
 
             //Validate if hosted trip's host is current user
-            const me = PermissionManager.me(ctx);
+            const me = Authorizer.me(ctx);
             if (!hostedTrip.hostId.equals(me._id)) {
                 throw new Error.ItemNotAccessibleByUser("hosted trip", "id", args.hostedTripId.toHexString());
             }
@@ -309,11 +309,11 @@ export const root: {
         },
 
         AddVehicle: async (parent, args: Ex.MutationAddVehicleArgs, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.VEHICLES, OperationIndex.CREATE);
+            await Authorizer.query(ctx.user, ModuleId.VEHICLES, OperationIndex.CREATE);
 
             const result = await Server.db.collection<In.VehicleInput>(CollectionName.VEHICLES).insertOne({
                 ...args.vehicle,
-                ownerId: PermissionManager.me(ctx)._id,
+                ownerId: Authorizer.me(ctx)._id,
                 isActive: true,
                 rating: {
                     ac: 0,
@@ -328,11 +328,11 @@ export const root: {
         },
 
         AddBankAccount: async (parent, args: Ex.MutationAddBankAccountArgs, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.CREATE);
+            await Authorizer.query(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.CREATE);
 
             const result = await Server.db.collection<In.BankAccountInput>(CollectionName.BANK_ACCOUNTS).insertOne({
                 ...args.bankAccount,
-                ownerId: PermissionManager.me(ctx)._id,
+                ownerId: Authorizer.me(ctx)._id,
                 isActive: true
             });
 
@@ -343,9 +343,9 @@ export const root: {
         },
 
         AddHostedTrip: async (parent, args: Ex.MutationAddHostedTripArgs, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.CREATE);
+            await Authorizer.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.CREATE);
 
-            const me = PermissionManager.me(ctx);
+            const me = Authorizer.me(ctx);
             const tripToBeInserted: In.HostedTripInput = {
                 ...args.hostedTrip,
                 hostId: me._id,
@@ -406,9 +406,9 @@ export const root: {
         },
 
         AddRequestedTrip: async (parent, args: Ex.MutationAddRequestedTripArgs, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.CREATE);
+            await Authorizer.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.CREATE);
 
-            const me = PermissionManager.me(ctx);
+            const me = Authorizer.me(ctx);
             const result = await Server.db.collection<In.RequestedTripInput>(CollectionName.HOSTED_TRIPS).insertOne({
                 ...args.requestedTrip,
                 requesterId: me._id,
@@ -430,7 +430,7 @@ export const type: {
 } = {
     HostedTrip: {
         host: async (parent, args, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
+            await Authorizer.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User>("users").findOne({ _id: parent.hostId });
 
             if (!item) {
@@ -444,7 +444,7 @@ export const type: {
             if (parent.vehicleId) {
                 //CASE: vehicleId exists.
                 //User has assigned a saved vehicle. It must be retrieved from database
-                await PermissionManager.query(ctx.user, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
+                await Authorizer.query(ctx.user, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
                 const item = await Server.db.collection<In.Vehicle & Ex.Vehicle>("vehicles").findOne({
                     _id: parent.vehicleId
                 });
@@ -471,7 +471,7 @@ export const type: {
 
     TripBilling: {
         bankAccount: async (parent, args, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
+            await Authorizer.query(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.BankAccount>("bankAccounts").findOne({
                 _id: parent.bankAccountId
             });
@@ -486,7 +486,7 @@ export const type: {
 
     RequestedTrip: {
         requester: async (parent, args, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
+            await Authorizer.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User & Ex.User>("users").findOne({
                 _id: parent.requesterId
             });
@@ -501,7 +501,7 @@ export const type: {
 
     Handshake: {
         sender: async (parent, args, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
+            await Authorizer.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User>("users").findOne({ _id: parent.senderId });
 
             if (!item) {
@@ -512,7 +512,7 @@ export const type: {
         },
 
         recipient: async (parent, args, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
+            await Authorizer.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User>("users").findOne({ _id: parent.recipientId });
 
             if (!item) {
@@ -523,7 +523,7 @@ export const type: {
         },
 
         hostedTrip: async (parent, args, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
+            await Authorizer.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>("hostedTrips").findOne({
                 _id: parent.hostedTripId
             });
@@ -536,7 +536,7 @@ export const type: {
         },
 
         requestedTrip: async (parent, args, ctx, info) => {
-            await PermissionManager.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
+            await Authorizer.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>("requestedTrips").findOne({
                 _id: parent.requestedTripId
             });
