@@ -12,14 +12,18 @@ export enum ModuleId {
     BANK_ACCOUNTS = "000000000000000000000006",
 }
 
-//A dictionary that maps each module id to its name
+/**
+ * A dictionary that maps each module id to its screaming snake case name
+ */
 export const ModuleName: { [_ in ModuleId]: string } = (Object.keys(ModuleId) as (keyof typeof ModuleId)[])
     .reduce((acc, key) => {
         acc[ModuleId[key]] = key;
         return acc;
     }, {} as { [_ in ModuleId]: string });
 
-//A dictionary that maps each module id to its name
+/**
+ * A dictionary that maps each module id to its collection-like name
+ */
 export const CollectionName: { -readonly [_ in keyof typeof ModuleId]: string } = (Object.keys(ModuleId) as (keyof typeof ModuleId)[])
     .reduce((acc, key) => {
         acc[key] = StringUtil.toCamelCase(key);
