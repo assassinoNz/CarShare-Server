@@ -10,7 +10,7 @@ import * as Error from "../lib/error";
 import * as In from "./internal";
 import * as Ex from "./external";
 import { Server } from "../lib/app";
-import { CollectionName, ModuleId, OperationIndex } from "../lib/enum";
+import { Collection, ModuleId, OperationIndex } from "../lib/enum";
 import { JwtPayload, TypeResolver, RootResolver } from "../lib/interface";
 import { Authorizer, PostGIS } from "../lib/util";
 
@@ -75,7 +75,7 @@ export const root: {
         GetMyVehicles: async (parent, args: Ex.QueryGetMyVehiclesArgs, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
             const me = Authorizer.me(ctx);
-            return await Server.db.collection<In.Vehicle>(CollectionName.VEHICLES).find({ ownerId: me._id })
+            return await Server.db.collection<In.Vehicle>(Collection.VEHICLES).find({ ownerId: me._id })
                 .skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
                 .toArray();
@@ -84,7 +84,7 @@ export const root: {
         GetMyBankAccounts: async (parent, args: Ex.QueryGetMyBankAccountsArgs, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
             const me = Authorizer.me(ctx);
-            return await Server.db.collection<In.BankAccount>(CollectionName.BANK_ACCOUNTS).find({ ownerId: me._id })
+            return await Server.db.collection<In.BankAccount>(Collection.BANK_ACCOUNTS).find({ ownerId: me._id })
                 .skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
                 .toArray();
@@ -93,7 +93,7 @@ export const root: {
         GetMyHostedTrips: async (parent, args: Ex.QueryGetMyHostedTripsArgs, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
             const me = Authorizer.me(ctx);
-            return await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(CollectionName.HOSTED_TRIPS).find({
+            return await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS).find({
                 hostId: me._id
             }).skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
@@ -103,7 +103,7 @@ export const root: {
         GetMyHostedTrip: async (parent, args: Ex.QueryGetMyHostedTripArgs, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
             const me = Authorizer.me(ctx);
-            const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(CollectionName.HOSTED_TRIPS).findOne({
+            const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS).findOne({
                 _id: args._id,
                 hostId: me._id
             });
@@ -118,7 +118,7 @@ export const root: {
         GetMyRequestedTrips: async (parent, args: Ex.QueryGetMyRequestedTripsArgs, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
             const me = Authorizer.me(ctx);
-            return await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(CollectionName.REQUESTED_TRIPS).find({
+            return await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).find({
                 requesterId: me._id
             }).skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
@@ -128,7 +128,7 @@ export const root: {
         GetMyRequestedTrip: async (parent, args: Ex.QueryGetMyRequestedTripArgs, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
             const me = Authorizer.me(ctx);
-            const item = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(CollectionName.REQUESTED_TRIPS).findOne({
+            const item = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).findOne({
                 _id: args._id,
                 hostId: me._id
             });
@@ -143,7 +143,7 @@ export const root: {
         GetMySentHandshakes: async (parent, args: Ex.QueryGetMySentHandshakesArgs, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
             const me = Authorizer.me(ctx);
-            return await Server.db.collection<In.Handshake & Ex.Handshake>(CollectionName.HANDSHAKES).find({
+            return await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find({
                 senderId: me._id
             }).skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
@@ -153,7 +153,7 @@ export const root: {
         GetMyHandshake: async (parent, args: Ex.QueryGetMyHandshakeArgs, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
             const me = Authorizer.me(ctx);
-            const item = await Server.db.collection<In.Handshake & Ex.Handshake>(CollectionName.HANDSHAKES).findOne({
+            const item = await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).findOne({
                 _id: args._id,
                 hostId: me._id
             });
@@ -168,7 +168,7 @@ export const root: {
         GetMyReceivedHandshakes: async (parent, args: Ex.QueryGetMyReceivedHandshakesArgs, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
             const me = Authorizer.me(ctx);
-            return await Server.db.collection<In.Handshake & Ex.Handshake>(CollectionName.HANDSHAKES).find({
+            return await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find({
                 recipientId: me._id
             }).skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
@@ -178,7 +178,7 @@ export const root: {
         GetMatchingRequestedTrips: async (parent, args: Ex.QueryGetMatchingRequestedTripsArgs, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
 
-            const hostedTrip = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(CollectionName.HOSTED_TRIPS).findOne({
+            const hostedTrip = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS).findOne({
                 _id: args.hostedTripId
             });
             
@@ -202,7 +202,7 @@ export const root: {
 
             //DANGER//TODO: Must me optimized. Find a better way than retrieving all requested trips 
             //Get all requested trips
-            const requestedTrips = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(CollectionName.REQUESTED_TRIPS).find({
+            const requestedTrips = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).find({
                 //Filter requested trips that are +-1h to hosted trip
                 // "time.schedule": {
                 //     $gte: hostedTrip.time.schedule.getHours() - 1,
@@ -253,7 +253,7 @@ export const root: {
 
     Mutation: {
         CreateGenericUser: async (parent, args: Ex.MutationCreateGenericUserArgs, ctx, info) => {
-            const result = await Server.db.collection<In.UserInput>(CollectionName.USERS).insertOne({
+            const result = await Server.db.collection<In.UserInput>(Collection.USERS).insertOne({
                 ...args.user,
                 isActive: true,
                 roleId: new ObjectId(Default.ID_ROLE),
@@ -286,7 +286,7 @@ export const root: {
         },
 
         SignIn: async (parent, args: Ex.MutationSignInArgs, ctx, info) => {
-            const item = await Server.db.collection<In.User>(CollectionName.USERS).findOne({ mobile: args.mobile });
+            const item = await Server.db.collection<In.User>(Collection.USERS).findOne({ mobile: args.mobile });
 
             if (!item) {
                 throw new Error.ItemDoesNotExist("user", "mobile", args.mobile);
@@ -311,7 +311,7 @@ export const root: {
         AddVehicle: async (parent, args: Ex.MutationAddVehicleArgs, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.VEHICLES, OperationIndex.CREATE);
 
-            const result = await Server.db.collection<In.VehicleInput>(CollectionName.VEHICLES).insertOne({
+            const result = await Server.db.collection<In.VehicleInput>(Collection.VEHICLES).insertOne({
                 ...args.vehicle,
                 ownerId: Authorizer.me(ctx)._id,
                 isActive: true,
@@ -330,7 +330,7 @@ export const root: {
         AddBankAccount: async (parent, args: Ex.MutationAddBankAccountArgs, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.CREATE);
 
-            const result = await Server.db.collection<In.BankAccountInput>(CollectionName.BANK_ACCOUNTS).insertOne({
+            const result = await Server.db.collection<In.BankAccountInput>(Collection.BANK_ACCOUNTS).insertOne({
                 ...args.bankAccount,
                 ownerId: Authorizer.me(ctx)._id,
                 isActive: true
@@ -356,7 +356,7 @@ export const root: {
             if (args.hostedTrip.vehicleId) {
                 //CASE: User has assigned a saved vehicle
                 //Validate vehicle
-                const vehicle = await Server.db.collection<In.Vehicle & Ex.Vehicle>(CollectionName.VEHICLES).findOne({
+                const vehicle = await Server.db.collection<In.Vehicle & Ex.Vehicle>(Collection.VEHICLES).findOne({
                     _id: args.hostedTrip.vehicleId
                 });
 
@@ -385,7 +385,7 @@ export const root: {
             }
 
             //Validate bank account
-            const bankAccount = await Server.db.collection<In.BankAccount & Ex.BankAccount>(CollectionName.BANK_ACCOUNTS).findOne({
+            const bankAccount = await Server.db.collection<In.BankAccount & Ex.BankAccount>(Collection.BANK_ACCOUNTS).findOne({
                 _id: args.hostedTrip.billing.bankAccountId
             });
 
@@ -397,7 +397,7 @@ export const root: {
                 throw new Error.ItemIsNotActive("bank account", "id", args.hostedTrip.billing.bankAccountId.toHexString());
             }
 
-            const result = await Server.db.collection<In.HostedTripInput>(CollectionName.HOSTED_TRIPS).insertOne(tripToBeInserted);
+            const result = await Server.db.collection<In.HostedTripInput>(Collection.HOSTED_TRIPS).insertOne(tripToBeInserted);
             if (!result.acknowledged) {
                 throw new Error.CouldNotPerformOperation(ModuleId.HOSTED_TRIPS, OperationIndex.CREATE);
             }
@@ -409,7 +409,7 @@ export const root: {
             await Authorizer.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.CREATE);
 
             const me = Authorizer.me(ctx);
-            const result = await Server.db.collection<In.RequestedTripInput>(CollectionName.HOSTED_TRIPS).insertOne({
+            const result = await Server.db.collection<In.RequestedTripInput>(Collection.HOSTED_TRIPS).insertOne({
                 ...args.requestedTrip,
                 requesterId: me._id,
             });

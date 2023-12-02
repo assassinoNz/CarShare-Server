@@ -24,7 +24,7 @@ export const ModuleName: { [_ in ModuleId]: string } = (Object.keys(ModuleId) as
 /**
  * A dictionary that maps each module id to its collection-like name
  */
-export const CollectionName: { -readonly [_ in keyof typeof ModuleId]: string } = (Object.keys(ModuleId) as (keyof typeof ModuleId)[])
+export const Collection: { -readonly [_ in keyof typeof ModuleId]: string } = (Object.keys(ModuleId) as (keyof typeof ModuleId)[])
     .reduce((acc, key) => {
         acc[key] = StringUtil.toCamelCase(key);
         return acc;
