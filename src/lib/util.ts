@@ -25,25 +25,23 @@ export class Authorizer {
         }
     }
 
-    static async query(user: In.User | null, moduleId: ModuleId, operationIndex: OperationIndex) {
-        if (user) {
-            const role = await Server.db.collection<In.Role>("roles").findOne({
-                _id: user.roleId
-            });
+    static async query(ctx: Context, moduleId: ModuleId, operationIndex: OperationIndex) {
+        const me = this.me(ctx);
 
-            if (role) {
-                for (const permission of role.permissions) {
-                    if (permission.moduleId.toHexString() === moduleId && permission.value[operationIndex] === "1") {
-                        return true;
-                    }
-                }
-                throw new Error.NoPermissions(role, moduleId, operationIndex);
-            } else {
-                throw new Error.ItemDoesNotExist("role", "id", user.roleId.toHexString());
-            }
-        } else {
-            throw new Error.NotSignedIn();
+        const role = await Server.db.collection<In.Role>("roles").findOne({
+            _id: me.roleId
+        });
+
+        if (!role) {
+            throw new Error.ItemDoesNotExist("role", "id", me.roleId.toHexString());
         }
+        
+        for (const permission of role.permissions) {
+            if (permission.moduleId.toHexString() === moduleId && permission.value[operationIndex] === "1") {
+                return me;
+            }
+        }
+        throw new Error.NoPermissions(role, moduleId, operationIndex);
     }
 }
 

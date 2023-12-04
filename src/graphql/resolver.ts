@@ -73,8 +73,7 @@ export const root: {
         },
 
         GetMyVehicles: async (parent, args: Ex.QueryGetMyVehiclesArgs, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
-            const me = Authorizer.me(ctx);
+            const me = await Authorizer.query(ctx, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
             return await Server.db.collection<In.Vehicle>(Collection.VEHICLES).find({ ownerId: me._id })
                 .skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
@@ -82,8 +81,7 @@ export const root: {
         },
 
         GetMyBankAccounts: async (parent, args: Ex.QueryGetMyBankAccountsArgs, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
-            const me = Authorizer.me(ctx);
+            const me = await Authorizer.query(ctx, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
             return await Server.db.collection<In.BankAccount>(Collection.BANK_ACCOUNTS).find({ ownerId: me._id })
                 .skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
@@ -91,8 +89,7 @@ export const root: {
         },
 
         GetMyHostedTrips: async (parent, args: Ex.QueryGetMyHostedTripsArgs, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
-            const me = Authorizer.me(ctx);
+            const me = await Authorizer.query(ctx, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);;
             return await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS).find({
                 hostId: me._id
             }).skip(args.skip || Default.VALUE_SKIP)
@@ -101,8 +98,7 @@ export const root: {
         },
 
         GetMyHostedTrip: async (parent, args: Ex.QueryGetMyHostedTripArgs, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
-            const me = Authorizer.me(ctx);
+            const me = await Authorizer.query(ctx, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);;
             const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS).findOne({
                 _id: args._id,
                 hostId: me._id
@@ -116,8 +112,7 @@ export const root: {
         },
 
         GetMyRequestedTrips: async (parent, args: Ex.QueryGetMyRequestedTripsArgs, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
-            const me = Authorizer.me(ctx);
+            const me = await Authorizer.query(ctx, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
             return await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).find({
                 requesterId: me._id
             }).skip(args.skip || Default.VALUE_SKIP)
@@ -126,8 +121,7 @@ export const root: {
         },
 
         GetMyRequestedTrip: async (parent, args: Ex.QueryGetMyRequestedTripArgs, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
-            const me = Authorizer.me(ctx);
+            const me = await Authorizer.query(ctx, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).findOne({
                 _id: args._id,
                 hostId: me._id
@@ -141,8 +135,7 @@ export const root: {
         },
 
         GetMySentHandshakes: async (parent, args: Ex.QueryGetMySentHandshakesArgs, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
-            const me = Authorizer.me(ctx);
+            const me = await Authorizer.query(ctx, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
             return await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find({
                 senderId: me._id
             }).skip(args.skip || Default.VALUE_SKIP)
@@ -151,8 +144,7 @@ export const root: {
         },
 
         GetMyReceivedHandshakes: async (parent, args: Ex.QueryGetMyReceivedHandshakesArgs, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
-            const me = Authorizer.me(ctx);
+            const me = await Authorizer.query(ctx, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
             return await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find({
                 recipientId: me._id
             }).skip(args.skip || Default.VALUE_SKIP)
@@ -161,8 +153,7 @@ export const root: {
         },
 
         GetMyHandshake: async (parent, args: Ex.QueryGetMyHandshakeArgs, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
-            const me = Authorizer.me(ctx);
+            const me = await Authorizer.query(ctx, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).findOne({
                 _id: args._id,
                 hostId: me._id
@@ -176,7 +167,7 @@ export const root: {
         },
 
         GetMatchingRequestedTrips: async (parent, args: Ex.QueryGetMatchingRequestedTripsArgs, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
+            const me = await Authorizer.query(ctx, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
 
             const hostedTrip = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS).findOne({
                 _id: args.hostedTripId
@@ -187,7 +178,6 @@ export const root: {
             }
 
             //Validate if hosted trip's host is current user
-            const me = Authorizer.me(ctx);
             if (!hostedTrip.hostId.equals(me._id)) {
                 throw new Error.ItemNotAccessibleByUser("hosted trip", "id", args.hostedTripId.toHexString());
             }
@@ -309,11 +299,10 @@ export const root: {
         },
 
         AddVehicle: async (parent, args: Ex.MutationAddVehicleArgs, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.VEHICLES, OperationIndex.CREATE);
-
+            const me = await Authorizer.query(ctx, ModuleId.VEHICLES, OperationIndex.CREATE);
             const result = await Server.db.collection<In.VehicleInput>(Collection.VEHICLES).insertOne({
                 ...args.vehicle,
-                ownerId: Authorizer.me(ctx)._id,
+                ownerId: me._id,
                 isActive: true,
                 rating: {
                     ac: 0,
@@ -328,11 +317,10 @@ export const root: {
         },
 
         AddBankAccount: async (parent, args: Ex.MutationAddBankAccountArgs, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.CREATE);
-
+            const me = await Authorizer.query(ctx, ModuleId.VEHICLES, OperationIndex.CREATE);
             const result = await Server.db.collection<In.BankAccountInput>(Collection.BANK_ACCOUNTS).insertOne({
                 ...args.bankAccount,
-                ownerId: Authorizer.me(ctx)._id,
+                ownerId: me._id,
                 isActive: true
             });
 
@@ -343,11 +331,10 @@ export const root: {
         },
 
         AddHostedTrip: async (parent, args: Ex.MutationAddHostedTripArgs, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.CREATE);
-
+            const me = await Authorizer.query(ctx, ModuleId.VEHICLES, OperationIndex.CREATE);
             const tripToBeInserted: In.HostedTripInput = {
                 ...args.hostedTrip,
-                hostId: Authorizer.me(ctx)._id,
+                hostId: me._id,
                 vehicle: undefined,
                 route: {
                     ...args.hostedTrip.route,
@@ -420,11 +407,10 @@ export const root: {
         },
 
         AddRequestedTrip: async (parent, args: Ex.MutationAddRequestedTripArgs, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.CREATE);
-
+            const me = await Authorizer.query(ctx, ModuleId.VEHICLES, OperationIndex.CREATE);
             const result = await Server.db.collection<In.RequestedTripInput>(Collection.HOSTED_TRIPS).insertOne({
                 ...args.requestedTrip,
-                requesterId: Authorizer.me(ctx)._id,
+                requesterId: me._id,
             });
             if (!result.acknowledged) {
                 throw new Error.CouldNotPerformOperation(ModuleId.HOSTED_TRIPS, OperationIndex.CREATE);
@@ -445,7 +431,7 @@ export const type: {
         route: async (parent, args, ctx, info) => parent.route,
 
         host: async (parent, args, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
+            await Authorizer.query(ctx, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User>(Collection.USERS).findOne({ _id: parent.hostId });
 
             if (!item) {
@@ -459,7 +445,7 @@ export const type: {
             if (parent.vehicleId) {
                 //CASE: vehicleId exists.
                 //User has assigned a saved vehicle. It must be retrieved from database
-                await Authorizer.query(ctx.user, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
+                await Authorizer.query(ctx, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
                 const item = await Server.db.collection<In.Vehicle>(Collection.VEHICLES).findOne({
                     _id: parent.vehicleId
                 });
@@ -486,7 +472,7 @@ export const type: {
 
     TripBilling: {
         bankAccount: async (parent, args, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
+            await Authorizer.query(ctx, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.BankAccount>(Collection.BANK_ACCOUNTS).findOne({
                 _id: parent.bankAccountId
             });
@@ -501,7 +487,7 @@ export const type: {
 
     RequestedTrip: {
         requester: async (parent, args, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
+            await Authorizer.query(ctx, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User>(Collection.USERS).findOne({
                 _id: parent.requesterId
             });
@@ -516,7 +502,7 @@ export const type: {
 
     Handshake: {
         sender: async (parent, args, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
+            await Authorizer.query(ctx, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User>(Collection.USERS).findOne({ _id: parent.senderId });
 
             if (!item) {
@@ -527,7 +513,7 @@ export const type: {
         },
 
         recipient: async (parent, args, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
+            await Authorizer.query(ctx, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User>(Collection.USERS).findOne({ _id: parent.recipientId });
 
             if (!item) {
@@ -538,7 +524,7 @@ export const type: {
         },
 
         hostedTrip: async (parent, args, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
+            await Authorizer.query(ctx, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS).findOne({
                 _id: parent.hostedTripId
             });
@@ -551,7 +537,7 @@ export const type: {
         },
 
         requestedTrip: async (parent, args, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
+            await Authorizer.query(ctx, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).findOne({
                 _id: parent.requestedTripId
             });
