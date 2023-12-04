@@ -150,6 +150,16 @@ export const root: {
                 .toArray();
         },
 
+        GetMyReceivedHandshakes: async (parent, args: Ex.QueryGetMyReceivedHandshakesArgs, ctx, info) => {
+            await Authorizer.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
+            const me = Authorizer.me(ctx);
+            return await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find({
+                recipientId: me._id
+            }).skip(args.skip || Default.VALUE_SKIP)
+                .limit(args.limit || Default.VALUE_LIMIT)
+                .toArray();
+        },
+
         GetMyHandshake: async (parent, args: Ex.QueryGetMyHandshakeArgs, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
             const me = Authorizer.me(ctx);
@@ -163,16 +173,6 @@ export const root: {
             }
 
             return item;
-        },
-
-        GetMyReceivedHandshakes: async (parent, args: Ex.QueryGetMyReceivedHandshakesArgs, ctx, info) => {
-            await Authorizer.query(ctx.user, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
-            const me = Authorizer.me(ctx);
-            return await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find({
-                recipientId: me._id
-            }).skip(args.skip || Default.VALUE_SKIP)
-                .limit(args.limit || Default.VALUE_LIMIT)
-                .toArray();
         },
 
         GetMatchingRequestedTrips: async (parent, args: Ex.QueryGetMatchingRequestedTripsArgs, ctx, info) => {
