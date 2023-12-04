@@ -240,6 +240,7 @@ export type RequestedTrip = {
   route: RequestedTripRoute;
   seats: Scalars['Int']['output'];
   time: TripTime;
+  vehicleFeatures: RequestedVehicleFeatures;
 };
 
 export type RequestedTripInput = {
@@ -247,6 +248,7 @@ export type RequestedTripInput = {
   route: RequestedTripRouteInput;
   seats: Scalars['Int']['input'];
   time: TripTimeInput;
+  vehicleFeatures: RequestedVehicleFeaturesInput;
 };
 
 export type RequestedTripMatch = {
@@ -266,6 +268,17 @@ export type RequestedTripRouteInput = {
   from: Scalars['String']['input'];
   keyCoords: Array<Array<Scalars['Float']['input']>>;
   to: Scalars['String']['input'];
+};
+
+export type RequestedVehicleFeatures = {
+  __typename?: 'RequestedVehicleFeatures';
+  ac?: Maybe<Scalars['Boolean']['output']>;
+  luggage?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type RequestedVehicleFeaturesInput = {
+  ac?: InputMaybe<Scalars['Boolean']['input']>;
+  luggage?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type RequesterRating = {

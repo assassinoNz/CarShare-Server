@@ -274,6 +274,10 @@ const requestedTripsInsertion = db.requestedTrips.insertMany([
             schedule: new Date(2023, 12, 10, 10, 40),
         },
         seats: 1,
+        vehicleFeatures: {
+            ac: null,
+            luggage: null
+        }
     },
     {
         _id: ObjectId("600000000000000000000001"),
@@ -290,6 +294,10 @@ const requestedTripsInsertion = db.requestedTrips.insertMany([
             schedule: new Date(2023, 12, 10, 10, 40),
         },
         seats: 2,
+        vehicleFeatures: {
+            ac: true,
+            luggage: false
+        },
     }
 ]);
 

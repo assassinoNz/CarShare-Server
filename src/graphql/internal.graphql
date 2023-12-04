@@ -194,6 +194,12 @@ type RequestedTrip {
     route: RequestedTripRoute!
     time: TripTime!
     seats: Int!
+    vehicleFeatures: RequestedVehicleFeatures!
+}
+
+type RequestedVehicleFeatures {
+    ac: Boolean
+    luggage: Boolean
 }
 
 input RequestedTripInput {
@@ -201,6 +207,12 @@ input RequestedTripInput {
     route: RequestedTripRouteInput!
     time: TripTimeInput!
     seats: Int!
+    vehicleFeatures: RequestedVehicleFeaturesInput!
+}
+
+input RequestedVehicleFeaturesInput {
+    ac: Boolean
+    luggage: Boolean
 }
 
 #ROUTE==========================================

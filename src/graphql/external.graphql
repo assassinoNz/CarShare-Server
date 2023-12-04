@@ -162,12 +162,24 @@ type RequestedTrip {
     route: RequestedTripRoute!
     time: TripTime!
     seats: Int!
+    vehicleFeatures: RequestedVehicleFeatures!
+}
+
+type RequestedVehicleFeatures {
+    ac: Boolean
+    luggage: Boolean
 }
 
 input RequestedTripInput {
     route: RequestedTripRouteInput!
     time: TripTimeInput!
     seats: Int! @constraint(min: 1)
+    vehicleFeatures: RequestedVehicleFeaturesInput!
+}
+
+input RequestedVehicleFeaturesInput {
+    ac: Boolean
+    luggage: Boolean
 }
 
 #ROUTE==========================================
