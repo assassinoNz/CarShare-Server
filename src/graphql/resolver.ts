@@ -345,10 +345,9 @@ export const root: {
         AddHostedTrip: async (parent, args: Ex.MutationAddHostedTripArgs, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.CREATE);
 
-            const me = Authorizer.me(ctx);
             const tripToBeInserted: In.HostedTripInput = {
                 ...args.hostedTrip,
-                hostId: me._id,
+                hostId: Authorizer.me(ctx)._id,
                 vehicle: undefined
             };
 
