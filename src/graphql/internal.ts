@@ -379,6 +379,7 @@ export type Vehicle = {
   number: Scalars['String']['output'];
   ownerId?: Maybe<Scalars['ObjectId']['output']>;
   rating: VehicleRating;
+  type: VehicleType;
 };
 
 export type VehicleFeatures = {
@@ -400,6 +401,7 @@ export type VehicleInput = {
   number: Scalars['String']['input'];
   ownerId?: InputMaybe<Scalars['ObjectId']['input']>;
   rating: VehicleRating;
+  type: VehicleType;
 };
 
 export type VehicleRating = {
@@ -407,3 +409,9 @@ export type VehicleRating = {
   ac: Scalars['Float']['output'];
   cleanliness: Scalars['Float']['output'];
 };
+
+export enum VehicleType {
+  HIRED = 'HIRED',
+  PERSONAL = 'PERSONAL',
+  STAFF_SERVICE = 'STAFF_SERVICE'
+}

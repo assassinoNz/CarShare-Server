@@ -1,6 +1,10 @@
 scalar ObjectId
 scalar Date
 
+enum VehicleType {
+    PERSONAL STAFF_SERVICE HIRED
+}
+
 #ROOT===========================================
 type Query {
     GetMe: User!
@@ -127,6 +131,7 @@ type Vehicle {
     _id: ObjectId!
     isActive: Boolean!
     ownerId: ObjectId #Only available for saved vehicles
+    type: VehicleType!
     name: String!
     number: String!
     model: String!
@@ -135,8 +140,9 @@ type Vehicle {
 }
 
 input VehicleInput {
-    ownerId: ObjectId #Only required for saved vehicles
     isActive: Boolean!
+    ownerId: ObjectId #Only required for saved vehicles
+    type: VehicleType!
     name: String!
     number: String!
     model: String!

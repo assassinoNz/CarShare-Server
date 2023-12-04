@@ -370,7 +370,7 @@ export const root: {
             if (args.hostedTrip.vehicleId) {
                 //CASE: User has assigned a saved vehicle
                 //Validate vehicle
-                const vehicle = await Server.db.collection<In.Vehicle & Ex.Vehicle>(Collection.VEHICLES).findOne({
+                const vehicle = await Server.db.collection<In.Vehicle>(Collection.VEHICLES).findOne({
                     _id: args.hostedTrip.vehicleId
                 });
 
