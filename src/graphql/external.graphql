@@ -175,26 +175,26 @@ type HostedTripRoute {
     from: String!
     to: String!
     polyLines: [String!]!
-    keyCoords: [[Float!]!]!
+    keyCoords: [[Float!]!]! #[[lat, long]]
 }
 
 input HostedTripRouteInput {
     from: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
     to: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
     polyLines: [String!]! @constraint(minItems: 1)
-    keyCoords: [[Float!]!]! @constraint(minItems: 2)
+    keyCoords: [[Float!]!]! @constraint(minItems: 2) #[[lat, long]]
 }
 
 type RequestedTripRoute {
     from: String!
     to: String!
-    keyCoords: [[Float!]!]!
+    keyCoords: [[Float!]!]! #[[lat, long]]
 }
 
 input RequestedTripRouteInput {
     from: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
     to: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
-    keyCoords: [[Float!]!]! @constraint(minItems: 2)
+    keyCoords: [[Float!]!]! @constraint(minItems: 2) #[[lat, long]]
 }
 
 #HANDSHAKE======================================

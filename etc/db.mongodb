@@ -55,7 +55,7 @@ const usersInsertion = db.users.insertMany([
         secret: { 
             hash: "7110eda4d09e062aa5e4a390b0a572ac0d2c0220"
         },
-        currentCoord: [7.086671208262996, 79.9984498524246].reverse(),
+        currentCoord: [7.086671208262996, 79.9984498524246],
         rating: {
             asHost: {
                 politeness: 0.8,
@@ -189,8 +189,8 @@ const hostedTripsInsertion = db.hostedTrips.insertMany([
                 "eodj@adkgNRSRT^f@@@"
             ],
             keyCoords: [
-                [7.092252219283498, 79.99299056862273].reverse(),
-                [7.072965706899689, 80.01593012768988].reverse(),
+                [7.092252219283498, 79.99299056862273],
+                [7.072965706899689, 80.01593012768988],
             ],
         },
         time: {
@@ -223,8 +223,8 @@ const hostedTripsInsertion = db.hostedTrips.insertMany([
                 "ug|i@ormgN"
             ],
             keyCoords: [
-                [7.091540697723802, 79.9947859108097].reverse(),
-                [7.034742366985356, 80.02610573596573].reverse(),
+                [7.091540697723802, 79.9947859108097],
+                [7.034742366985356, 80.02610573596573],
             ],
         },
         time: {
@@ -264,8 +264,8 @@ const requestedTripsInsertion = db.requestedTrips.insertMany([
             from: "Piliyandala",
             to: "Cybertron",
             keyCoords: [
-                [6.829470024356559, 79.90957546009602].reverse(),
-                [6.815242592352088, 79.95746412416065].reverse(),
+                [6.829470024356559, 79.90957546009602],
+                [6.815242592352088, 79.95746412416065],
             ]
         },
         time: {
@@ -280,8 +280,8 @@ const requestedTripsInsertion = db.requestedTrips.insertMany([
             from: "Gampaha Railway",
             to: "Miriswatta",
             keyCoords: [
-                [7.092252219283498, 79.99299056862273].reverse(),
-                [7.072965706899689, 80.01593012768988].reverse(),
+                [7.092252219283498, 79.99299056862273],
+                [7.072965706899689, 80.01593012768988],
             ]
         },
         time: {

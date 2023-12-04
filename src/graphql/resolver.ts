@@ -351,9 +351,17 @@ export const root: {
                 vehicle: undefined,
                 route: {
                     ...args.hostedTrip.route,
-                    tileOverlapIndex: await PostGIS.calculateTileOverlapIndex(args.hostedTrip.route.polyLines)
+                    tileOverlapIndex: "" //Will be calculated after validation
                 }
             };
+
+            //Validate keyCoords
+            //NOTE: Within the boundary of Sri Lanka, for ever coordinate, latitude < longitude
+            for (const coord of args.hostedTrip.route.keyCoords) {
+                if (coord[0] > coord[1]) {
+                    throw new Error.InvalidFieldValue("route", "keyCoords", `[${coord[0]}, ${coord[1]}]`);
+                }
+            }
 
             //Validate vehicleId and vehicle
             if (args.hostedTrip.vehicleId) {
@@ -399,6 +407,9 @@ export const root: {
             if (!bankAccount.isActive) {
                 throw new Error.ItemIsNotActive("bank account", "id", args.hostedTrip.billing.bankAccountId.toHexString());
             }
+            
+            //Calculate tileOverlapIndex
+            tripToBeInserted.route.tileOverlapIndex = await PostGIS.calculateTileOverlapIndex(args.hostedTrip.route.polyLines);
 
             const result = await Server.db.collection<In.HostedTripInput>(Collection.HOSTED_TRIPS).insertOne(tripToBeInserted);
             if (!result.acknowledged) {
