@@ -215,6 +215,7 @@ export class PostGIS {
         return BigInt("0b" + res.rows[0].tile_overlap_index);
     }
 }
+
 export class Osrm {
     static calculatePossibleRoutes(coords: number[][]) {
         return fetch(`${Config.URL_OSRM}/${coords.map(coord => coord.reverse().join(",")).join(";")}?overview=false&steps=true`)
