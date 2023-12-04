@@ -190,7 +190,8 @@ export const root: {
             const hostedTripPolyLines = hostedTrip.route.polyLines!;
             const requestedTripMatches: Ex.RequestedTripMatch[] = [];
 
-            //Get all requested trips
+            //Get all requested trips within 1h of the created trip
+            //TODO: Filter requested trips based on time
             const requestedTrips = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).find({
                 //Filter requested trips that are +-1h to hosted trip
                 // "time.schedule": {
@@ -220,19 +221,24 @@ export const root: {
                         //CASE: There is a possible overlap of this route option with hostedTrip's route
                         const tripMatchResult = await PostGIS.calculateRouteMatchResult(hostedTripPolyLines, requestedTripPolyLines);
     
-                        //TODO: Remove results with no intersection
-                        requestedTripMatch.results.push({
-                            hostedTripLength: tripMatchResult.mainRouteLength,
-                            requestedTripLength: tripMatchResult.secondaryRouteLength,
-                            hostedTripCoverage: tripMatchResult.mainRouteCoverage,
-                            requestedTripCoverage: tripMatchResult.secondaryRouteCoverage,
-                            intersectionLength: tripMatchResult.intersectionLength,
-                            intersectionPolyLine: tripMatchResult.intersectionPolyLine
-                        });
+                        //NOTE: Only add a tripMatchResult to requestedTripMatch.results only if it has an intersection length
+                        if (tripMatchResult.intersectionLength > 0) {
+                            requestedTripMatch.results.push({
+                                hostedTripLength: tripMatchResult.mainRouteLength,
+                                requestedTripLength: tripMatchResult.secondaryRouteLength,
+                                hostedTripCoverage: tripMatchResult.mainRouteCoverage,
+                                requestedTripCoverage: tripMatchResult.secondaryRouteCoverage,
+                                intersectionLength: tripMatchResult.intersectionLength,
+                                intersectionPolyLine: tripMatchResult.intersectionPolyLine
+                            });
+                        }
                     }
                 }
 
-                requestedTripMatches.push(requestedTripMatch);
+                //NOTE: Only add a requestedTripMatch to requestedTripMatches if it has at least one result
+                if (requestedTripMatch.results.length > 0) {
+                    requestedTripMatches.push(requestedTripMatch);
+                }
             }
 
             return requestedTripMatches;
