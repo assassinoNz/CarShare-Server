@@ -5,6 +5,10 @@ enum VehicleType {
     PERSONAL STAFF_SERVICE HIRED
 }
 
+enum VehicleClass {
+    CAR VAN BIKE LORRY THREE_WHEELER
+}
+
 #ROOT===========================================
 type Query {
     GetMe: User!
@@ -142,6 +146,7 @@ type Vehicle {
     isActive: Boolean!
     ownerId: ObjectId #Only available for saved vehicles
     type: VehicleType!
+    class: VehicleClass!
     name: String!
     number: String!
     model: String!
@@ -153,6 +158,7 @@ input VehicleInput {
     isActive: Boolean!
     ownerId: ObjectId #Only required for saved vehicles
     type: VehicleType!
+    class: VehicleClass!
     name: String!
     number: String!
     model: String!

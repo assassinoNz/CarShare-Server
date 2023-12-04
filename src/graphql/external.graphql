@@ -5,6 +5,10 @@ enum VehicleType {
     PERSONAL STAFF_SERVICE HIRED
 }
 
+enum VehicleClass {
+    CAR VAN BIKE LORRY THREE_WHEELER
+}
+
 #ROOT===========================================
 type Query {
     GetMe: User!
@@ -121,6 +125,7 @@ type Vehicle {
     _id: ObjectId!
     isActive: Boolean!
     type: VehicleType!
+    class: VehicleClass!
     name: String!
     number: String!
     model: String!
@@ -130,6 +135,7 @@ type Vehicle {
 
 input VehicleInput {
     type: VehicleType!
+    class: VehicleClass!
 
     "@constraint(pattern: ^[a-zA-Z0-9\\s]{3,20}$)"
     name: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")

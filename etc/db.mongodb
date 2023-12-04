@@ -95,6 +95,7 @@ const vehiclesInsertion = db.vehicles.insertMany([
         isActive: true,
         ownerId: usersInsertion.insertedIds[0],
         type: "PERSONAL",
+        class: "CAR",
         name: "Lightning Mc.Queen",
         number: "CAR-911",
         model: "Toyota Corolla",
@@ -112,6 +113,7 @@ const vehiclesInsertion = db.vehicles.insertMany([
         isActive: true,
         ownerId: usersInsertion.insertedIds[1],
         type: "PERSONAL",
+        class: "CAR",
         name: "KITT",
         number: "KNIGHT-007",
         model: "Pontiac T",
@@ -130,6 +132,7 @@ const vehiclesInsertion = db.vehicles.insertMany([
         ownerId: usersInsertion.insertedIds[1],
         type: "STAFF_SERVICE",
         name: "Batmobile",
+        class: "VAN",
         number: "JB-007",
         model: "Porsche",
         features: {
@@ -240,6 +243,7 @@ const hostedTripsInsertion = db.hostedTrips.insertMany([
         vehicleId: null,
         vehicle: {
             type: "HIRED",
+            class: "THREE_WHEELER",
             name: "Temp TukTuk",
             number: "TMP-7788",
             model: "Piaggio",

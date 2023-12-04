@@ -356,6 +356,7 @@ export type UserRating = {
 export type Vehicle = {
   __typename?: 'Vehicle';
   _id: Scalars['ObjectId']['output'];
+  class: VehicleClass;
   features: VehicleFeatures;
   isActive: Scalars['Boolean']['output'];
   model: Scalars['String']['output'];
@@ -364,6 +365,14 @@ export type Vehicle = {
   rating: VehicleRating;
   type: VehicleType;
 };
+
+export enum VehicleClass {
+  BIKE = 'BIKE',
+  CAR = 'CAR',
+  LORRY = 'LORRY',
+  THREE_WHEELER = 'THREE_WHEELER',
+  VAN = 'VAN'
+}
 
 export type VehicleFeatures = {
   __typename?: 'VehicleFeatures';
@@ -377,6 +386,7 @@ export type VehicleFeaturesInput = {
 };
 
 export type VehicleInput = {
+  class: VehicleClass;
   features: VehicleFeaturesInput;
   /** @constraint(pattern: ^[a-zA-Z0-9\s]{3,20}$) */
   model: Scalars['String']['input'];
