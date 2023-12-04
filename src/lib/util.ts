@@ -141,11 +141,11 @@ export class PostGIS {
         const result = (await Server.postgresDriver.query(query)).rows[0];
 
         return {
-            mainRouteLength: result.main_route_length,
-            secondaryRouteLength: result.secondary_route_length,
-            intersectionLength: result.intersection_route_length,
-            mainRouteCoverage: result.main_route_coverage,
-            secondaryRouteCoverage: result.secondary_route_coverage,
+            mainRouteLength: result.main_route_length as number,
+            secondaryRouteLength: result.secondary_route_length as number,
+            intersectionLength: result.intersection_route_length as number,
+            mainRouteCoverage: result.main_route_coverage as number,
+            secondaryRouteCoverage: result.secondary_route_coverage as number,
             intersectionPolyLine: this.wkb2Polyline(result.intersection_route)
         }
     }
