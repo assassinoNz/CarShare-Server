@@ -429,7 +429,7 @@ export const type: {
     HostedTrip: {
         host: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
-            const item = await Server.db.collection<In.User>("users").findOne({ _id: parent.hostId });
+            const item = await Server.db.collection<In.User>(Collection.USERS).findOne({ _id: parent.hostId });
 
             if (!item) {
                 throw new Error.ItemDoesNotExist("user/host", "id", args.id.toHexString());
@@ -443,7 +443,7 @@ export const type: {
                 //CASE: vehicleId exists.
                 //User has assigned a saved vehicle. It must be retrieved from database
                 await Authorizer.query(ctx.user, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
-                const item = await Server.db.collection<In.Vehicle>("vehicles").findOne({
+                const item = await Server.db.collection<In.Vehicle>(Collection.VEHICLES).findOne({
                     _id: parent.vehicleId
                 });
 
@@ -470,7 +470,7 @@ export const type: {
     TripBilling: {
         bankAccount: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
-            const item = await Server.db.collection<In.BankAccount>("bankAccounts").findOne({
+            const item = await Server.db.collection<In.BankAccount>(Collection.BANK_ACCOUNTS).findOne({
                 _id: parent.bankAccountId
             });
 
@@ -485,7 +485,7 @@ export const type: {
     RequestedTrip: {
         requester: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
-            const item = await Server.db.collection<In.User>("users").findOne({
+            const item = await Server.db.collection<In.User>(Collection.USERS).findOne({
                 _id: parent.requesterId
             });
 
@@ -500,7 +500,7 @@ export const type: {
     Handshake: {
         sender: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
-            const item = await Server.db.collection<In.User>("users").findOne({ _id: parent.senderId });
+            const item = await Server.db.collection<In.User>(Collection.USERS).findOne({ _id: parent.senderId });
 
             if (!item) {
                 throw new Error.ItemDoesNotExist("user/sender", "id", args.id.toHexString());
@@ -511,7 +511,7 @@ export const type: {
 
         recipient: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
-            const item = await Server.db.collection<In.User>("users").findOne({ _id: parent.recipientId });
+            const item = await Server.db.collection<In.User>(Collection.USERS).findOne({ _id: parent.recipientId });
 
             if (!item) {
                 throw new Error.ItemDoesNotExist("user/recipient", "id", args.id.toHexString());
@@ -522,7 +522,7 @@ export const type: {
 
         hostedTrip: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
-            const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>("hostedTrips").findOne({
+            const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS).findOne({
                 _id: parent.hostedTripId
             });
 
@@ -535,7 +535,7 @@ export const type: {
 
         requestedTrip: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
-            const item = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>("requestedTrips").findOne({
+            const item = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).findOne({
                 _id: parent.requestedTripId
             });
 
