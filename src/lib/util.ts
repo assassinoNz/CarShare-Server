@@ -1,11 +1,12 @@
 import * as pl from "@googlemaps/polyline-codec";
 import * as wkx from "wkx";
 
-import * as In from "../graphql/internal";
 import * as Error from "./error";
+import * as Config from "../../config";
+import * as In from "../graphql/internal";
 import { Server } from "./app";
 import { ModuleId, OperationIndex } from "./enum";
-import { Context } from "./interface";
+import { Context, OsrmRoute } from "./interface";
 
 export class StringUtil {
     static toCamelCase(screamingSnakeCase: string) {
@@ -211,6 +212,25 @@ export class PostGIS {
         `;
     
         const res = await Server.postgresDriver.query(query);
-        return res.rows[0].tile_overlap_index as string;
+        return BigInt("0b" + res.rows[0].tile_overlap_index);
+    }
+}
+export class Osrm {
+    static calculatePossibleRoutes(coords: number[][]) {
+        return fetch(`${Config.URL_OSRM}/${coords.map(coord => coord.reverse().join(",")).join(";")}?overview=false&steps=true`)
+            .then((res: any) => res.json())
+            .then((res: any) => res.routes as OsrmRoute[]);
+    }
+
+    static extractRoutePolyLines(route: OsrmRoute) {
+        const polyLines: string[] = [];
+
+        for (const leg of route.legs) {
+            for (const step of leg.steps) {
+                polyLines.push(step.geometry);
+            }
+        }
+
+        return polyLines;
     }
 }

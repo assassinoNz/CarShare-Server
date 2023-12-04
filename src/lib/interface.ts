@@ -8,6 +8,14 @@ export interface Context {
     user: In.User | null;
 }
 
+export interface OsrmRoute {
+    legs: {
+        steps: {
+            geometry: string
+        }[]
+    }[]
+}
+
 /**
  * Represents a GraphQL promise resolver
 **/

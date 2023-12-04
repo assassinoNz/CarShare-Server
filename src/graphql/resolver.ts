@@ -12,7 +12,7 @@ import * as Ex from "./external";
 import { Server } from "../lib/app";
 import { Collection, ModuleId, OperationIndex } from "../lib/enum";
 import { JwtPayload, TypeResolver, RootResolver } from "../lib/interface";
-import { Authorizer, PostGIS } from "../lib/util";
+import { Authorizer, Osrm, PostGIS } from "../lib/util";
 
 export const scalar = {
     ObjectId: new GraphQLScalarType<ObjectId | null, string>({
@@ -190,7 +190,6 @@ export const root: {
             const hostedTripPolyLines = hostedTrip.route.polyLines!;
             const requestedTripMatches: Ex.RequestedTripMatch[] = [];
 
-            //DANGER//TODO: Must me optimized. Find a better way than retrieving all requested trips 
             //Get all requested trips
             const requestedTrips = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).find({
                 //Filter requested trips that are +-1h to hosted trip
@@ -198,14 +197,12 @@ export const root: {
                 //     $gte: hostedTrip.time.schedule.getHours() - 1,
                 //     $lt: hostedTrip.time.schedule.getHours() + 1
                 // }
-            }).toArray();
+            });
 
             //For each requested trip, calculate match results
-            for (const requestedTrip of requestedTrips) {
-                //Query all possible routes of the requested trip using OSRM
-                const routes = await fetch(`${Config.URL_OSRM}/${requestedTrip.route.keyCoords?.map(keyCoord => keyCoord.join(",")).join(";")}?overview=false&steps=true`)
-                    .then((res: any) => res.json())
-                    .then((res: any) => res.routes);
+            for await (const requestedTrip of requestedTrips) {
+                //Calculate all possible routes of the requested trip using OSRM
+                const routes = await Osrm.calculatePossibleRoutes(requestedTrip.route.keyCoords);
 
                 const requestedTripMatch: Ex.RequestedTripMatch = {
                     requestedTrip,
@@ -216,22 +213,23 @@ export const root: {
 
                 //For each possible route calculate trip match result
                 for (const route of routes) {
-                    const requestedTripPolyLines: string[] = [];
-                    for (const step of route.legs[0].steps) {
-                        requestedTripPolyLines.push(step.geometry);
+                    const requestedTripPolyLines = Osrm.extractRoutePolyLines(route);
+                    const tileOverlapIndex = await PostGIS.calculateTileOverlapIndex(requestedTripPolyLines);
+
+                    if (BigInt(hostedTrip.route.tileOverlapIndex) & tileOverlapIndex) {
+                        //CASE: There is a possible overlap of this route option with hostedTrip's route
+                        const tripMatchResult = await PostGIS.calculateRouteMatchResult(hostedTripPolyLines, requestedTripPolyLines);
+    
+                        //TODO: Remove results with no intersection
+                        requestedTripMatch.results.push({
+                            hostedTripLength: tripMatchResult.mainRouteLength,
+                            requestedTripLength: tripMatchResult.secondaryRouteLength,
+                            hostedTripCoverage: tripMatchResult.mainRouteCoverage,
+                            requestedTripCoverage: tripMatchResult.secondaryRouteCoverage,
+                            intersectionLength: tripMatchResult.intersectionLength,
+                            intersectionPolyLine: tripMatchResult.intersectionPolyLine
+                        });
                     }
-
-                    const tripMatchResult = await PostGIS.calculateRouteMatchResult(hostedTripPolyLines, requestedTripPolyLines);
-
-                    //TODO: Remove results with no intersection
-                    requestedTripMatch.results.push({
-                        hostedTripLength: tripMatchResult.mainRouteLength,
-                        requestedTripLength: tripMatchResult.secondaryRouteLength,
-                        hostedTripCoverage: tripMatchResult.mainRouteCoverage,
-                        requestedTripCoverage: tripMatchResult.secondaryRouteCoverage,
-                        intersectionLength: tripMatchResult.intersectionLength,
-                        intersectionPolyLine: tripMatchResult.intersectionPolyLine
-                    });
                 }
 
                 requestedTripMatches.push(requestedTripMatch);
