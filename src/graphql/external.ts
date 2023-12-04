@@ -28,9 +28,13 @@ export type BankAccount = {
 };
 
 export type BankAccountInput = {
+  /** @constraint(pattern: ^[a-zA-Z0-9\s]{3,20}$) */
   bank: Scalars['String']['input'];
+  /** @constraint(pattern: ^[a-zA-Z0-9\s]{3,20}$) */
   branch: Scalars['String']['input'];
+  /** @constraint(pattern: ^[a-zA-Z0-9\s]{3,20}$) */
   name: Scalars['String']['input'];
+  /** @constraint(pattern: ^[a-zA-Z0-9\s]{3,20}$) */
   number: Scalars['String']['input'];
 };
 
@@ -74,6 +78,7 @@ export type HostedTrip = {
 export type HostedTripInput = {
   billing: TripBillingInput;
   route: HostedTripRouteInput;
+  /** @constraint(min: 1) */
   seats: Scalars['Int']['input'];
   time: TripTimeInput;
   vehicle?: InputMaybe<VehicleInput>;
@@ -89,9 +94,13 @@ export type HostedTripRoute = {
 };
 
 export type HostedTripRouteInput = {
+  /** @constraint(pattern: ^[a-zA-Z0-9\s]{3,20}$) */
   from: Scalars['String']['input'];
+  /** An array of [lat, long] arrays. @constraint(minItems: 2) */
   keyCoords: Array<Array<Scalars['Float']['input']>>;
+  /** @constraint(minItems: 2) */
   polyLines: Array<Scalars['String']['input']>;
+  /** @constraint(pattern: ^[a-zA-Z0-9\s]{3,20}$) */
   to: Scalars['String']['input'];
 };
 
@@ -229,6 +238,7 @@ export type RequestedTrip = {
 
 export type RequestedTripInput = {
   route: RequestedTripRouteInput;
+  /** @constraint(min: 1) */
   seats: Scalars['Int']['input'];
   time: TripTimeInput;
   vehicleFeatures: RequestedVehicleFeaturesInput;
@@ -248,8 +258,11 @@ export type RequestedTripRoute = {
 };
 
 export type RequestedTripRouteInput = {
+  /** @constraint(pattern: ^[a-zA-Z0-9\s]{3,20}$) */
   from: Scalars['String']['input'];
+  /** An array of [lat, long] arrays. @constraint(minItems: 2) */
   keyCoords: Array<Array<Scalars['Float']['input']>>;
+  /** @constraint(pattern: ^[a-zA-Z0-9\s]{3,20}$) */
   to: Scalars['String']['input'];
 };
 
@@ -279,7 +292,9 @@ export type TripBilling = {
 
 export type TripBillingInput = {
   bankAccountId: Scalars['ObjectId']['input'];
+  /** @constraint(min: 0) */
   priceFirstKm: Scalars['Float']['input'];
+  /** @constraint(min: 0) */
   priceNextKm: Scalars['Float']['input'];
 };
 
@@ -324,8 +339,11 @@ export type User = {
 
 export type UserInput = {
   email: Scalars['String']['input'];
+  /** @constraint(pattern: ^\+94\d{9}$) */
   mobile: Scalars['String']['input'];
+  /** @constraint(minLength: 4) */
   password: Scalars['String']['input'];
+  /** @constraint(pattern: ^[a-zA-Z0-9\s]{3,20}$) */
   preferredName: Scalars['String']['input'];
 };
 
@@ -360,8 +378,11 @@ export type VehicleFeaturesInput = {
 
 export type VehicleInput = {
   features: VehicleFeaturesInput;
+  /** @constraint(pattern: ^[a-zA-Z0-9\s]{3,20}$) */
   model: Scalars['String']['input'];
+  /** @constraint(pattern: ^[a-zA-Z0-9\s]{3,20}$) */
   name: Scalars['String']['input'];
+  /** @constraint(pattern: ^[a-zA-Z0-9\s]{3,20}$) */
   number: Scalars['String']['input'];
   type: VehicleType;
 };

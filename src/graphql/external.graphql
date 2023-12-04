@@ -59,10 +59,16 @@ type User {
 }
 
 input UserInput {
+    "@constraint(pattern: ^\\+94\\d{9}$)"
     mobile: String! @constraint(pattern: "^\\+94\\d{9}$")
+
+    "@constraint(minLength: 4)"
     password: String! @constraint(minLength: 4)
-    email: String! @constraint(format: "email")
+
+    "@constraint(pattern: ^[a-zA-Z0-9\\s]{3,20}$)"
     preferredName: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+
+    email: String! @constraint(format: "email")
 }
 
 #RATING=========================================
@@ -124,9 +130,16 @@ type Vehicle {
 
 input VehicleInput {
     type: VehicleType!
+
+    "@constraint(pattern: ^[a-zA-Z0-9\\s]{3,20}$)"
     name: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+
+    "@constraint(pattern: ^[a-zA-Z0-9\\s]{3,20}$)"
     number: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+
+    "@constraint(pattern: ^[a-zA-Z0-9\\s]{3,20}$)"
     model: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+
     features: VehicleFeaturesInput!
 }
 
@@ -156,7 +169,10 @@ input HostedTripInput {
     time: TripTimeInput!
     vehicleId: ObjectId #If vehicle is null, then this must not
     vehicle: VehicleInput  #If vehicleId is null, then this must not
+
+    "@constraint(min: 1)"
     seats: Int! @constraint(min: 1)
+
     billing: TripBillingInput!
 }
 
@@ -168,7 +184,11 @@ type TripBilling {
 
 input TripBillingInput {
     bankAccountId: ObjectId!
+
+    "@constraint(min: 0)"
     priceFirstKm: Float! @constraint(min: 0)
+
+    "@constraint(min: 0)"
     priceNextKm: Float! @constraint(min: 0)
 }
 
@@ -189,7 +209,10 @@ type RequestedVehicleFeatures {
 input RequestedTripInput {
     route: RequestedTripRouteInput!
     time: TripTimeInput!
+
+    "@constraint(min: 1)"
     seats: Int! @constraint(min: 1)
+
     vehicleFeatures: RequestedVehicleFeaturesInput!
 }
 
@@ -207,9 +230,16 @@ type HostedTripRoute {
 }
 
 input HostedTripRouteInput {
+    "@constraint(pattern: ^[a-zA-Z0-9\\s]{3,20}$)"
     from: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+
+    "@constraint(pattern: ^[a-zA-Z0-9\\s]{3,20}$)"
     to: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+
+    "@constraint(minItems: 2)"
     polyLines: [String!]! @constraint(minItems: 1)
+
+    "An array of [lat, long] arrays. @constraint(minItems: 2)"
     keyCoords: [[Float!]!]! @constraint(minItems: 2) #[[lat, long]]
 }
 
@@ -220,8 +250,13 @@ type RequestedTripRoute {
 }
 
 input RequestedTripRouteInput {
+    "@constraint(pattern: ^[a-zA-Z0-9\\s]{3,20}$)"
     from: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+
+    "@constraint(pattern: ^[a-zA-Z0-9\\s]{3,20}$)"
     to: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+
+    "An array of [lat, long] arrays. @constraint(minItems: 2)"
     keyCoords: [[Float!]!]! @constraint(minItems: 2) #[[lat, long]]
 }
 
@@ -268,8 +303,15 @@ type BankAccount {
 }
 
 input BankAccountInput {
+    "@constraint(pattern: ^[a-zA-Z0-9\\s]{3,20}$)"
     name: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+
+    "@constraint(pattern: ^[a-zA-Z0-9\\s]{3,20}$)"
     bank: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+
+    "@constraint(pattern: ^[a-zA-Z0-9\\s]{3,20}$)"
     number: String! @constraint(pattern: "^[0-9\\s]{3,20}$")
+
+    "@constraint(pattern: ^[a-zA-Z0-9\\s]{3,20}$)"
     branch: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
 }
