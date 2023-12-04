@@ -1,6 +1,5 @@
 import * as crypto from "crypto";
 
-import fetch from "node-fetch";
 import { ObjectId } from "mongodb";
 import { GraphQLError, GraphQLScalarType, Kind } from "graphql";
 
@@ -400,7 +399,7 @@ export const root: {
             }
             
             //Calculate tileOverlapIndex
-            tripToBeInserted.route.tileOverlapIndex = await PostGIS.calculateTileOverlapIndex(args.hostedTrip.route.polyLines);
+            tripToBeInserted.route.tileOverlapIndex = (await PostGIS.calculateTileOverlapIndex(args.hostedTrip.route.polyLines)).toString();
 
             const result = await Server.db.collection<In.HostedTripInput>(Collection.HOSTED_TRIPS).insertOne(tripToBeInserted);
             if (!result.acknowledged) {
