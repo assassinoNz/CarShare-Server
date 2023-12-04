@@ -443,7 +443,7 @@ export const type: {
                 //CASE: vehicleId exists.
                 //User has assigned a saved vehicle. It must be retrieved from database
                 await Authorizer.query(ctx.user, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
-                const item = await Server.db.collection<In.Vehicle & Ex.Vehicle>("vehicles").findOne({
+                const item = await Server.db.collection<In.Vehicle>("vehicles").findOne({
                     _id: parent.vehicleId
                 });
 
@@ -485,7 +485,7 @@ export const type: {
     RequestedTrip: {
         requester: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
-            const item = await Server.db.collection<In.User & Ex.User>("users").findOne({
+            const item = await Server.db.collection<In.User>("users").findOne({
                 _id: parent.requesterId
             });
 
