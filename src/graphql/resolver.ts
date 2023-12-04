@@ -407,10 +407,9 @@ export const root: {
         AddRequestedTrip: async (parent, args: Ex.MutationAddRequestedTripArgs, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.REQUESTED_TRIPS, OperationIndex.CREATE);
 
-            const me = Authorizer.me(ctx);
             const result = await Server.db.collection<In.RequestedTripInput>(Collection.HOSTED_TRIPS).insertOne({
                 ...args.requestedTrip,
-                requesterId: me._id,
+                requesterId: Authorizer.me(ctx)._id,
             });
             if (!result.acknowledged) {
                 throw new Error.CouldNotPerformOperation(ModuleId.HOSTED_TRIPS, OperationIndex.CREATE);
