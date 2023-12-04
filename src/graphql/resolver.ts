@@ -355,6 +355,19 @@ export const root: {
                 }
             };
 
+            //Validate bank account
+            const bankAccount = await Server.db.collection<In.BankAccount & Ex.BankAccount>(Collection.BANK_ACCOUNTS).findOne({
+                _id: args.hostedTrip.billing.bankAccountId
+            });
+
+            if (!bankAccount) {
+                throw new Error.ItemDoesNotExist("bank account", "id", args.hostedTrip.billing.bankAccountId.toHexString());
+            }
+
+            if (!bankAccount.isActive) {
+                throw new Error.ItemIsNotActive("bank account", "id", args.hostedTrip.billing.bankAccountId.toHexString());
+            }
+
             //Validate keyCoords
             //NOTE: Within the boundary of Sri Lanka, for ever coordinate, latitude < longitude
             for (const coord of args.hostedTrip.route.keyCoords) {
@@ -393,19 +406,6 @@ export const root: {
             } else {
                 //CASE: User hasn't provided any vehicleId or vehicle
                 throw new Error.InvalidFieldValue("hosted trip", "vehicleId", "null");
-            }
-
-            //Validate bank account
-            const bankAccount = await Server.db.collection<In.BankAccount & Ex.BankAccount>(Collection.BANK_ACCOUNTS).findOne({
-                _id: args.hostedTrip.billing.bankAccountId
-            });
-
-            if (!bankAccount) {
-                throw new Error.ItemDoesNotExist("bank account", "id", args.hostedTrip.billing.bankAccountId.toHexString());
-            }
-
-            if (!bankAccount.isActive) {
-                throw new Error.ItemIsNotActive("bank account", "id", args.hostedTrip.billing.bankAccountId.toHexString());
             }
             
             //Calculate tileOverlapIndex
