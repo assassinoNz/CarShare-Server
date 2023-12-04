@@ -211,6 +211,8 @@ export const root: {
 
             //For each requested trip, calculate match results
             for await (const requestedTrip of requestedTrips) {
+                //TODO: Try to mach vehicle features
+
                 //Calculate all possible routes of the requested trip using OSRM
                 const routes = await Osrm.calculatePossibleRoutes(requestedTrip.route.keyCoords);
 
