@@ -226,6 +226,7 @@ const hostedTripsInsertion = db.hostedTrips.insertMany([
                 [7.091540697723802, 79.9947859108097],
                 [7.034742366985356, 80.02610573596573],
             ],
+            tileOverlapIndex: "89202980794122492566142873090593446023921664",
         },
         time: {
             schedule: new Date(2023, 12, 10, 10, 30),
