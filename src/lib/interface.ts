@@ -35,7 +35,7 @@ type ExUnique<In, Ex> = {
     )]: Ex[K];
 };
 
-//Maps every field of a type to its corresponding promise resolver after removing the scalar fields
+//Maps every field of a type to its corresponding promise resolver after removing the types with same name and type compared to InParent and ExParent
 export type TypeResolver<In, Ex> = {
     [K in keyof ExUnique<In, Ex>]: Resolver<In, ExUnique<In, Ex>[K]>;
 }
