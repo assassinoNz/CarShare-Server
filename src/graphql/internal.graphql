@@ -11,10 +11,20 @@ type Query {
     GetMyVehicles(skip: Int, limit: Int @constraint(max: 10)): [Vehicle!]!
     GetMyBankAccounts(skip: Int, limit: Int @constraint(max: 10)): [BankAccount!]!
 
-    GetMyHostedTrips(skip: Int, limit: Int @constraint(max: 10)): [HostedTrip]!
+    GetMyHostedTrips(
+        from: Date,
+        to: Date,
+        skip: Int,
+        limit: Int @constraint(max: 10)
+    ): [HostedTrip]!
     GetMyHostedTrip(_id: ObjectId!): HostedTrip!
 
-    GetMyRequestedTrips(skip: Int, limit: Int @constraint(max: 10)): [RequestedTrip]!
+    GetMyRequestedTrips(
+        from: Date,
+        to: Date,
+        skip: Int,
+        limit: Int @constraint(max: 10)
+    ): [RequestedTrip]!
     GetMyRequestedTrip(_id: ObjectId!): RequestedTrip!
 
     GetMySentHandshakes(skip: Int, limit: Int @constraint(max: 10)): [Handshake]!

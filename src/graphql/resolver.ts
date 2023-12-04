@@ -88,9 +88,14 @@ export const root: {
         },
 
         GetMyHostedTrips: async (parent, args: Ex.QueryGetMyHostedTripsArgs, ctx, info) => {
-            const me = await Authorizer.query(ctx, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);;
+            const me = await Authorizer.query(ctx, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
+            const now = new Date();
             return await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS).find({
-                hostId: me._id
+                hostId: me._id,
+                "time.schedule": {
+                    $gte: args.from || new Date().setDate(now.getDate() - 30),
+                    $lt: args.to || new Date().setDate(now.getDate() + 30)
+                }
             }).skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
                 .toArray();
@@ -112,8 +117,13 @@ export const root: {
 
         GetMyRequestedTrips: async (parent, args: Ex.QueryGetMyRequestedTripsArgs, ctx, info) => {
             const me = await Authorizer.query(ctx, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
+            const now = new Date();
             return await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).find({
-                requesterId: me._id
+                requesterId: me._id,
+                "time.schedule": {
+                    $gte: args.from || new Date().setDate(now.getDate() - 30),
+                    $lt: args.to || new Date().setDate(now.getDate() + 30)
+                }
             }).skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
                 .toArray();

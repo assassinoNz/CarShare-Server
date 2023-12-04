@@ -200,8 +200,10 @@ export type QueryGetMyHostedTripArgs = {
 
 
 export type QueryGetMyHostedTripsArgs = {
+  from?: InputMaybe<Scalars['Date']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
+  to?: InputMaybe<Scalars['Date']['input']>;
 };
 
 
@@ -217,8 +219,10 @@ export type QueryGetMyRequestedTripArgs = {
 
 
 export type QueryGetMyRequestedTripsArgs = {
+  from?: InputMaybe<Scalars['Date']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
+  to?: InputMaybe<Scalars['Date']['input']>;
 };
 
 
