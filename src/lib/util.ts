@@ -150,7 +150,7 @@ export class PostGIS {
             intersectionPolyLine: this.wkb2Polyline(result.intersection_route)
         }
     }
-    
+
     static async rebuildTilesTable(numTilesX: number, numTilesY: number) {
         //Calculate needed distance between two longitudes
         const tileWidth = (this.rightX - this.leftX) / numTilesX;
@@ -198,5 +198,21 @@ export class PostGIS {
 
         const query3 = `INSERT INTO tiles (geom) VALUES ` + values.join(",") + ";";
         await Server.postgresDriver.query(query3);
+    }
+
+    static async calculateTileOverlapIndex(polyLines: string[]) {
+        const query = `
+            SELECT STRING_AGG(
+                CASE
+                    WHEN ST_Intersects(t.geom, ST_GeomFromText('${this.makeLineString(polyLines)}', 4326)) THEN '1' ELSE '0'
+                END,
+                ''
+                ORDER BY t.id
+            ) AS tile_overlap_index
+            FROM tiles AS t;
+        `;
+    
+        const res = await Server.postgresDriver.query(query);
+        return res.rows[0].tile_overlap_index as string;
     }
 }

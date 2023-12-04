@@ -209,6 +209,7 @@ type HostedTripRoute {
     to: String!
     polyLines: [String!]!
     keyCoords: [[Float!]!]!
+    tileOverlapIndex: String!
 }
 
 input HostedTripRouteInput {
@@ -216,6 +217,7 @@ input HostedTripRouteInput {
     to: String! @constraint(pattern: "^[a-zA-Z]{5,30}*$")
     polyLines: [String!]!
     keyCoords: [[Float!]!]!
+    tileOverlapIndex: String!
 }
 
 type RequestedTripRoute {

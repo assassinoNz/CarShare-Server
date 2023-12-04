@@ -90,6 +90,7 @@ export type HostedTripRoute = {
   from: Scalars['String']['output'];
   keyCoords: Array<Array<Scalars['Float']['output']>>;
   polyLines: Array<Scalars['String']['output']>;
+  tileOverlapIndex: Scalars['String']['output'];
   to: Scalars['String']['output'];
 };
 
@@ -97,6 +98,7 @@ export type HostedTripRouteInput = {
   from: Scalars['String']['input'];
   keyCoords: Array<Array<Scalars['Float']['input']>>;
   polyLines: Array<Scalars['String']['input']>;
+  tileOverlapIndex: Scalars['String']['input'];
   to: Scalars['String']['input'];
 };
 

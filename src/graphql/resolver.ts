@@ -348,7 +348,11 @@ export const root: {
             const tripToBeInserted: In.HostedTripInput = {
                 ...args.hostedTrip,
                 hostId: Authorizer.me(ctx)._id,
-                vehicle: undefined
+                vehicle: undefined,
+                route: {
+                    ...args.hostedTrip.route,
+                    tileOverlapIndex: await PostGIS.calculateTileOverlapIndex(args.hostedTrip.route.polyLines)
+                }
             };
 
             //Validate vehicleId and vehicle
@@ -427,6 +431,8 @@ export const type: {
     Handshake: TypeResolver<In.Handshake, Ex.Handshake>,
 } = {
     HostedTrip: {
+        route: async (parent, args, ctx, info) => parent.route,
+
         host: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx.user, ModuleId.USERS, OperationIndex.RETRIEVE);
             const item = await Server.db.collection<In.User>(Collection.USERS).findOne({ _id: parent.hostId });
