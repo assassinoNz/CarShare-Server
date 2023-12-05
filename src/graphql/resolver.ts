@@ -93,8 +93,8 @@ export const root: {
             return await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS).find({
                 hostId: me._id,
                 "time.schedule": {
-                    $gte: args.from || new Date().setDate(now.getDate() - 30),
-                    $lt: args.to || new Date().setDate(now.getDate() + 30)
+                    $gte: args.from || new Date(now.getTime() - Default.DATE_OFFSET),
+                    $lt: args.to || new Date(now.getTime() + Default.DATE_OFFSET)
                 }
             }).skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
@@ -121,8 +121,8 @@ export const root: {
             return await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).find({
                 requesterId: me._id,
                 "time.schedule": {
-                    $gte: args.from || new Date().setDate(now.getDate() - 30),
-                    $lt: args.to || new Date().setDate(now.getDate() + 30)
+                    $gte: args.from || new Date(now.getTime() - Default.DATE_OFFSET),
+                    $lt: args.to || new Date(now.getTime() + Default.DATE_OFFSET)
                 }
             }).skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
