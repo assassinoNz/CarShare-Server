@@ -397,7 +397,7 @@ export const root: {
             //Validate keyCoords
             //NOTE: Within the boundary of Sri Lanka, for ever coordinate, latitude < longitude
             for (const coord of args.hostedTrip.route.keyCoords) {
-                if (coord[0] > coord[1]) {
+                if (coord[0] > coord[1] || coord.length !== 2) {
                     throw new Error.InvalidFieldValue("route", "keyCoords", `[${coord[0]}, ${coord[1]}]`);
                 }
             }
@@ -451,7 +451,7 @@ export const root: {
             //Validate keyCoords
             //NOTE: Within the boundary of Sri Lanka, for ever coordinate, latitude < longitude
             for (const coord of args.requestedTrip.route.keyCoords) {
-                if (coord[0] > coord[1]) {
+                if (coord[0] > coord[1] || coord.length !== 2) {
                     throw new Error.InvalidFieldValue("route", "keyCoords", `[${coord[0]}, ${coord[1]}]`);
                 }
             }
