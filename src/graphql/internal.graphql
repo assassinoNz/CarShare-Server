@@ -146,7 +146,7 @@ type HandshakeTime {
 
 #VEHICLE========================================
 type Vehicle {
-    _id: ObjectId!
+    _id: ObjectId
     isActive: Boolean!
     ownerId: ObjectId #Only available for saved vehicles
     type: VehicleType!

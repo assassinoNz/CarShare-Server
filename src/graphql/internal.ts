@@ -370,7 +370,7 @@ export type UserRating = {
 
 export type Vehicle = {
   __typename?: 'Vehicle';
-  _id: Scalars['ObjectId']['output'];
+  _id?: Maybe<Scalars['ObjectId']['output']>;
   class: VehicleClass;
   features: VehicleFeatures;
   isActive: Scalars['Boolean']['output'];

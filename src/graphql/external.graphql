@@ -126,7 +126,7 @@ type HandshakeTime {
 
 #VEHICLE========================================
 type Vehicle {
-    _id: ObjectId!
+    _id: ObjectId
     isActive: Boolean!
     type: VehicleType!
     class: VehicleClass!
