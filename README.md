@@ -60,4 +60,4 @@ Withing the previously created OSRM data directory, run the following.
 ### Start API server
 
 - `$ npm start`
-- Visit `localhost:<PORT_EXPRESS>` in a browser to access the GraphQL sandbox.
+- Visit `localhost:<PORT_EXPRESS>/graphql` in a browser to access the GraphQL sandbox.
