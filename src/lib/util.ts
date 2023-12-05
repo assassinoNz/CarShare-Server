@@ -218,6 +218,9 @@ export class PostGIS {
 
 export class Osrm {
     static calculatePossibleRoutes(coords: number[][]) {
+        //NOTE: Deep copy coords because we're reversing each coord
+        coords = JSON.parse(JSON.stringify(coords));
+
         return fetch(`${Config.URL_OSRM}/${coords.map(coord => coord.reverse().join(",")).join(";")}?overview=false&steps=true`)
             .then((res: any) => res.json())
             .then((res: any) => res.routes as OsrmRoute[]);
