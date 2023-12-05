@@ -217,6 +217,9 @@ export class PostGIS {
 }
 
 export class Osrm {
+    /**
+     * @param coords An array of arrays with each array representing a coordinate as [lat, long]
+    */
     static calculatePossibleRoutes(coords: number[][]) {
         //NOTE: Deep copy coords because we're reversing each coord
         coords = JSON.parse(JSON.stringify(coords));
