@@ -381,6 +381,14 @@ export const root: {
                 }
             };
 
+            //Validate keyCoords
+            //NOTE: Within the boundary of Sri Lanka, for every coordinate, latitude < longitude
+            for (const coord of args.hostedTrip.route.keyCoords) {
+                if (coord[0] > coord[1] || coord.length !== 2) {
+                    throw new Error.InvalidFieldValue("route", "keyCoords", `[${coord[0]}, ${coord[1]}]`);
+                }
+            }
+
             //Validate bank account
             const bankAccount = await Server.db.collection<In.BankAccount & Ex.BankAccount>(Collection.BANK_ACCOUNTS).findOne({
                 _id: args.hostedTrip.billing.bankAccountId
@@ -392,14 +400,6 @@ export const root: {
 
             if (!bankAccount.isActive) {
                 throw new Error.ItemIsNotActive("bank account", "id", args.hostedTrip.billing.bankAccountId.toHexString());
-            }
-
-            //Validate keyCoords
-            //NOTE: Within the boundary of Sri Lanka, for ever coordinate, latitude < longitude
-            for (const coord of args.hostedTrip.route.keyCoords) {
-                if (coord[0] > coord[1] || coord.length !== 2) {
-                    throw new Error.InvalidFieldValue("route", "keyCoords", `[${coord[0]}, ${coord[1]}]`);
-                }
             }
 
             //Validate vehicleId and vehicle
