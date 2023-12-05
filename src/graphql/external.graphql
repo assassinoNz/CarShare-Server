@@ -236,11 +236,8 @@ type HostedTripRoute {
 }
 
 input HostedTripRouteInput {
-    "@constraint(pattern: ^[a-zA-Z0-9\\s]{3,20}$)"
-    from: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
-
-    "@constraint(pattern: ^[a-zA-Z0-9\\s]{3,20}$)"
-    to: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+    from: String!
+    to: String!
 
     "@constraint(minItems: 2)"
     polyLines: [String!]! @constraint(minItems: 1)
@@ -256,11 +253,8 @@ type RequestedTripRoute {
 }
 
 input RequestedTripRouteInput {
-    "@constraint(pattern: ^[a-zA-Z0-9\\s]{3,20}$)"
-    from: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
-
-    "@constraint(pattern: ^[a-zA-Z0-9\\s]{3,20}$)"
-    to: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+    from: String!
+    to: String!
 
     "An array of [lat, long] arrays. @constraint(minItems: 2)"
     keyCoords: [[Float!]!]! @constraint(minItems: 2) #[[lat, long]]
