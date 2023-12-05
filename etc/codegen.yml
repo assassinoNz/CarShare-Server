@@ -28,3 +28,12 @@ generates:
       - typescript
       - add:
           content: 'import { ObjectId } from "mongodb";'
+  "../Client/src/lib/graphql.ts":
+    schema: "src/graphql/external.graphql"
+    config:
+      template: "imports.ts"
+      scalars: 
+        ObjectId: string
+        Date: number
+    plugins:
+      - typescript
