@@ -68,6 +68,7 @@ export type HostedTrip = {
   __typename?: 'HostedTrip';
   _id: Scalars['ObjectId']['output'];
   billing: TripBilling;
+  hasHandshakes: Scalars['Boolean']['output'];
   host: User;
   route: HostedTripRoute;
   seats: Scalars['Int']['output'];
@@ -94,13 +95,11 @@ export type HostedTripRoute = {
 };
 
 export type HostedTripRouteInput = {
-  /** @constraint(pattern: ^[a-zA-Z0-9\s]{3,20}$) */
   from: Scalars['String']['input'];
   /** An array of [lat, long] arrays. @constraint(minItems: 2) */
   keyCoords: Array<Array<Scalars['Float']['input']>>;
   /** @constraint(minItems: 2) */
   polyLines: Array<Scalars['String']['input']>;
-  /** @constraint(pattern: ^[a-zA-Z0-9\s]{3,20}$) */
   to: Scalars['String']['input'];
 };
 
@@ -157,12 +156,11 @@ export type Query = {
   GetMe: User;
   GetMyBankAccounts: Array<BankAccount>;
   GetMyHandshake: Handshake;
+  GetMyHandshakes: Array<Maybe<Handshake>>;
   GetMyHostedTrip: HostedTrip;
   GetMyHostedTrips: Array<Maybe<HostedTrip>>;
-  GetMyReceivedHandshakes: Array<Maybe<Handshake>>;
   GetMyRequestedTrip: RequestedTrip;
   GetMyRequestedTrips: Array<Maybe<RequestedTrip>>;
-  GetMySentHandshakes: Array<Maybe<Handshake>>;
   GetMyVehicles: Array<Vehicle>;
 };
 
@@ -183,6 +181,14 @@ export type QueryGetMyHandshakeArgs = {
 };
 
 
+export type QueryGetMyHandshakesArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  sent?: InputMaybe<Scalars['Boolean']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+  tripId?: InputMaybe<Scalars['ObjectId']['input']>;
+};
+
+
 export type QueryGetMyHostedTripArgs = {
   _id: Scalars['ObjectId']['input'];
 };
@@ -193,12 +199,6 @@ export type QueryGetMyHostedTripsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
   to?: InputMaybe<Scalars['Date']['input']>;
-};
-
-
-export type QueryGetMyReceivedHandshakesArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -215,12 +215,6 @@ export type QueryGetMyRequestedTripsArgs = {
 };
 
 
-export type QueryGetMySentHandshakesArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  skip?: InputMaybe<Scalars['Int']['input']>;
-};
-
-
 export type QueryGetMyVehiclesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
@@ -229,6 +223,7 @@ export type QueryGetMyVehiclesArgs = {
 export type RequestedTrip = {
   __typename?: 'RequestedTrip';
   _id: Scalars['ObjectId']['output'];
+  hasHandshakes: Scalars['Boolean']['output'];
   requester: User;
   route: RequestedTripRoute;
   seats: Scalars['Int']['output'];
@@ -258,11 +253,9 @@ export type RequestedTripRoute = {
 };
 
 export type RequestedTripRouteInput = {
-  /** @constraint(pattern: ^[a-zA-Z0-9\s]{3,20}$) */
   from: Scalars['String']['input'];
   /** An array of [lat, long] arrays. @constraint(minItems: 2) */
   keyCoords: Array<Array<Scalars['Float']['input']>>;
-  /** @constraint(pattern: ^[a-zA-Z0-9\s]{3,20}$) */
   to: Scalars['String']['input'];
 };
 

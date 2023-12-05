@@ -31,8 +31,12 @@ type Query {
     ): [RequestedTrip]!
     GetMyRequestedTrip(_id: ObjectId!): RequestedTrip!
 
-    GetMySentHandshakes(skip: Int, limit: Int @constraint(max: 10)): [Handshake]!
-    GetMyReceivedHandshakes(skip: Int, limit: Int @constraint(max: 10)): [Handshake]!
+    GetMyHandshakes(
+        tripId: ObjectId,
+        sent: Boolean,
+        skip: Int,
+        limit: Int @constraint(max: 10)
+    ): [Handshake]!
     GetMyHandshake(_id: ObjectId!): Handshake!
 
     GetMatchingRequestedTrips(hostedTripId: ObjectId!): [RequestedTripMatch!]!

@@ -1,6 +1,6 @@
 import * as crypto from "crypto";
 
-import { ObjectId } from "mongodb";
+import { Filter, ObjectId } from "mongodb";
 import { GraphQLError, GraphQLScalarType, Kind } from "graphql";
 
 import * as Config from "../../config";
@@ -143,20 +143,44 @@ export const root: {
             return item;
         },
 
-        GetMySentHandshakes: async (parent, args: Ex.QueryGetMySentHandshakesArgs, ctx, info) => {
+        GetMyHandshakes: async (parent, args: Ex.QueryGetMyHandshakesArgs, ctx, info) => {
             const me = await Authorizer.query(ctx, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
-            return await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find({
-                senderId: me._id
-            }).skip(args.skip || Default.VALUE_SKIP)
-                .limit(args.limit || Default.VALUE_LIMIT)
-                .toArray();
-        },
 
-        GetMyReceivedHandshakes: async (parent, args: Ex.QueryGetMyReceivedHandshakesArgs, ctx, info) => {
-            const me = await Authorizer.query(ctx, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
-            return await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find({
-                recipientId: me._id
-            }).skip(args.skip || Default.VALUE_SKIP)
+            const options: Filter<In.Handshake & Ex.Handshake> = {};
+
+            if (args.sent === true) {
+                //CASE: Filter handshakes sent by me
+                options.senderId = me._id;
+            } else if (args.sent === false) {
+                //CASE: Filter handshakes received by me
+                options.recipientId = me._id;
+            } else {
+                //CASE: Retrieve everything either sent or received by me
+                if (!options["$or"]) {
+                    options["$or"] = [];
+                }
+
+                options["$or"].push(
+                    { senderId: me._id },
+                    { recipientId: me._id }
+                );
+            }
+
+            if (args.tripId) {
+                //NOTE: tripId could be a hostedTripId or a requestedTripId
+                //CASE: Retrieve the handshake where hostedTripId=tripId or requestedTripId=tripId
+                if (!options["$or"]) {
+                    options["$or"] = [];
+                }
+
+                options["$or"].push(
+                    { hostedTripId: args.tripId },
+                    { requestedTripId: args.tripId }
+                );
+            }
+
+            return await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find(options)
+                .skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
                 .toArray();
         },
@@ -492,6 +516,13 @@ export const type: {
                 bankAccount: {} as Ex.BankAccount
             }
         },
+
+        hasHandshakes: async (parent, args, ctx, info) => {
+            await Authorizer.query(ctx, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
+            return Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find({
+                hostedTripId: parent._id,
+            }).hasNext();
+        },
     },
 
     TripBilling: {
@@ -521,6 +552,13 @@ export const type: {
             }
 
             return item;
+        },
+
+        hasHandshakes: async (parent, args, ctx, info) => {
+            await Authorizer.query(ctx, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
+            return Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find({
+                requestedTripId: parent._id,
+            }).hasNext();
         },
     },
 
