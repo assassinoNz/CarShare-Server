@@ -206,6 +206,7 @@ export const root: {
 
             //Get all requested trips within 1h of the created trip
             //TODO: Filter requested trips based on time
+            //TODO: Filter out requested trips that are also mine
             const requestedTrips = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).find({
                 //Filter requested trips that are +-1h to hosted trip
                 // "time.schedule": {
@@ -331,7 +332,7 @@ export const root: {
         },
 
         AddBankAccount: async (parent, args: Ex.MutationAddBankAccountArgs, ctx, info) => {
-            const me = await Authorizer.query(ctx, ModuleId.VEHICLES, OperationIndex.CREATE);
+            const me = await Authorizer.query(ctx, ModuleId.BANK_ACCOUNTS, OperationIndex.CREATE);
             const result = await Server.db.collection<In.BankAccountInput>(Collection.BANK_ACCOUNTS).insertOne({
                 ...args.bankAccount,
                 ownerId: me._id,
@@ -345,7 +346,7 @@ export const root: {
         },
 
         AddHostedTrip: async (parent, args: Ex.MutationAddHostedTripArgs, ctx, info) => {
-            const me = await Authorizer.query(ctx, ModuleId.VEHICLES, OperationIndex.CREATE);
+            const me = await Authorizer.query(ctx, ModuleId.HOSTED_TRIPS, OperationIndex.CREATE);
             const tripToBeInserted: In.HostedTripInput = {
                 ...args.hostedTrip,
                 hostId: me._id,
@@ -385,7 +386,7 @@ export const root: {
                 }
             } else {
                 //CASE: User hasn't provided any vehicleId or vehicle
-                throw new Error.InvalidFieldValue("hosted trip", "vehicleId", "null");
+                throw new Error.InvalidFieldValue("hosted trip", "vehicleId/vehicle", "null", "either vehicleId or vehicle field mut be provided");
             }
             
             //Calculate tileOverlapIndex
@@ -400,7 +401,7 @@ export const root: {
         },
 
         AddRequestedTrip: async (parent, args: Ex.MutationAddRequestedTripArgs, ctx, info) => {
-            const me = await Authorizer.query(ctx, ModuleId.VEHICLES, OperationIndex.CREATE);
+            const me = await Authorizer.query(ctx, ModuleId.REQUESTED_TRIPS, OperationIndex.CREATE);
 
             //Validate keyCoords
             Validator.validateCoords(args.requestedTrip.route.keyCoords, "route", "keyCoords");
@@ -408,6 +409,73 @@ export const root: {
             const result = await Server.db.collection<In.RequestedTripInput>(Collection.REQUESTED_TRIPS).insertOne({
                 ...args.requestedTrip,
                 requesterId: me._id,
+            });
+            if (!result.acknowledged) {
+                throw new Error.CouldNotPerformOperation(ModuleId.REQUESTED_TRIPS, OperationIndex.CREATE);
+            }
+
+            return result.insertedId;
+        },
+
+        InitHandshake: async (parent, args: Ex.MutationInitHandshakeArgs, ctx, info) => {
+            const me = await Authorizer.query(ctx, ModuleId.HANDSHAKES, OperationIndex.CREATE);
+            const hostedTrip = await Validator.getIfExists<In.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
+                _id: args.hostedTripId
+            });
+            const requestedTrip = await Validator.getIfExists<In.RequestedTrip>(Collection.HOSTED_TRIPS, "requested trip", {
+                _id: args.requestedTripId
+            });
+
+            const handshakeToBeInserted: In.HandshakeInput = {
+                hostedTripId: args.hostedTripId,
+                requestedTripId: args.requestedTripId,
+                senderId: me._id,
+                recipientId: me._id, //WARNING: The correct id is assigned later
+                payment: {
+                    amount: -1 //TODO: Must be calculated properly
+                },
+                rating: {
+                    host: {
+                        driving: 0, meetsCondition: 0, politeness: 0, punctuality: 0
+                    },
+                    requester: {
+                        politeness: 0, punctuality: 0
+                    },
+                    vehicle: {
+                        ac: 0, cleanliness: 0
+                    }
+                },
+                time: {
+                    sent: new Date()
+                }
+            };
+
+            //Update recipientId to correct value
+            if (hostedTrip.hostId.equals(me._id)) {
+                if (requestedTrip.requesterId.equals(me._id)) {
+                    //CASE: Both trips are mine
+                    throw new Error.InvalidFieldValue("handshake", "requestedTripId", args.requestedTripId.toString(), "requested trip is also owned by you");
+                } else {
+                    //CASE: I'm the owner of hosted trip
+                    //Handshake goes from my hosted trip to a requested trip
+                    handshakeToBeInserted.recipientId = requestedTrip.requesterId;
+                }
+            } else if (requestedTrip.requesterId.equals(me._id)) {
+                if (hostedTrip.hostId.equals(me._id)) {
+                    //CASE: Both trips are mine
+                    throw new Error.InvalidFieldValue("handshake", "hostedTripId", args.hostedTripId.toString(), "hosted trip is also owned by you");
+                } else {
+                    //CASE: I'm the owner of requested trip
+                    //Handshake goes from my requested trip to a hosted trip
+                    handshakeToBeInserted.recipientId = hostedTrip.hostId;
+                }
+            } else {
+                //CASE: None of the trips belong to me
+                throw new Error.ItemNotAccessibleByUser("hosted trip/requested trip", "_id", `${args.hostedTripId.toString()}/${args.requestedTripId.toString()}`);
+            }
+
+            const result = await Server.db.collection<In.HandshakeInput>(Collection.HANDSHAKES).insertOne({
+                ...handshakeToBeInserted
             });
             if (!result.acknowledged) {
                 throw new Error.CouldNotPerformOperation(ModuleId.REQUESTED_TRIPS, OperationIndex.CREATE);

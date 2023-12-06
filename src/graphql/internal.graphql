@@ -53,6 +53,11 @@ type Mutation {
     AddHostedTrip(hostedTrip: HostedTripInput!): ObjectId!
 
     AddRequestedTrip(requestedTrip: RequestedTripInput!): ObjectId!
+
+    InitHandshake(
+        hostedTripId: ObjectId!,
+        requestedTripId: ObjectId!,
+    ): ObjectId!
 }
 
 #USER===========================================
@@ -273,6 +278,16 @@ input RequestedTripRouteInput {
 #HANDSHAKE======================================
 type Handshake {
     _id: ObjectId!
+    senderId: ObjectId!
+    recipientId: ObjectId!
+    hostedTripId: ObjectId!
+    requestedTripId: ObjectId!
+    time: HandshakeTime!
+    payment: Payment!
+    rating: TripRating!
+}
+
+input HandshakeInput {
     senderId: ObjectId!
     recipientId: ObjectId!
     hostedTripId: ObjectId!

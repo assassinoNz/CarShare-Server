@@ -53,6 +53,11 @@ type Mutation {
     AddHostedTrip(hostedTrip: HostedTripInput!): ObjectId!
 
     AddRequestedTrip(requestedTrip: RequestedTripInput!): ObjectId!
+
+    InitHandshake(
+        hostedTripId: ObjectId!,
+        requestedTripId: ObjectId!,
+    ): ObjectId!
 }
 
 #USER===========================================

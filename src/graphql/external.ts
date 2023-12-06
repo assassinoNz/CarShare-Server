@@ -110,6 +110,7 @@ export type Mutation = {
   AddRequestedTrip: Scalars['ObjectId']['output'];
   AddVehicle: Scalars['ObjectId']['output'];
   CreateGenericUser: Scalars['String']['output'];
+  InitHandshake: Scalars['ObjectId']['output'];
   SignIn: Scalars['String']['output'];
 };
 
@@ -136,6 +137,12 @@ export type MutationAddVehicleArgs = {
 
 export type MutationCreateGenericUserArgs = {
   user: UserInput;
+};
+
+
+export type MutationInitHandshakeArgs = {
+  hostedTripId: Scalars['ObjectId']['input'];
+  requestedTripId: Scalars['ObjectId']['input'];
 };
 
 
