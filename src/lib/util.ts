@@ -283,3 +283,16 @@ export class Osrm {
         return polyLines;
     }
 }
+
+export class Nominatim {
+    static geocode(coord: [number, number]) {
+        return fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${coord[0]}&lon=${coord[1]}`).then(res => res.json())
+        .then(res => {
+            if (res.error) {
+                throw res.error;
+            } else {
+                return res.display_name as string;
+            }
+        });
+    }
+}
