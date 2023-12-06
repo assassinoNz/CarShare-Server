@@ -121,12 +121,12 @@ export class ItemIsNotActive extends GraphQLError {
 }
 
 export class InvalidFieldValue extends GraphQLError {
-    constructor(itemType: string, key: string, keyValue: string) {
+    constructor(itemType: string, key: string, keyValue: string, because: string) {
         super(`The value ${keyValue} provided for the ${key} field is not valid`, {
             extensions: {
                 title: `One of the values provided is invalid`,
                 suggestion: `Try providing a valid value`,
-                description: `The ${itemType} is invalid due to ${key} being set to ${keyValue}.`,
+                description: `The ${key} field of ${itemType} is invalid because ${because}.`,
                 code: `INVALID_FIELD_VALUE`
             }
         });
