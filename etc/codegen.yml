@@ -28,7 +28,7 @@ generates:
       - typescript
       - add:
           content: 'import { ObjectId } from "mongodb";'
-  "../Client/src/lib/graphql.ts":
+  "test/graphql.ts":
     schema: "src/graphql/external.graphql"
     config:
       template: "imports.ts"
