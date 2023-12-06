@@ -309,6 +309,7 @@ const requestedTripsInsertion = db.requestedTrips.insertMany([
     }
 ]);
 
+db.handshakes.createIndex( { "hostedTripId": 1, "requestedTripId": 1 }, { unique: true } );
 db.handshakes.drop();
 const handshakesInsertion = db.handshakes.insertMany([
     {
