@@ -38,7 +38,7 @@ export const nominatim = {
             await Server.jwtr.verify(token, SECRET_JWT) as JwtPayload;
 
             try {
-                const data = await fetch(`${URL_NOMINATIM}?format=json&q=${encodeURIComponent(req.query.q as string)}`)
+                const data = await fetch(`${URL_NOMINATIM}/search?format=json&q=${encodeURIComponent(req.query.q as string)}`)
                     .then((response: any) => response.json());
 
                 res.json(data);
@@ -46,7 +46,6 @@ export const nominatim = {
                 console.error(err);
                 res.sendStatus(500);
             }
-
         } catch (err) {
             console.error(err);
             res.sendStatus(500);

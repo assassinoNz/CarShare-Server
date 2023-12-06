@@ -4,6 +4,7 @@ export const PORT_EXPRESS = 8080;
 export const DB_MONGO = "carshare";
 
 export const URL_OSRM = "http://localhost:5000/route/v1/driving";
+export const URL_NOMINATIM = "http://localhost:5001";
 
 export const HOST_POSTGRES = "localhost";
 export const USER_POSTGRES = "postgres";
