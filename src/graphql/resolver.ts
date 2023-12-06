@@ -11,7 +11,7 @@ import * as Ex from "./external";
 import { Server } from "../lib/app";
 import { Collection, ModuleId, OperationIndex } from "../lib/enum";
 import { JwtPayload, TypeResolver, RootResolver } from "../lib/interface";
-import { Authorizer, Osrm, PostGIS } from "../lib/util";
+import { Authorizer, Osrm, PostGIS, Validator } from "../lib/util";
 
 export const scalar = {
     ObjectId: new GraphQLScalarType<ObjectId | null, string>({
@@ -102,17 +102,11 @@ export const root: {
         },
 
         GetMyHostedTrip: async (parent, args: Ex.QueryGetMyHostedTripArgs, ctx, info) => {
-            const me = await Authorizer.query(ctx, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);;
-            const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS).findOne({
+            const me = await Authorizer.query(ctx, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
+            return await Validator.getIfExists<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
                 _id: args._id,
                 hostId: me._id
             });
-
-            if (!item) {
-                throw new Error.ItemDoesNotExist("hosted trip", "id", args._id.toHexString());
-            }
-
-            return item;
         },
 
         GetMyRequestedTrips: async (parent, args: Ex.QueryGetMyRequestedTripsArgs, ctx, info) => {
@@ -131,16 +125,10 @@ export const root: {
 
         GetMyRequestedTrip: async (parent, args: Ex.QueryGetMyRequestedTripArgs, ctx, info) => {
             const me = await Authorizer.query(ctx, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
-            const item = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).findOne({
+            return await Validator.getIfExists<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS, "requested trip", {
                 _id: args._id,
-                hostId: me._id
+                requesterId: me._id
             });
-
-            if (!item) {
-                throw new Error.ItemDoesNotExist("requested trip", "id", args._id.toHexString());
-            }
-
-            return item;
         },
 
         GetMyHandshakes: async (parent, args: Ex.QueryGetMyHandshakesArgs, ctx, info) => {
@@ -187,28 +175,21 @@ export const root: {
 
         GetMyHandshake: async (parent, args: Ex.QueryGetMyHandshakeArgs, ctx, info) => {
             const me = await Authorizer.query(ctx, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
-            const item = await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).findOne({
+            return await Validator.getIfExists<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES, "handshake", {
                 _id: args._id,
-                hostId: me._id
+                $or: [ 
+                    { senderId: me._id },
+                    { recipientId: me._id }
+                ]
             });
-
-            if (!item) {
-                throw new Error.ItemDoesNotExist("handshake", "id", args._id.toHexString());
-            }
-
-            return item;
         },
 
         GetMatchingRequestedTrips: async (parent, args: Ex.QueryGetMatchingRequestedTripsArgs, ctx, info) => {
             const me = await Authorizer.query(ctx, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
 
-            const hostedTrip = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS).findOne({
+            const hostedTrip = await Validator.getIfExists<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
                 _id: args.hostedTripId
             });
-            
-            if (!hostedTrip) {
-                throw new Error.ItemDoesNotExist("hosted trip", "id", args.hostedTripId.toHexString());
-            }
 
             //Validate if hosted trip's host is current user
             if (!hostedTrip.hostId.equals(me._id)) {
@@ -315,15 +296,9 @@ export const root: {
         },
 
         SignIn: async (parent, args: Ex.MutationSignInArgs, ctx, info) => {
-            const item = await Server.db.collection<In.User>(Collection.USERS).findOne({ mobile: args.mobile });
-
-            if (!item) {
-                throw new Error.ItemDoesNotExist("user", "mobile", args.mobile);
-            }
-
-            if (!item.isActive) {
-                throw new Error.ItemIsNotActive("user", "mobile", args.mobile);
-            }
+            const item = await Validator.getIfActive<In.User>(Collection.USERS, "user", {
+                mobile: args.mobile
+            });
 
             const generatedHash = crypto.createHash("sha1").update(args.password).digest("hex");
             if (generatedHash !== item.secret!.hash) {
@@ -382,43 +357,22 @@ export const root: {
             };
 
             //Validate keyCoords
-            //NOTE: Within the boundary of Sri Lanka, for every coordinate, latitude < longitude
-            for (const coord of args.hostedTrip.route.keyCoords) {
-                if (coord[0] > coord[1] || coord.length !== 2) {
-                    throw new Error.InvalidFieldValue("route", "keyCoords", `[${coord[0]}, ${coord[1]}]`);
-                }
-            }
+            Validator.validateCoords(args.hostedTrip.route.keyCoords, "route", "keyCoords");
 
             //Validate bank account
-            const bankAccount = await Server.db.collection<In.BankAccount & Ex.BankAccount>(Collection.BANK_ACCOUNTS).findOne({
+            await Validator.getIfActive<In.BankAccount>(Collection.BANK_ACCOUNTS, "bank account", {
                 _id: args.hostedTrip.billing.bankAccountId
             });
-
-            if (!bankAccount) {
-                throw new Error.ItemDoesNotExist("bank account", "id", args.hostedTrip.billing.bankAccountId.toHexString());
-            }
-
-            if (!bankAccount.isActive) {
-                throw new Error.ItemIsNotActive("bank account", "id", args.hostedTrip.billing.bankAccountId.toHexString());
-            }
 
             //Validate vehicleId and vehicle
             if (args.hostedTrip.vehicleId) {
                 //CASE: User has assigned a saved vehicle
                 //Validate vehicle
-                const vehicle = await Server.db.collection<In.Vehicle>(Collection.VEHICLES).findOne({
+                const vehicle = await Validator.getIfActive<In.Vehicle>(Collection.VEHICLES, "vehicle", {
                     _id: args.hostedTrip.vehicleId
                 });
 
-                if (!vehicle) {
-                    throw new Error.ItemDoesNotExist("vehicle", "id", args.hostedTrip.vehicleId.toHexString());
-                }
-
-                if (!vehicle.isActive) {
-                    throw new Error.ItemIsNotActive("vehicle", "id", args.hostedTrip.vehicleId.toHexString());
-                }
-
-                tripToBeInserted.vehicleId = args.hostedTrip.vehicleId;
+                tripToBeInserted.vehicleId = vehicle._id;
             } else if (args.hostedTrip.vehicle) {
                 //CASE: User has assigned a temporary vehicle
                 tripToBeInserted.vehicle = {
@@ -449,12 +403,7 @@ export const root: {
             const me = await Authorizer.query(ctx, ModuleId.VEHICLES, OperationIndex.CREATE);
 
             //Validate keyCoords
-            //NOTE: Within the boundary of Sri Lanka, for ever coordinate, latitude < longitude
-            for (const coord of args.requestedTrip.route.keyCoords) {
-                if (coord[0] > coord[1] || coord.length !== 2) {
-                    throw new Error.InvalidFieldValue("route", "keyCoords", `[${coord[0]}, ${coord[1]}]`);
-                }
-            }
+            Validator.validateCoords(args.requestedTrip.route.keyCoords, "route", "keyCoords");
 
             const result = await Server.db.collection<In.RequestedTripInput>(Collection.HOSTED_TRIPS).insertOne({
                 ...args.requestedTrip,
@@ -480,13 +429,9 @@ export const type: {
 
         host: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx, ModuleId.USERS, OperationIndex.RETRIEVE);
-            const item = await Server.db.collection<In.User>(Collection.USERS).findOne({ _id: parent.hostId });
-
-            if (!item) {
-                throw new Error.ItemDoesNotExist("user/host", "id", args.id.toHexString());
-            }
-
-            return item;
+            return await Validator.getIfExists<In.User>(Collection.USERS, "user/host", {
+                _id: parent.hostId
+            });
         },
 
         vehicle: async (parent, args, ctx, info) => {
@@ -494,15 +439,9 @@ export const type: {
                 //CASE: vehicleId exists.
                 //User has assigned a saved vehicle. It must be retrieved from database
                 await Authorizer.query(ctx, ModuleId.VEHICLES, OperationIndex.RETRIEVE);
-                const item = await Server.db.collection<In.Vehicle>(Collection.VEHICLES).findOne({
+                return await Validator.getIfExists<In.Vehicle>(Collection.VEHICLES, "vehicle", {
                     _id: parent.vehicleId
                 });
-
-                if (!item) {
-                    throw new Error.ItemDoesNotExist("vehicle", "id", args.id.toHexString());
-                }
-
-                return item;
             } else {
                 //CASE: vehicleId doesn't exists.
                 //User has assigned a temporary vehicle. It must be available as an embedded document
@@ -519,7 +458,7 @@ export const type: {
 
         hasHandshakes: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
-            return Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find({
+            return Server.db.collection<In.Handshake>(Collection.HANDSHAKES).find({
                 hostedTripId: parent._id,
             }).hasNext();
         },
@@ -528,35 +467,23 @@ export const type: {
     TripBilling: {
         bankAccount: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx, ModuleId.BANK_ACCOUNTS, OperationIndex.RETRIEVE);
-            const item = await Server.db.collection<In.BankAccount>(Collection.BANK_ACCOUNTS).findOne({
+            return await Validator.getIfExists<In.BankAccount>(Collection.BANK_ACCOUNTS, "bank account", {
                 _id: parent.bankAccountId
             });
-
-            if (!item) {
-                throw new Error.ItemDoesNotExist("bank account", "id", args.id.toHexString());
-            }
-            
-            return item;
         },
     },
 
     RequestedTrip: {
         requester: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx, ModuleId.USERS, OperationIndex.RETRIEVE);
-            const item = await Server.db.collection<In.User>(Collection.USERS).findOne({
+            return await Validator.getIfExists<In.User>(Collection.USERS, "user/requester", {
                 _id: parent.requesterId
             });
-
-            if (!item) {
-                throw new Error.ItemDoesNotExist("user/requester", "id", args.id.toHexString());
-            }
-
-            return item;
         },
 
         hasHandshakes: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
-            return Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find({
+            return Server.db.collection<In.Handshake>(Collection.HANDSHAKES).find({
                 requestedTripId: parent._id,
             }).hasNext();
         },
@@ -565,50 +492,30 @@ export const type: {
     Handshake: {
         sender: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx, ModuleId.USERS, OperationIndex.RETRIEVE);
-            const item = await Server.db.collection<In.User>(Collection.USERS).findOne({ _id: parent.senderId });
-
-            if (!item) {
-                throw new Error.ItemDoesNotExist("user/sender", "id", args.id.toHexString());
-            }
-            
-            return item;
+            return await Validator.getIfExists<In.User>(Collection.USERS, "user/sender", {
+                _id: parent.senderId
+            });
         },
 
         recipient: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx, ModuleId.USERS, OperationIndex.RETRIEVE);
-            const item = await Server.db.collection<In.User>(Collection.USERS).findOne({ _id: parent.recipientId });
-
-            if (!item) {
-                throw new Error.ItemDoesNotExist("user/recipient", "id", args.id.toHexString());
-            }
-            
-            return item;
+            return await Validator.getIfExists<In.User>(Collection.USERS, "user/recipient", {
+                _id: parent.recipientId
+            });
         },
 
         hostedTrip: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx, ModuleId.HOSTED_TRIPS, OperationIndex.RETRIEVE);
-            const item = await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS).findOne({
+            return await Validator.getIfExists<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
                 _id: parent.hostedTripId
             });
-
-            if (!item) {
-                throw new Error.ItemDoesNotExist("hosted trip", "id", args.id.toHexString());
-            }
-
-            return item;
         },
 
         requestedTrip: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx, ModuleId.REQUESTED_TRIPS, OperationIndex.RETRIEVE);
-            const item = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).findOne({
+            return await Validator.getIfExists<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS, "requested trip", {
                 _id: parent.requestedTripId
             });
-
-            if (!item) {
-                throw new Error.ItemDoesNotExist("requested trip", "id", args.id.toHexString());
-            }
-            
-            return item;
         },
     },
 };

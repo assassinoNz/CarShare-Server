@@ -7,6 +7,7 @@ import * as In from "../graphql/internal";
 import { Server } from "./app";
 import { ModuleId, OperationIndex } from "./enum";
 import { Context, OsrmRoute } from "./interface";
+import { Document, Filter } from "mongodb";
 
 export class StringUtil {
     static toCamelCase(screamingSnakeCase: string) {
@@ -14,6 +15,47 @@ export class StringUtil {
             .split("_")
             .map((word, index) => index !== 0 ? word[0].toUpperCase() + word.slice(1) : word)
             .join("");
+    }
+}
+
+export class Validator {
+    static async getIfExists<C extends Document>(collection: string, itemType: string, filter: Filter<C>) {
+        const item = await Server.db.collection<C>(collection).findOne(filter);
+
+        if (!item) {
+            const key = Object.keys(filter)[0];
+            const keyValue = filter[key];
+            throw new Error.ItemDoesNotExist(itemType, key, keyValue.toString());
+        }
+
+        return item;
+    }
+
+    static async getIfActive<C extends Document>(collection: string, itemType: string, filter: Filter<C>) {
+        const item = await this.getIfExists(collection, itemType, filter);
+
+        if (!item.isActive) {
+            const key = Object.keys(filter)[0];
+            const keyValue = filter[key];
+            throw new Error.ItemIsNotActive(itemType, key.toString(), keyValue);
+        }
+
+        return item;
+    }
+
+    static validateCoords(coords: number[][], itemType: string, key: string) {
+        //NOTE: Within the boundary of Sri Lanka, for every coordinate, latitude < longitude
+        for (const coord of coords) {
+            if (
+                coord.length !== 2 ||
+                coord[0] > PostGIS.LAT_TOP ||
+                coord[0] < PostGIS.LAT_BOTTOM ||
+                coord[1] > PostGIS.LONG_RIGHT ||
+                coord[1] < PostGIS.LONG_LEFT
+            ) {
+                throw new Error.InvalidFieldValue(itemType, key, `[${coord[0]}, ${coord[1]}]`);
+            }
+        }
     }
 }
 
@@ -49,11 +91,11 @@ export class Authorizer {
 export class PostGIS {
     //Boundary of Sri Lanka as returned by Nominatim
     //Longitudes, X coords
-    private static readonly leftX = 79.4219890;
-    private static readonly rightX = 82.0810141;
+    static readonly LONG_LEFT = 79.4219890;
+    static readonly LONG_RIGHT = 82.0810141;
     //Latitudes, Y coords
-    private static readonly topY = 10.0350000;
-    private static readonly bottomY = 5.7190000;
+    static readonly LAT_TOP = 10.0350000;
+    static readonly LAT_BOTTOM = 5.7190000;
 
     private static makeLineString(polyLines: string[]) {
         let lineString = "LINESTRING(";
@@ -152,16 +194,16 @@ export class PostGIS {
 
     static async rebuildTilesTable(numTilesX: number, numTilesY: number) {
         //Calculate needed distance between two longitudes
-        const tileWidth = (this.rightX - this.leftX) / numTilesX;
-        const longitudes: number[] = [this.leftX];
+        const tileWidth = (this.LONG_RIGHT - this.LONG_LEFT) / numTilesX;
+        const longitudes: number[] = [this.LONG_LEFT];
         for (let c = 1; c <= numTilesX; c++) {
             //NOTE: Longitude value is increasing from left to right
             longitudes[c] = longitudes[c - 1] + tileWidth;
         }
 
         //Calculate needed distance between two latitudes
-        const tileHeight = (this.topY - this.bottomY) / numTilesY;
-        const latitudes: number[] = [this.topY];
+        const tileHeight = (this.LAT_TOP - this.LAT_BOTTOM) / numTilesY;
+        const latitudes: number[] = [this.LAT_TOP];
         for (let r = 1; r <= numTilesY; r++) {
             //NOTE: Latitude value is decreasing from top to bottom
             latitudes[r] = latitudes[r - 1] - tileHeight;
