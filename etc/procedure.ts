@@ -60,19 +60,26 @@ export class Init {
             }
         }
 
-        const query1 = "DROP TABLE IF EXISTS tiles;";
-        await postgresDriver.query(query1);
+        await postgresDriver.connect();
 
+        const query1 = "DROP TABLE IF EXISTS tiles;";
+        const result1 = await postgresDriver.query(query1);
+        console.log(result1);
+        
         const query2 = `
             CREATE TABLE tiles (
                 id SERIAL PRIMARY KEY,
                 geom GEOMETRY(Polygon, 4326)
             );
         `;
-        await postgresDriver.query(query2);
-
+        const result2 = await postgresDriver.query(query2);
+        console.log(result2);
+        
         const query3 = `INSERT INTO tiles (geom) VALUES ` + values.join(",") + ";";
-        await postgresDriver.query(query3);
+        const result3 = await postgresDriver.query(query3);
+        console.log(result3);
+
+        await postgresDriver.end();
     }
 }
 
