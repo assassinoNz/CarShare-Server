@@ -37,6 +37,23 @@ export class PostGIS {
     //Latitudes, Y coords
     static readonly LAT_TOP = 10.0350000;
     static readonly LAT_BOTTOM = 5.7190000;
+
+    /**
+     * @param coords An array of arrays with each array representing a coordinate as [lat, long]
+    */
+    static makePolyString(coords: number[][]) {
+        let polyString = "POLYGON((";
+        for (const coord of coords) {
+            polyString += coord[1];
+            polyString += " ";
+            polyString += coord[0];
+            polyString += ",";
+        }
+        polyString = polyString.slice(0, -1);
+        polyString += "))";
+
+        return polyString;
+    }
 }
 
 export class Osrm {
