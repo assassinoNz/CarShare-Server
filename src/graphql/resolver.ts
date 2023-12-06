@@ -405,12 +405,12 @@ export const root: {
             //Validate keyCoords
             Validator.validateCoords(args.requestedTrip.route.keyCoords, "route", "keyCoords");
 
-            const result = await Server.db.collection<In.RequestedTripInput>(Collection.HOSTED_TRIPS).insertOne({
+            const result = await Server.db.collection<In.RequestedTripInput>(Collection.REQUESTED_TRIPS).insertOne({
                 ...args.requestedTrip,
                 requesterId: me._id,
             });
             if (!result.acknowledged) {
-                throw new Error.CouldNotPerformOperation(ModuleId.HOSTED_TRIPS, OperationIndex.CREATE);
+                throw new Error.CouldNotPerformOperation(ModuleId.REQUESTED_TRIPS, OperationIndex.CREATE);
             }
 
             return result.insertedId;
