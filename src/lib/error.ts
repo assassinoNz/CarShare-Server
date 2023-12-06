@@ -5,7 +5,7 @@ import { ModuleId, ModuleName, OperationIndex } from "./enum";
 
 export class PasswordMismatch extends GraphQLError {
     constructor(username: string) {
-        super(`Incorrect password for user ${username}`, {
+        super(`Incorrect password for user identified by ${username}`, {
             extensions: {
                 title: `Oops! password mismatch`,
                 suggestion: `Type your password again`,
@@ -69,12 +69,12 @@ export class CouldNotPerformOperation extends GraphQLError {
 }
 
 export class ItemNotAccessibleByUser extends GraphQLError {
-    constructor(itemCategory: string, uniqueKey: string, uniqueKeyValue: string) {
-        super(`Denied access to ${itemCategory} with ${uniqueKey} set to ${uniqueKeyValue}`, {
+    constructor(itemType: string, uniqueKey: string, uniqueKeyValue: string) {
+        super(`Denied access to ${itemType} with ${uniqueKey} set to ${uniqueKeyValue}`, {
             extensions: {
-                title: `Whoa! You aren't allowed to access that ${itemCategory}`,
+                title: `Whoa! You aren't allowed to access that ${itemType}`,
                 suggestion: `Try retrieving valid arguments before invoking procedure calls`,
-                description: `You've tried to access ${itemCategory} with ${uniqueKey} set to ${uniqueKeyValue} and got denied by the system. This algorithm need to access a ${itemCategory} that needs to be accessible by a specific user`,
+                description: `You've tried to access ${itemType} with ${uniqueKey} set to ${uniqueKeyValue} and got denied by the system. This algorithm need to access a ${itemType} that needs to be accessible by a specific user`,
                 code: `ITEM_NOT_ACCESSIBLE_BY_USER`
             }
         });
@@ -82,12 +82,12 @@ export class ItemNotAccessibleByUser extends GraphQLError {
 }
 
 export class ItemAlreadyExists extends GraphQLError {
-    constructor(itemCategory: string, uniqueKey: string, uniqueKeyValue: string) {
-        super(`That ${itemCategory} already exists with ${uniqueKey} set to ${uniqueKeyValue}`, {
+    constructor(itemType: string, uniqueKey: string, uniqueKeyValue: string) {
+        super(`A ${itemType} with ${uniqueKey} set to ${uniqueKeyValue} already exists`, {
             extensions: {
-                title: `Oops! ${itemCategory} already exists`,
+                title: `Oops! ${itemType} already exists`,
                 suggestion: `Change the value provided for ${uniqueKey}`,
-                description: `A ${itemCategory} with the same ${uniqueKey} set to ${uniqueKeyValue} already exists in the database. Please provide a new ${uniqueKey}`,
+                description: `A ${itemType} with the ${uniqueKey} set to ${uniqueKeyValue} already exists in the database. Please provide a new ${uniqueKey}`,
                 code: `ITEM_ALREADY_EXISTS`
             }
         });
@@ -95,12 +95,12 @@ export class ItemAlreadyExists extends GraphQLError {
 }
 
 export class ItemDoesNotExist extends GraphQLError {
-    constructor(itemCategory: string, uniqueKey: string, uniqueKeyValue: string) {
-        super(`Couldn't find that ${itemCategory} with ${uniqueKey} set to ${uniqueKeyValue}`, {
+    constructor(itemType: string, uniqueKey: string, uniqueKeyValue: string) {
+        super(`Couldn't find that ${itemType} with ${uniqueKey} set to ${uniqueKeyValue}`, {
             extensions: {
-                title: `No such ${itemCategory} exists`,
+                title: `No such ${itemType} exists`,
                 suggestion: `Check the value provided for ${uniqueKey} field`,
-                description: `Couldn't find a ${itemCategory} with ${uniqueKey} set to ${uniqueKeyValue}. Please provide an existing ${uniqueKey}`,
+                description: `Couldn't find a ${itemType} with ${uniqueKey} set to ${uniqueKeyValue}. Please provide an existing ${uniqueKey}`,
                 code: `ITEM_DOES_NOT_EXIST`
             }
         });
@@ -108,12 +108,12 @@ export class ItemDoesNotExist extends GraphQLError {
 }
 
 export class ItemIsNotActive extends GraphQLError {
-    constructor(itemCategory: string, uniqueKey: string, uniqueKeyValue: string) {
-        super(`That ${itemCategory} with ${uniqueKey} set to ${uniqueKeyValue} is not active or expired`, {
+    constructor(itemType: string, uniqueKey: string, uniqueKeyValue: string) {
+        super(`That ${itemType} with ${uniqueKey} set to ${uniqueKeyValue} is not active or is expired`, {
             extensions: {
-                title: `That ${itemCategory} is inactive or expired`,
-                suggestion: `Try providing details regarding an active ${itemCategory}`,
-                description: `That ${itemCategory} with ${uniqueKey} set to ${uniqueKeyValue} is not active or expired. The ${itemCategory} may have ended its lifetime or may have been disabled by a user`,
+                title: `That ${itemType} is inactive or expired`,
+                suggestion: `Try providing a ${uniqueKey} regarding an active ${itemType}`,
+                description: `That ${itemType} with ${uniqueKey} set to ${uniqueKeyValue} is not active or expired. The ${itemType} may have ended its lifetime or may have been disabled by a user`,
                 code: `ITEM_IS_NOT_ACTIVE`
             }
         });
@@ -121,12 +121,12 @@ export class ItemIsNotActive extends GraphQLError {
 }
 
 export class InvalidFieldValue extends GraphQLError {
-    constructor(itemCategory: string, key: string, keyValue: string) {
+    constructor(itemType: string, key: string, keyValue: string) {
         super(`The value ${keyValue} provided for the ${key} field is not valid`, {
             extensions: {
                 title: `One of the values provided is invalid`,
                 suggestion: `Try providing a valid value`,
-                description: `The ${itemCategory} input is invalid due to ${key} being set to ${keyValue}.`,
+                description: `The ${itemType} is invalid due to ${key} being set to ${keyValue}.`,
                 code: `INVALID_FIELD_VALUE`
             }
         });
