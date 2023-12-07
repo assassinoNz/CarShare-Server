@@ -97,6 +97,10 @@ export class PostGIS {
     static readonly LAT_TOP = 10.0350000;
     static readonly LAT_BOTTOM = 5.7190000;
 
+    private static makePointString(coord: [number, number]) {
+        return `POINT(${coord[1]} ${coord[0]})`;
+    }
+
     private static makeLineString(polyLines: string[]) {
         let lineString = "LINESTRING(";
 
@@ -189,6 +193,20 @@ export class PostGIS {
     
         const res = await Server.postgresDriver.query(query);
         return BigInt("0b" + res.rows[0].tile_overlap_index);
+    }
+
+    static async isPointWithin(coord: [number, number], meters: number, polyLines: string[]) {
+        const query = `
+            SELECT
+                ST_DWithin(
+                ST_GeogFromText('${this.makePointString(coord)}'),
+                ST_GeogFromText('${this.makeLineString(polyLines)}'),
+                ${meters}
+            ) AS intersects;
+        `;
+
+        const result = await Server.postgresDriver.query(query)
+        return result.rows[0].intersects as boolean;
     }
 }
 
