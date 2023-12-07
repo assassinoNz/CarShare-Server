@@ -422,7 +422,7 @@ export const root: {
             const hostedTrip = await Validator.getIfExists<In.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
                 _id: args.hostedTripId
             });
-            const requestedTrip = await Validator.getIfExists<In.RequestedTrip>(Collection.HOSTED_TRIPS, "requested trip", {
+            const requestedTrip = await Validator.getIfExists<In.RequestedTrip>(Collection.REQUESTED_TRIPS, "requested trip", {
                 _id: args.requestedTripId
             });
 
