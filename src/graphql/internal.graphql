@@ -51,6 +51,11 @@ type Mutation {
         requestedTripId: ObjectId!,
     ): ObjectId!
 
+    UpdateTripState(
+        tripId: ObjectId!,
+        state: TripState!,
+    ): Boolean!
+
     UpdateHandshakeState(
         _id: ObjectId!,
         state: HandshakeState!,
@@ -175,6 +180,10 @@ input VehicleFeaturesInput {
 }
 
 #TRIP===========================================
+enum TripState {
+    STARTED ENDED
+}
+
 type HostedTrip {
     _id: ObjectId!
     hostId: ObjectId!
@@ -198,8 +207,8 @@ input HostedTripInput {
 
 type TripTime {
     schedule: Date!
-    start: Date
-    end: Date
+    started: Date
+    ended: Date
 }
 
 input TripTimeInput {
@@ -278,12 +287,9 @@ input RequestedTripRouteInput {
 enum HandshakeState {
     INITIATED
     ACCEPTED
-    STARTED_HOSTED_TRIP
-    STARTED_REQUESTED_TRIP
     CONFIRMED_REQUESTED_TRIP_START
-    ENDED_REQUESTED_TRIP
     CONFIRMED_REQUESTED_TRIP_END
-    ENDED_HOSTED_TRIP
+    DONE_PAYMENT
 }
 
 type Handshake {
@@ -315,12 +321,8 @@ type Payment {
 type HandshakeTime {
     initiated: Date!
     accepted: Date
-    startedHostedTrip: Date
-    startedRequestedTrip: Date
     confirmedRequestedTripStart: Date
-    endedRequestedTrip: Date
     confirmedRequestedTripEnd: Date
-    endedHostedTrip: Date
 }
 
 #TRIP_MATCH====================================

@@ -63,11 +63,8 @@ export enum HandshakeState {
   ACCEPTED = 'ACCEPTED',
   CONFIRMED_REQUESTED_TRIP_END = 'CONFIRMED_REQUESTED_TRIP_END',
   CONFIRMED_REQUESTED_TRIP_START = 'CONFIRMED_REQUESTED_TRIP_START',
-  ENDED_HOSTED_TRIP = 'ENDED_HOSTED_TRIP',
-  ENDED_REQUESTED_TRIP = 'ENDED_REQUESTED_TRIP',
-  INITIATED = 'INITIATED',
-  STARTED_HOSTED_TRIP = 'STARTED_HOSTED_TRIP',
-  STARTED_REQUESTED_TRIP = 'STARTED_REQUESTED_TRIP'
+  DONE_PAYMENT = 'DONE_PAYMENT',
+  INITIATED = 'INITIATED'
 }
 
 export type HandshakeTime = {
@@ -75,11 +72,7 @@ export type HandshakeTime = {
   accepted?: Maybe<Scalars['Date']['output']>;
   confirmedRequestedTripEnd?: Maybe<Scalars['Date']['output']>;
   confirmedRequestedTripStart?: Maybe<Scalars['Date']['output']>;
-  endedHostedTrip?: Maybe<Scalars['Date']['output']>;
-  endedRequestedTrip?: Maybe<Scalars['Date']['output']>;
   initiated: Scalars['Date']['output'];
-  startedHostedTrip?: Maybe<Scalars['Date']['output']>;
-  startedRequestedTrip?: Maybe<Scalars['Date']['output']>;
 };
 
 export type HostRating = {
@@ -145,6 +138,7 @@ export type Mutation = {
   InitHandshake: Scalars['ObjectId']['output'];
   SignIn: Scalars['String']['output'];
   UpdateHandshakeState: Scalars['Boolean']['output'];
+  UpdateTripState: Scalars['Boolean']['output'];
 };
 
 
@@ -188,6 +182,12 @@ export type MutationSignInArgs = {
 export type MutationUpdateHandshakeStateArgs = {
   _id: Scalars['ObjectId']['input'];
   state: HandshakeState;
+};
+
+
+export type MutationUpdateTripStateArgs = {
+  state: TripState;
+  tripId: Scalars['ObjectId']['input'];
 };
 
 export type Payment = {
@@ -369,11 +369,16 @@ export type TripRating = {
   vehicle: VehicleRating;
 };
 
+export enum TripState {
+  ENDED = 'ENDED',
+  STARTED = 'STARTED'
+}
+
 export type TripTime = {
   __typename?: 'TripTime';
-  end?: Maybe<Scalars['Date']['output']>;
+  ended?: Maybe<Scalars['Date']['output']>;
   schedule: Scalars['Date']['output'];
-  start?: Maybe<Scalars['Date']['output']>;
+  started?: Maybe<Scalars['Date']['output']>;
 };
 
 export type TripTimeInput = {

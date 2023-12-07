@@ -484,6 +484,47 @@ export const root: {
             return result.insertedId;
         },
 
+        UpdateTripState: async (parent, args: Ex.MutationUpdateTripStateArgs, ctx, info) => {
+            const hostedTrip = await Server.db.collection<In.HostedTrip>(Collection.HOSTED_TRIPS).findOne({
+                _id: args.tripId
+            });
+
+            let trip: In.HostedTrip | In.RequestedTrip;
+
+            if (hostedTrip) {
+                //CASE: tripId refers to a hosted trip
+                const me = await Authorizer.query(ctx, Module.HOSTED_TRIPS, Operation.UPDATE);
+                if (!hostedTrip.hostId.equals(me._id)) {
+                    throw new Error.ItemNotAccessibleByUser("hosted trip", "_id", hostedTrip._id.toHexString());
+                }
+                trip = hostedTrip;
+            } else {
+                //CASE: tripId doesn't refer to a hosted trip
+                const requestedTrip = await Server.db.collection<In.HostedTrip>(Collection.HOSTED_TRIPS).findOne({
+                    _id: args.tripId
+                });
+
+                if (requestedTrip) {
+                    //CASE: tripId refers to a requested trip trip
+                    const me = await Authorizer.query(ctx, Module.REQUESTED_TRIPS, Operation.UPDATE);
+                    if (!requestedTrip.hostId.equals(me._id)) {
+                        throw new Error.ItemNotAccessibleByUser("requested trip", "_id", requestedTrip._id.toHexString());
+                    }
+                    trip = requestedTrip;
+                } else {
+                    //CASE: tripId doesn't refer to any kind of trip
+                    throw new Error.ItemDoesNotExist("hosted trip/requested trip", "_id", args.tripId.toHexString());
+                }
+            }
+
+            const fieldToBeUpdated = `time.${StringUtil.toCamelCase(args.state)}`;
+            const result = await Server.db.collection<In.RequestedTrip>(Collection.REQUESTED_TRIPS).updateOne(
+                { _id: trip._id },
+                { $set: { [fieldToBeUpdated]: new Date() } }
+            );
+            return result.acknowledged;
+        },
+
         UpdateHandshakeState: async (parent, args: Ex.MutationUpdateHandshakeStateArgs, ctx, info) => {
             const me = await Authorizer.query(ctx, Module.HANDSHAKES, Operation.UPDATE);
             const handshake = await Validator.getIfExists<In.Handshake>(Collection.HANDSHAKES, "handshake", {
@@ -499,10 +540,7 @@ export const root: {
                     break;
                 }
 
-                case Ex.HandshakeState.STARTED_HOSTED_TRIP:
-                case Ex.HandshakeState.STARTED_REQUESTED_TRIP:
-                case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END:
-                case Ex.HandshakeState.ENDED_HOSTED_TRIP: {
+                case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END: {
                     //CASE: Done by host
                     const hostedTrip = await Validator.getIfExists<In.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
                         _id: handshake.hostedTripId
@@ -513,8 +551,7 @@ export const root: {
                     break;
                 }
 
-                case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START:
-                case Ex.HandshakeState.ENDED_REQUESTED_TRIP: {
+                case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START: {
                     //CASE: Done by requester
                     const requestedTrip = await Validator.getIfExists<In.RequestedTrip>(Collection.REQUESTED_TRIPS, "requested trip", {
                         _id: handshake.requestedTripId
