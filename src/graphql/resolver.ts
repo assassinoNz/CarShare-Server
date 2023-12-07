@@ -201,9 +201,6 @@ export const root: {
                 throw new Error.ItemIsNotActive("hosted trip", "id", args.hostedTripId.toHexString());
             }
 
-            const hostedTripPolyLines = hostedTrip.route.polyLines!;
-            const requestedTripMatches: Ex.RequestedTripMatch[] = [];
-
             //Get all requested trips within 1h of the created trip
             //TODO: Filter requested trips based on time
             //TODO: Filter out requested trips that are also mine
@@ -215,50 +212,33 @@ export const root: {
                 // }
             });
 
+            const matchingRequestedTrips: Ex.RequestedTrip[] = [];
+
             //For each requested trip, calculate match results
-            for await (const requestedTrip of requestedTrips) {
+            requestedTripLoop: for await (const requestedTrip of requestedTrips) {
+                if ((BigInt(hostedTrip.route.tileOverlapIndex) & BigInt(requestedTrip.route.tileOverlapIndex)) === 0n) {
+                    //CASE: There is no intersection between hostedTrip's route and requestedTrip's possible routes
+                    break;
+                }
+
                 //TODO: Try to mach vehicle features
+                // if (doesn't match vehicle features) {
+                //     break;
+                // }
 
-                //Calculate all possible routes of the requested trip using OSRM
-                const routes = await Osrm.calculatePossibleRoutes(requestedTrip.route.keyCoords);
-
-                const requestedTripMatch: Ex.RequestedTripMatch = {
-                    requestedTrip,
-                    results: [
-                        //NOTE: For each possible route of the requestedTrip, there is a result
-                    ]
-                };
-
-                //For each possible route calculate trip match result
-                for (const route of routes) {
-                    const requestedTripPolyLines = Osrm.extractRoutePolyLines(route);
-                    const tileOverlapIndex = await PostGIS.calculateTileOverlapIndex(requestedTripPolyLines);
-
-                    if (BigInt(hostedTrip.route.tileOverlapIndex) & tileOverlapIndex) {
-                        //CASE: There is a possible overlap of this route option with hostedTrip's route
-                        const tripMatchResult = await PostGIS.calculateRouteMatchResult(hostedTripPolyLines, requestedTripPolyLines);
-
-                        //NOTE: Only add a tripMatchResult to requestedTripMatch.results only if it has an intersection length
-                        if (tripMatchResult.intersectionLength > 0) {
-                            requestedTripMatch.results.push({
-                                hostedTripLength: tripMatchResult.mainRouteLength,
-                                requestedTripLength: tripMatchResult.secondaryRouteLength,
-                                hostedTripCoverage: tripMatchResult.mainRouteCoverage,
-                                requestedTripCoverage: tripMatchResult.secondaryRouteCoverage,
-                                intersectionLength: tripMatchResult.intersectionLength,
-                                intersectionPolyLine: tripMatchResult.intersectionPolyLine
-                            });
-                        }
+                for (const coord of requestedTrip.route.keyCoords) {
+                    if (!await PostGIS.isPointWithin(coord as [number, number], Default.PROXIMITY_RADIUS, hostedTrip.route.polyLines)) {
+                        //CASE: The hosted trip's route is not within the key coordinate's proximity radius
+                        //CASE: AT least one key coordinate is far from hosted trip's route
+                        break requestedTripLoop;
                     }
                 }
 
-                //NOTE: Only add a requestedTripMatch to requestedTripMatches if it has at least one result
-                if (requestedTripMatch.results.length > 0) {
-                    requestedTripMatches.push(requestedTripMatch);
-                }
+                //CASE: Currently iterating requested trip has passed all the requirements to be a match
+                matchingRequestedTrips.push(requestedTrip);
             }
 
-            return requestedTripMatches;
+            return matchingRequestedTrips;
         },
     },
 
@@ -406,9 +386,23 @@ export const root: {
             //Validate keyCoords
             Validator.validateCoords(args.requestedTrip.route.keyCoords, "route", "keyCoords");
 
+            //Calculate all possible routes of the requested trip using OSRM
+            const routes = await Osrm.calculatePossibleRoutes(args.requestedTrip.route.keyCoords);
+            //For each possible route...
+            //Calculate corresponding tileOverlapIndex then Bitwise-OR with globalTileOverlapIndex
+            let globalTileOverlapIndex = 0n;
+            for (const route of routes) {
+                const polyLines = Osrm.extractRoutePolyLines(route);
+                globalTileOverlapIndex |= await PostGIS.calculateTileOverlapIndex(polyLines);
+            }
+
             const result = await Server.db.collection<In.RequestedTripInput>(Collection.REQUESTED_TRIPS).insertOne({
                 ...args.requestedTrip,
                 requesterId: me._id,
+                route: {
+                    ...args.requestedTrip.route,
+                    tileOverlapIndex: globalTileOverlapIndex.toString()
+                }
             });
             if (!result.acknowledged) {
                 throw new Error.CouldNotPerformOperation(Module.REQUESTED_TRIPS, Operation.CREATE);
@@ -625,6 +619,8 @@ export const type: {
     },
 
     RequestedTrip: {
+        route: async (parent, args, ctx, info) => parent.route,
+
         requester: async (parent, args, ctx, info) => {
             await Authorizer.query(ctx, Module.USERS, Operation.RETRIEVE);
             return await Validator.getIfExists<In.User>(Collection.USERS, "user/requester", {

@@ -195,13 +195,13 @@ export class PostGIS {
         return BigInt("0b" + res.rows[0].tile_overlap_index);
     }
 
-    static async isPointWithin(coord: [number, number], meters: number, polyLines: string[]) {
+    static async isPointWithin(coord: [number, number], proximityRadius: number, polyLines: string[]) {
         const query = `
             SELECT
                 ST_DWithin(
                 ST_GeogFromText('${this.makePointString(coord)}'),
                 ST_GeogFromText('${this.makeLineString(polyLines)}'),
-                ${meters}
+                ${proximityRadius}
             ) AS intersects;
         `;
 

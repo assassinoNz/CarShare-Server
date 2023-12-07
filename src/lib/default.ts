@@ -6,3 +6,8 @@ export const VALUE_LIMIT = 10;
  * Number of milliseconds in a month
  */
 export const DATE_OFFSET = 2592000000;
+
+/**
+ * DIstance in meters
+ */
+export const PROXIMITY_RADIUS = 2000;

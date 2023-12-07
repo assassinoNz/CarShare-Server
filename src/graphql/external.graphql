@@ -31,7 +31,7 @@ type Query {
     ): [Handshake]!
     GetMyHandshake(_id: ObjectId!): Handshake!
 
-    GetMatchingRequestedTrips(hostedTripId: ObjectId!): [RequestedTripMatch!]!
+    GetMatchingRequestedTrips(hostedTripId: ObjectId!): [RequestedTrip!]!
 }
 
 type Mutation {
@@ -309,21 +309,6 @@ type HandshakeTime {
     accepted: Date
     confirmedRequestedTripStart: Date
     confirmedRequestedTripEnd: Date
-}
-
-#TRIP_MATCH====================================
-type RequestedTripMatch {
-    requestedTrip: RequestedTrip!
-    results: [TripMatchResult!]!
-}
-
-type TripMatchResult {
-    hostedTripLength: Float!
-    requestedTripLength: Float!
-    intersectionLength: Float!
-    hostedTripCoverage: Float!
-    requestedTripCoverage: Float!
-    intersectionPolyLine: String!
 }
 
 #BANK_ACCOUNT=============================
