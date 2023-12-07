@@ -500,21 +500,17 @@ export const root: {
                 trip = hostedTrip;
             } else {
                 //CASE: tripId doesn't refer to a hosted trip
-                const requestedTrip = await Server.db.collection<In.HostedTrip>(Collection.HOSTED_TRIPS).findOne({
+                //The trip must be a requested trip, otherwise it's an error
+                const requestedTrip = await Validator.getIfExists<In.RequestedTrip>(Collection.REQUESTED_TRIPS, "hosted trip/requested trip", {
                     _id: args.tripId
                 });
 
-                if (requestedTrip) {
-                    //CASE: tripId refers to a requested trip trip
-                    const me = await Authorizer.query(ctx, Module.REQUESTED_TRIPS, Operation.UPDATE);
-                    if (!requestedTrip.hostId.equals(me._id)) {
-                        throw new Error.ItemNotAccessibleByUser("requested trip", "_id", requestedTrip._id.toHexString());
-                    }
-                    trip = requestedTrip;
-                } else {
-                    //CASE: tripId doesn't refer to any kind of trip
-                    throw new Error.ItemDoesNotExist("hosted trip/requested trip", "_id", args.tripId.toHexString());
+                //CASE: tripId refers to a requested trip
+                const me = await Authorizer.query(ctx, Module.REQUESTED_TRIPS, Operation.UPDATE);
+                if (!requestedTrip.requesterId.equals(me._id)) {
+                    throw new Error.ItemNotAccessibleByUser("requested trip", "_id", requestedTrip._id.toHexString());
                 }
+                trip = requestedTrip;
             }
 
             const fieldToBeUpdated = `time.${StringUtil.toCamelCase(args.state)}`;
