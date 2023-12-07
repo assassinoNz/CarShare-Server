@@ -2,6 +2,20 @@ import { StringUtil } from "./util";
 
 export enum OperationIndex { CREATE, RETRIEVE, UPDATE, DELETE }
 
+/**
+ * Union of possible operations within the system extracted from OperationIndex 
+*/
+export type PossibleOperation = keyof typeof OperationIndex;
+
+/**
+ * An enum-like object that maps each of Operations to itself
+*/
+export const Operation = (Object.keys(OperationIndex) as PossibleOperation[]).reduce((acc, key) => {
+    //@ts-ignore
+    acc[key] = key;
+    return acc;
+}, {} as {[K in PossibleOperation]: K});
+
 export enum ModuleId {
     ROLES = "000000000000000000000000",
     USERS = "000000000000000000000001",
@@ -10,22 +24,27 @@ export enum ModuleId {
     REQUESTED_TRIPS = "000000000000000000000004",
     HANDSHAKES = "000000000000000000000005",
     BANK_ACCOUNTS = "000000000000000000000006",
-}
+};
 
 /**
- * A dictionary that maps each module id to its screaming snake case name
- */
-export const ModuleName: { [_ in ModuleId]: string } = (Object.keys(ModuleId) as (keyof typeof ModuleId)[])
-    .reduce((acc, key) => {
-        acc[ModuleId[key]] = key;
-        return acc;
-    }, {} as { [_ in ModuleId]: string });
+ * Union of possible modules within the system extracted from ModuleId 
+*/
+export type PossibleModule = keyof typeof ModuleId;
 
 /**
- * A dictionary that maps each module id to its collection-like name
+ * An enum-like object that maps each of Modules to itself
+*/
+export const Module = (Object.keys(ModuleId) as PossibleModule[]).reduce((acc, key) => {
+    //@ts-ignore
+    acc[key] = key;
+    return acc;
+}, {} as {[K in PossibleModule]: K});
+
+/**
+ * An enum-like object that maps each module id to its collection-like name
  */
-export const Collection: { -readonly [_ in keyof typeof ModuleId]: string } = (Object.keys(ModuleId) as (keyof typeof ModuleId)[])
-    .reduce((acc, key) => {
-        acc[key] = StringUtil.toCamelCase(key);
-        return acc;
-    }, {} as { -readonly [_ in keyof typeof ModuleId]: string });
+export const Collection = (Object.keys(ModuleId) as PossibleModule[]).reduce((acc, key: PossibleModule) => {
+    //@ts-ignore
+    acc[key] = StringUtil.toCamelCase(key);
+    return acc;
+}, {} as {[K in PossibleModule]: K});

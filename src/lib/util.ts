@@ -5,7 +5,7 @@ import * as Error from "./error";
 import * as Config from "../../config";
 import * as In from "../graphql/internal";
 import { Server } from "./app";
-import { ModuleId, OperationIndex } from "./enum";
+import { ModuleId, OperationIndex, PossibleModule, PossibleOperation } from "./enum";
 import { Context, OsrmRoute } from "./interface";
 import { Document, Filter } from "mongodb";
 
@@ -68,7 +68,7 @@ export class Authorizer {
         }
     }
 
-    static async query(ctx: Context, moduleId: ModuleId, operationIndex: OperationIndex) {
+    static async query(ctx: Context, module: PossibleModule, operation: PossibleOperation) {
         const me = this.me(ctx);
 
         const role = await Server.db.collection<In.Role>("roles").findOne({
@@ -80,11 +80,11 @@ export class Authorizer {
         }
         
         for (const permission of role.permissions) {
-            if (permission.moduleId.toHexString() === moduleId && permission.value[operationIndex] === "1") {
+            if (permission.moduleId.toHexString() === ModuleId[module] && permission.value[OperationIndex[operation]] === "1") {
                 return me;
             }
         }
-        throw new Error.NoPermissions(role, moduleId, operationIndex);
+        throw new Error.NoPermissions(role, module, operation);
     }
 }
 

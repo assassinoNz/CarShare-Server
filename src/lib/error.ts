@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql";
 
 import * as In from "../graphql/internal";
-import { ModuleId, ModuleName, OperationIndex } from "./enum";
+import { Module, Operation, PossibleModule, PossibleOperation } from "./enum";
 
 export class PasswordMismatch extends GraphQLError {
     constructor(username: string) {
@@ -17,12 +17,12 @@ export class PasswordMismatch extends GraphQLError {
 }
 
 export class NoPermissions extends GraphQLError {
-    constructor(role: In.Role, moduleId: ModuleId, operationIndex: OperationIndex) {
-        super(`Permissions denied to perform operation ${OperationIndex[operationIndex]} on module ${ModuleName[moduleId]} for role ${role.name}`, {
+    constructor(role: In.Role, module: PossibleModule, operation: PossibleOperation) {
+        super(`Permissions denied to perform ${Operation[operation]} on module ${Module[module]} for role ${role.name}`, {
             extensions: {
                 title: `Whoa! Go no further`,
                 suggestion: `Check your permissions`,
-                description: `Current user doesn't have sufficient permissions for the requested operation`,
+                description: `Current user doesn't have sufficient permissions to perform the requested operation on the given module`,
                 code: `NO_PERMISSIONS`
             }
         });
@@ -31,7 +31,7 @@ export class NoPermissions extends GraphQLError {
 
 export class NotSignedIn extends GraphQLError {
     constructor() {
-        super(`No user in session`, {
+        super(`No signed user found in current session`, {
             extensions: {
                 title: `You're not signed in`,
                 suggestion: `Just sign in to the system`,
@@ -48,7 +48,7 @@ export class AttemptedSelfDestruction extends GraphQLError {
             extensions: {
                 title: `Hey! Cannot delete yourself`,
                 suggestion: `Sign in as another user`,
-                description: `The user that got attempted to delete is the same user that attempted the operation. You cannot delete the user you are signed in as.`,
+                description: `The user that is to be deleted is the same user that attempted the operation. You cannot delete the user you are signed in as.`,
                 code: `ATTEMPTED_SELF_DESTRUCTION`
             }
         });
@@ -56,12 +56,12 @@ export class AttemptedSelfDestruction extends GraphQLError {
 }
 
 export class CouldNotPerformOperation extends GraphQLError {
-    constructor(moduleId: ModuleId, operationIndex: OperationIndex) {
-        super(`Could not perform operation ${OperationIndex[operationIndex]} on module ${ModuleName[moduleId]}`, {
+    constructor(module: PossibleModule, operation: PossibleOperation) {
+        super(`Could not perform ${Operation[operation]} on module ${Module[module]}`, {
             extensions: {
                 title: `Oops! something went wrong`,
                 suggestion: `Try again`,
-                description: `Couldn't perform the operation. This is most probably due to an undisclosed error. Please try again`,
+                description: `Couldn't perform that operation on the given module. This is most probably due to an undisclosed error. Please try again`,
                 code: `COULD_NOT_PERFORM_OPERATION`
             }
         });
@@ -74,7 +74,7 @@ export class ItemNotAccessibleByUser extends GraphQLError {
             extensions: {
                 title: `Whoa! You aren't allowed to access that ${itemType}`,
                 suggestion: `Try retrieving valid arguments before invoking procedure calls`,
-                description: `You've tried to access ${itemType} with ${uniqueKey} set to ${uniqueKeyValue} and got denied by the system. This algorithm need to access a ${itemType} that needs to be accessible by a specific user`,
+                description: `The required ${itemType} for this procedure is not accessible by the current user or a user passed in as an argument`,
                 code: `ITEM_NOT_ACCESSIBLE_BY_USER`
             }
         });
@@ -87,7 +87,7 @@ export class ItemAlreadyExists extends GraphQLError {
             extensions: {
                 title: `Oops! ${itemType} already exists`,
                 suggestion: `Change the value provided for ${uniqueKey}`,
-                description: `A ${itemType} with the ${uniqueKey} set to ${uniqueKeyValue} already exists in the database. Please provide a new ${uniqueKey}`,
+                description: `A ${itemType} with the same ${uniqueKey} already exists in the database. Please provide a new ${uniqueKey}`,
                 code: `ITEM_ALREADY_EXISTS`
             }
         });
@@ -100,7 +100,7 @@ export class ItemDoesNotExist extends GraphQLError {
             extensions: {
                 title: `No such ${itemType} exists`,
                 suggestion: `Check the value provided for ${uniqueKey} field`,
-                description: `Couldn't find a ${itemType} with ${uniqueKey} set to ${uniqueKeyValue}. Please provide an existing ${uniqueKey}`,
+                description: `The required ${itemType} for this procedure cannot be found within the database. Please provide an existing ${uniqueKey}`,
                 code: `ITEM_DOES_NOT_EXIST`
             }
         });
@@ -113,7 +113,7 @@ export class ItemIsNotActive extends GraphQLError {
             extensions: {
                 title: `That ${itemType} is inactive or expired`,
                 suggestion: `Try providing a ${uniqueKey} regarding an active ${itemType}`,
-                description: `That ${itemType} with ${uniqueKey} set to ${uniqueKeyValue} is not active or expired. The ${itemType} may have ended its lifetime or may have been disabled by a user`,
+                description: `The required ${itemType} for this procedure is not active or expired. The ${itemType} may have ended its lifetime or may have been disabled by a user.`,
                 code: `ITEM_IS_NOT_ACTIVE`
             }
         });
