@@ -272,7 +272,8 @@ const requestedTripsInsertion = db.requestedTrips.insertMany([
             keyCoords: [
                 [6.829470024356559, 79.90957546009602],
                 [6.815242592352088, 79.95746412416065],
-            ]
+            ],
+            tileOverlapIndex: "46768096996079290443764197718357601925712853336064"
         },
         time: {
             schedule: new Date(2023, 12, 10, 10, 40),
@@ -292,7 +293,8 @@ const requestedTripsInsertion = db.requestedTrips.insertMany([
             keyCoords: [
                 [7.092252219283498, 79.99299056862273],
                 [7.072965706899689, 80.01593012768988],
-            ]
+            ],
+            tileOverlapIndex: "89202980794122492566142873090593446023921664"
         },
         time: {
             schedule: new Date(2023, 12, 10, 10, 40),
