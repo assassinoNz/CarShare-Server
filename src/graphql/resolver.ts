@@ -197,7 +197,7 @@ export const root: {
             }
 
             //Validate if hosted trip is not expired
-            if (hostedTrip.time.end) {
+            if (hostedTrip.time.ended) {
                 throw new Error.ItemIsNotActive("hosted trip", "id", args.hostedTripId.toHexString());
             }
 
