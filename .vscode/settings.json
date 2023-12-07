@@ -2,7 +2,9 @@
     "cSpell.words": [
         "BSON",
         "jwtr",
+        "LINESTRING",
         "mongosh",
+        "Nominatim",
         "Osrm"
     ]
 }
