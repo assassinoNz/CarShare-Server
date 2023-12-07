@@ -21,13 +21,13 @@ export const scalar = {
             if (value instanceof ObjectId) {
                 return value.toHexString();
             }
-            throw new GraphQLError(`Error serializing "${value}" from ObjectId`);
+            throw new GraphQLError(`Couldn't serialize "${value}". Make sure the value provided is an instance of ObjectId`);
         },
         parseValue(value) {
             if (typeof value === "string") {
                 return new ObjectId(value);
             }
-            throw new GraphQLError(`Error parsing "${value}" to ObjectId`);
+            throw new GraphQLError(`Couldn't parse "${value}" to ObjectId. Make sure the value provided is of type string`);
         },
         parseLiteral(valueNode) {
             if (valueNode.kind === Kind.STRING) {
@@ -44,13 +44,13 @@ export const scalar = {
             if (value instanceof Date) {
                 return value.getTime();
             }
-            throw new GraphQLError(`Error serializing "${value}" from Date`);
+            throw new GraphQLError(`Couldn't serialize "${value}". Make sure the value provided is an instance of Date`);
         },
         parseValue(value) {
             if (typeof value === "number") {
                 return new Date(value);
             }
-            throw new GraphQLError(`Error parsing "${value}" to Date`);
+            throw new GraphQLError(`Couldn't parse "${value}" to Date. Make sure the value provided is of type integer`);
         },
         parseLiteral(ast) {
             if (ast.kind === Kind.INT) {
