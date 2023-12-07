@@ -11,7 +11,7 @@ import * as Ex from "./external";
 import { Server } from "../lib/app";
 import { Collection, ModuleId, OperationIndex } from "../lib/enum";
 import { JwtPayload, TypeResolver, RootResolver } from "../lib/interface";
-import { Authorizer, Osrm, PostGIS, Validator } from "../lib/util";
+import { Authorizer, Osrm, PostGIS, StringUtil, Validator } from "../lib/util";
 
 export const scalar = {
     ObjectId: new GraphQLScalarType<ObjectId | null, string>({
@@ -177,7 +177,7 @@ export const root: {
             const me = await Authorizer.query(ctx, ModuleId.HANDSHAKES, OperationIndex.RETRIEVE);
             return await Validator.getIfExists<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES, "handshake", {
                 _id: args._id,
-                $or: [ 
+                $or: [
                     { senderId: me._id },
                     { recipientId: me._id }
                 ]
@@ -237,7 +237,7 @@ export const root: {
                     if (BigInt(hostedTrip.route.tileOverlapIndex) & tileOverlapIndex) {
                         //CASE: There is a possible overlap of this route option with hostedTrip's route
                         const tripMatchResult = await PostGIS.calculateRouteMatchResult(hostedTripPolyLines, requestedTripPolyLines);
-    
+
                         //NOTE: Only add a tripMatchResult to requestedTripMatch.results only if it has an intersection length
                         if (tripMatchResult.intersectionLength > 0) {
                             requestedTripMatch.results.push({
@@ -290,7 +290,7 @@ export const root: {
             }
 
             return await Server.jwtr.sign(
-                { userId: result.insertedId.toHexString()} as JwtPayload,
+                { userId: result.insertedId.toHexString() } as JwtPayload,
                 Config.SECRET_JWT,
                 { expiresIn: "5d" }
             );
@@ -307,7 +307,7 @@ export const root: {
             }
 
             return await Server.jwtr.sign(
-                { userId: item._id.toHexString()} as JwtPayload,
+                { userId: item._id.toHexString() } as JwtPayload,
                 Config.SECRET_JWT,
                 { expiresIn: "7d" }
             );
@@ -388,7 +388,7 @@ export const root: {
                 //CASE: User hasn't provided any vehicleId or vehicle
                 throw new Error.InvalidFieldValue("hosted trip", "vehicleId/vehicle", "null", "either vehicleId or vehicle field mut be provided");
             }
-            
+
             //Calculate tileOverlapIndex
             tripToBeInserted.route.tileOverlapIndex = (await PostGIS.calculateTileOverlapIndex(args.hostedTrip.route.polyLines)).toString();
 
@@ -446,7 +446,7 @@ export const root: {
                     }
                 },
                 time: {
-                    sent: new Date()
+                    initiated: new Date()
                 }
             };
 
@@ -482,6 +482,56 @@ export const root: {
             }
 
             return result.insertedId;
+        },
+
+        UpdateHandshakeState: async (parent, args: Ex.MutationUpdateHandshakeStateArgs, ctx, info) => {
+            const me = await Authorizer.query(ctx, ModuleId.HANDSHAKES, OperationIndex.UPDATE);
+            const handshake = await Validator.getIfExists<In.Handshake>(Collection.HANDSHAKES, "handshake", {
+                _id: args._id
+            });
+
+            switch (args.state) {
+                case Ex.HandshakeState.ACCEPTED: {
+                    //CASE: Done by recipient
+                    if (!handshake.recipientId.equals(me._id)) {
+                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args._id.toHexString());
+                    }
+                    break;
+                }
+
+                case Ex.HandshakeState.STARTED_HOSTED_TRIP:
+                case Ex.HandshakeState.STARTED_REQUESTED_TRIP:
+                case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END:
+                case Ex.HandshakeState.ENDED_HOSTED_TRIP: {
+                    //CASE: Done by host
+                    const hostedTrip = await Validator.getIfExists<In.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
+                        _id: handshake.hostedTripId
+                    });
+                    if (!hostedTrip.hostId.equals(me._id)) {
+                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args._id.toHexString());
+                    }
+                    break;
+                }
+
+                case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START:
+                case Ex.HandshakeState.ENDED_REQUESTED_TRIP: {
+                    //CASE: Done by requester
+                    const requestedTrip = await Validator.getIfExists<In.RequestedTrip>(Collection.REQUESTED_TRIPS, "requested trip", {
+                        _id: handshake.requestedTripId
+                    });
+                    if (!requestedTrip.requesterId.equals(me._id)) {
+                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args._id.toHexString());
+                    }
+                    break;
+                }
+            }
+
+            const fieldToBeUpdated = `time.${StringUtil.toCamelCase(args.state)}`;
+            const result = await Server.db.collection<In.Handshake>(Collection.HANDSHAKES).updateOne(
+                { _id: handshake._id },
+                { $set: { [fieldToBeUpdated]: new Date() } }
+            );
+            return result.acknowledged;
         },
     },
 }

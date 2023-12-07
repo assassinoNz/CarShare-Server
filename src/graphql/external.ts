@@ -50,10 +50,27 @@ export type Handshake = {
   time: HandshakeTime;
 };
 
+export enum HandshakeState {
+  ACCEPTED = 'ACCEPTED',
+  CONFIRMED_REQUESTED_TRIP_END = 'CONFIRMED_REQUESTED_TRIP_END',
+  CONFIRMED_REQUESTED_TRIP_START = 'CONFIRMED_REQUESTED_TRIP_START',
+  ENDED_HOSTED_TRIP = 'ENDED_HOSTED_TRIP',
+  ENDED_REQUESTED_TRIP = 'ENDED_REQUESTED_TRIP',
+  INITIATED = 'INITIATED',
+  STARTED_HOSTED_TRIP = 'STARTED_HOSTED_TRIP',
+  STARTED_REQUESTED_TRIP = 'STARTED_REQUESTED_TRIP'
+}
+
 export type HandshakeTime = {
   __typename?: 'HandshakeTime';
   accepted?: Maybe<Scalars['Date']['output']>;
-  sent: Scalars['Date']['output'];
+  confirmedRequestedTripEnd?: Maybe<Scalars['Date']['output']>;
+  confirmedRequestedTripStart?: Maybe<Scalars['Date']['output']>;
+  endedHostedTrip?: Maybe<Scalars['Date']['output']>;
+  endedRequestedTrip?: Maybe<Scalars['Date']['output']>;
+  initiated: Scalars['Date']['output'];
+  startedHostedTrip?: Maybe<Scalars['Date']['output']>;
+  startedRequestedTrip?: Maybe<Scalars['Date']['output']>;
 };
 
 export type HostRating = {
@@ -112,6 +129,7 @@ export type Mutation = {
   CreateGenericUser: Scalars['String']['output'];
   InitHandshake: Scalars['ObjectId']['output'];
   SignIn: Scalars['String']['output'];
+  UpdateHandshakeState: Scalars['Boolean']['output'];
 };
 
 
@@ -149,6 +167,12 @@ export type MutationInitHandshakeArgs = {
 export type MutationSignInArgs = {
   mobile: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+
+export type MutationUpdateHandshakeStateArgs = {
+  _id: Scalars['ObjectId']['input'];
+  state: HandshakeState;
 };
 
 export type Payment = {

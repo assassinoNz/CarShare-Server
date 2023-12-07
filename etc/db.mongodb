@@ -319,7 +319,7 @@ const handshakesInsertion = db.handshakes.insertMany([
         hostedTripId: hostedTripsInsertion.insertedIds[0],
         requestedTripId: requestedTripsInsertion.insertedIds[0],
         time: {
-            sent: new Date(2023, 12, 10, 9, 20)
+            initiated: new Date(2023, 12, 10, 9, 20)
         },
         payment: {
             amount: -1,

@@ -1,14 +1,6 @@
 scalar ObjectId
 scalar Date
 
-enum VehicleType {
-    PERSONAL STAFF_SERVICE HIRED
-}
-
-enum VehicleClass {
-    CAR VAN BIKE LORRY THREE_WHEELER
-}
-
 #ROOT===========================================
 type Query {
     GetMe: User!
@@ -58,6 +50,11 @@ type Mutation {
         hostedTripId: ObjectId!,
         requestedTripId: ObjectId!,
     ): ObjectId!
+
+    UpdateHandshakeState(
+        _id: ObjectId!,
+        state: HandshakeState!,
+    ): Boolean!
 }
 
 #USER===========================================
@@ -133,23 +130,15 @@ type TripRating {
     vehicle: VehicleRating!
 }
 
-#TIME===========================================
-type TripTime {
-    schedule: Date!
-    start: Date
-    end: Date
-}
-
-input TripTimeInput {
-    schedule: Date!
-}
-
-type HandshakeTime {
-    sent: Date!
-    accepted: Date
-}
-
 #VEHICLE========================================
+enum VehicleType {
+    PERSONAL STAFF_SERVICE HIRED
+}
+
+enum VehicleClass {
+    CAR VAN BIKE LORRY THREE_WHEELER
+}
+
 type Vehicle {
     _id: ObjectId
     isActive: Boolean!
@@ -205,6 +194,16 @@ input HostedTripInput {
     vehicle: VehicleInput
     seats: Int!
     billing: TripBillingInput!
+}
+
+type TripTime {
+    schedule: Date!
+    start: Date
+    end: Date
+}
+
+input TripTimeInput {
+    schedule: Date!
 }
 
 type TripBilling {
@@ -276,15 +275,26 @@ input RequestedTripRouteInput {
 }
 
 #HANDSHAKE======================================
+enum HandshakeState {
+    INITIATED
+    ACCEPTED
+    STARTED_HOSTED_TRIP
+    STARTED_REQUESTED_TRIP
+    CONFIRMED_REQUESTED_TRIP_START
+    ENDED_REQUESTED_TRIP
+    CONFIRMED_REQUESTED_TRIP_END
+    ENDED_HOSTED_TRIP
+}
+
 type Handshake {
     _id: ObjectId!
     senderId: ObjectId!
     recipientId: ObjectId!
     hostedTripId: ObjectId!
     requestedTripId: ObjectId!
-    time: HandshakeTime!
     payment: Payment!
     rating: TripRating!
+    time: HandshakeTime!
 }
 
 input HandshakeInput {
@@ -300,6 +310,17 @@ input HandshakeInput {
 type Payment {
     amount: Float!
     time: Date
+}
+
+type HandshakeTime {
+    initiated: Date!
+    accepted: Date
+    startedHostedTrip: Date
+    startedRequestedTrip: Date
+    confirmedRequestedTripStart: Date
+    endedRequestedTrip: Date
+    confirmedRequestedTripEnd: Date
+    endedHostedTrip: Date
 }
 
 #TRIP_MATCH====================================
