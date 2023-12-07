@@ -53,7 +53,7 @@ export class Validator {
                 coord[1] > PostGIS.LONG_RIGHT ||
                 coord[1] < PostGIS.LONG_LEFT
             ) {
-                throw new Error.InvalidFieldValue(itemType, key, `[${coord[0]}, ${coord[1]}]`);
+                throw new Error.InvalidFieldValue(itemType, key, `[${coord[0]}, ${coord[1]}]`, `coordinate is constrained to be [${PostGIS.LAT_BOTTOM} < lat < ${PostGIS.LAT_TOP} , ${PostGIS.LONG_LEFT} < long < ${PostGIS.LONG_RIGHT}]`);
             }
         }
     }
