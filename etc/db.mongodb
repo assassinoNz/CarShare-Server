@@ -202,8 +202,6 @@ const hostedTripsInsertion = db.hostedTrips.insertMany([
         },
         time: {
             schedule: new Date(2023, 12, 4, 10, 30),
-            start: null,
-            end: null,
         },
         vehicleId: vehiclesInsertion.insertedIds[0],
         seats: 3,
@@ -237,8 +235,6 @@ const hostedTripsInsertion = db.hostedTrips.insertMany([
         },
         time: {
             schedule: new Date(2023, 12, 10, 10, 30),
-            start: null,
-            end: null,
         },
         vehicleId: null,
         vehicle: {
