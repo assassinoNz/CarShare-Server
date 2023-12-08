@@ -187,7 +187,7 @@ export const root: {
         GetMatchingRequestedTrips: async (parent, args: Ex.QueryGetMatchingRequestedTripsArgs, ctx, info) => {
             const me = await Authorizer.query(ctx, Module.REQUESTED_TRIPS, Operation.RETRIEVE);
 
-            const hostedTrip = await Validator.getIfExists<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
+            const hostedTrip = await Validator.getIfExists<In.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
                 _id: args.hostedTripId
             });
 
@@ -201,15 +201,24 @@ export const root: {
                 throw new Error.ItemIsNotActive("hosted trip", "id", args.hostedTripId.toHexString());
             }
 
-            //Get all requested trips within 1h of the created trip
-            //TODO: Filter requested trips based on time
-            //TODO: Filter out requested trips that are also mine
-            const requestedTrips = await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).find({
+            if (!hostedTrip.vehicle) {
+                hostedTrip.vehicle = await Validator.getIfExists<In.Vehicle & Ex.Vehicle>(Collection.VEHICLES, "vehicle", {
+                    _id: hostedTrip.vehicleId
+                });
+            }
+
+            const requestedTrips = Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).find({
                 //Filter requested trips that are +-1h to hosted trip
+                //TODO: Uncomment following code
                 // "time.schedule": {
                 //     $gte: hostedTrip.time.schedule.getHours() - 1,
                 //     $lt: hostedTrip.time.schedule.getHours() + 1
-                // }
+                // },
+
+                //TODO: Filter out requested trips that are mine
+                requesterId: {
+                    $ne: me._id
+                }
             });
 
             const matchingRequestedTrips: Ex.RequestedTrip[] = [];
@@ -221,10 +230,21 @@ export const root: {
                     break;
                 }
 
-                //TODO: Try to mach vehicle features
-                // if (doesn't match vehicle features) {
-                //     break;
-                // }
+                //Try to match vehicle features
+                if (typeof requestedTrip.vehicleFeatures.ac === "boolean") {
+                    //CASE: Requester cares about AC
+                    if (hostedTrip.vehicle!.features.ac !== requestedTrip.vehicleFeatures.ac) {
+                        //CASE: Requester's AC preference doesn't match with hosted vehicle's
+                        break;
+                    }
+                }
+                if (typeof requestedTrip.vehicleFeatures.luggage === "boolean") {
+                    //CASE: Requester cares about luggage
+                    if (hostedTrip.vehicle!.features.luggage !== requestedTrip.vehicleFeatures.luggage) {
+                        //CASE: Requester's luggage preference doesn't match with hosted vehicle's
+                        break;
+                    }
+                }
 
                 for (const coord of requestedTrip.route.keyCoords) {
                     if (!await PostGIS.isPointWithin(coord as [number, number], Default.PROXIMITY_RADIUS, hostedTrip.route.polyLines)) {
