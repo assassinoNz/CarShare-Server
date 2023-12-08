@@ -87,7 +87,7 @@ export class GraphQLProcedure {
     static async AddBankAccounts(url: string, jwt: string, count = 10) {
         for (let i = 0; i < count; i++) {
             try {
-                const result = await Requester.fetch<{ bankAccount: GraphQLType.BankAccountInput }, GraphQLType.Mutation["AddBankAccount"]>(
+                const result = await Requester.fetch<GraphQLType.MutationAddBankAccountArgs, GraphQLType.Mutation["AddBankAccount"]>(
                     url,
                     jwt,
                     `mutation Mutation($bankAccount: BankAccountInput!) {
@@ -108,7 +108,7 @@ export class GraphQLProcedure {
     static async AddVehicles(url: string, jwt: string, count = 10) {
         for (let i = 0; i < count; i++) {
             try {
-                const result = await Requester.fetch<{ vehicle: GraphQLType.VehicleInput }, GraphQLType.Mutation["AddVehicle"]>(
+                const result = await Requester.fetch<GraphQLType.MutationAddVehicleArgs, GraphQLType.Mutation["AddVehicle"]>(
                     url,
                     jwt,
                     `mutation Mutation($vehicle: VehicleInput!) {
@@ -129,7 +129,7 @@ export class GraphQLProcedure {
     static async AddRequestedTrips(url: string, jwt: string, count = 10) {
         for (let i = 0; i < count; i++) {
             try {
-                const result = await Requester.fetch<{ requestedTrip: GraphQLType.RequestedTripInput }, GraphQLType.Mutation["AddRequestedTrip"]>(
+                const result = await Requester.fetch<GraphQLType.MutationAddRequestedTripArgs, GraphQLType.Mutation["AddRequestedTrip"]>(
                     url,
                     jwt,
                     `mutation AddRequestedTrip($requestedTrip: RequestedTripInput!) {
@@ -172,7 +172,7 @@ export class GraphQLProcedure {
     
         for (let i = 0; i < count; i++) {
             try {
-                const result = await Requester.fetch<{ hostedTrip: GraphQLType.HostedTripInput }, GraphQLType.Mutation["AddHostedTrip"]>(
+                const result = await Requester.fetch<GraphQLType.MutationAddHostedTripArgs, GraphQLType.Mutation["AddHostedTrip"]>(
                     url,
                     jwt,
                     `mutation Mutation($hostedTrip: HostedTripInput!) {
