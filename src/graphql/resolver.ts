@@ -11,7 +11,7 @@ import * as Ex from "./external";
 import { Server } from "../lib/app";
 import { Collection, Module, Operation } from "../lib/enum";
 import { JwtPayload, TypeResolver, RootResolver } from "../lib/interface";
-import { Authorizer, Osrm, PostGIS, StringUtil, Validator } from "../lib/util";
+import { Authorizer, Osrm, PostGIS, Strings, Validator } from "../lib/util";
 
 export const scalar = {
     ObjectId: new GraphQLScalarType<ObjectId | null, string>({
@@ -507,7 +507,7 @@ export const root: {
                 trip = requestedTrip;
             }
 
-            const fieldToBeUpdated = `time.${StringUtil.toCamelCase(args.state)}`;
+            const fieldToBeUpdated = `time.${Strings.screamingSnake2Camel(args.state)}`;
             const result = await Server.db.collection<In.RequestedTrip>(Collection.REQUESTED_TRIPS).updateOne(
                 { _id: trip._id },
                 { $set: { [fieldToBeUpdated]: new Date() } }
@@ -553,7 +553,7 @@ export const root: {
                 }
             }
 
-            const fieldToBeUpdated = `time.${StringUtil.toCamelCase(args.state)}`;
+            const fieldToBeUpdated = `time.${Strings.screamingSnake2Camel(args.state)}`;
             const result = await Server.db.collection<In.Handshake>(Collection.HANDSHAKES).updateOne(
                 { _id: handshake._id },
                 { $set: { [fieldToBeUpdated]: new Date() } }

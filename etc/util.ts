@@ -2,6 +2,7 @@ import fetch from "node-fetch";
 import * as GraphQLType from "./graphql";
 import * as Config from "../config";
 import { OsrmRoute } from "../src/lib/interface";
+import { CharGroup } from "./const";
 
 export class Requester {
     static fetch<Input, Output>(url: string, jwt: string, query: string, variables: Input) {
@@ -24,6 +25,7 @@ export class Requester {
                     throw res.errors[0];
                 }
             }).catch(err => {
+                console.error(err);
                 throw new Error(`ERR_FETCH: ${url}`);
             });
     }
@@ -166,7 +168,7 @@ export class GraphQlInput {
             bank: Random.string(),
             branch: Random.string(),
             name: Random.string(),
-            number: Random.string(/^[0-9]{10,20}$/, "0123456789"),
+            number: Random.string(CharGroup.NUMBER, 10, 20),
         }
 
         return input;
@@ -191,15 +193,15 @@ export class Random {
     }
     
     static string(
-        pattern = /^[a-zA-Z0-9\s]{3,20}$/,
-        characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 '
+        characters = CharGroup.UPPER + CharGroup.LOWER + CharGroup.SPACE,
+        minLength = 3,
+        maxLength = 20
     ): string {
-        let randomString = '';
-        do {
-            randomString = Array.from({ length: 20 }, () => characters[Math.floor(Math.random() * characters.length)]).join('');
-        } while (!pattern.test(randomString));
-    
-        return randomString;
+        let randString = "";
+        for (let i = 0; i < this.int(minLength, maxLength); i++) {
+            randString += characters.charAt(this.int(0, characters.length));
+        }
+        return randString;
     }
     
     static bool() {

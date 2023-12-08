@@ -1,4 +1,4 @@
-import { StringUtil } from "./util";
+import { Strings } from "./util";
 
 export enum OperationIndex { CREATE, RETRIEVE, UPDATE, DELETE }
 
@@ -45,6 +45,6 @@ export const Module = (Object.keys(ModuleId) as PossibleModule[]).reduce((acc, k
  */
 export const Collection = (Object.keys(ModuleId) as PossibleModule[]).reduce((acc, key: PossibleModule) => {
     //@ts-ignore
-    acc[key] = StringUtil.toCamelCase(key);
+    acc[key] = Strings.screamingSnake2Camel(key);
     return acc;
 }, {} as {[K in PossibleModule]: K});

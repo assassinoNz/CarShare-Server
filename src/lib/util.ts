@@ -9,8 +9,8 @@ import { ModuleId, OperationIndex, PossibleModule, PossibleOperation } from "./e
 import { Context, OsrmRoute } from "./interface";
 import { Document, Filter } from "mongodb";
 
-export class StringUtil {
-    static toCamelCase(screamingSnakeCase: string) {
+export class Strings {
+    static screamingSnake2Camel(screamingSnakeCase: string) {
         return screamingSnakeCase.toLowerCase()
             .split("_")
             .map((word, index) => index !== 0 ? word[0].toUpperCase() + word.slice(1) : word)
