@@ -93,8 +93,8 @@ export const root: {
             return await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS).find({
                 hostId: me._id,
                 "time.schedule": {
-                    $gte: args.from || new Date(now.getTime() - Default.DATE_OFFSET),
-                    $lt: args.to || new Date(now.getTime() + Default.DATE_OFFSET)
+                    $gte: args.from || new Date(now.getTime() - Default.FILTER_TIME),
+                    $lt: args.to || new Date(now.getTime() + Default.FILTER_TIME)
                 }
             }).skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
@@ -115,8 +115,8 @@ export const root: {
             return await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).find({
                 requesterId: me._id,
                 "time.schedule": {
-                    $gte: args.from || new Date(now.getTime() - Default.DATE_OFFSET),
-                    $lt: args.to || new Date(now.getTime() + Default.DATE_OFFSET)
+                    $gte: args.from || new Date(now.getTime() - Default.FILTER_TIME),
+                    $lt: args.to || new Date(now.getTime() + Default.FILTER_TIME)
                 }
             }).skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
@@ -218,11 +218,10 @@ export const root: {
 
             const requestedTrips = Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).find({
                 //Filter requested trips that are +-1h to hosted trip
-                //TODO: Uncomment following code
-                // "time.schedule": {
-                //     $gte: hostedTrip.time.schedule.getHours() - 1,
-                //     $lt: hostedTrip.time.schedule.getHours() + 1
-                // },
+                "time.schedule": {
+                    $gte: new Date(hostedTrip.time.schedule.getTime() - Default.FILTER_SCHEDULE),
+                    $lt: new Date(hostedTrip.time.schedule.getTime() + Default.FILTER_SCHEDULE)
+                },
 
                 //Filter out requested trips that are mine
                 requesterId: {
@@ -236,7 +235,7 @@ export const root: {
             requestedTripLoop: for await (const requestedTrip of requestedTrips) {
                 if ((BigInt(hostedTrip.route.tileOverlapIndex) & BigInt(requestedTrip.route.tileOverlapIndex)) === 0n) {
                     //CASE: There is no intersection between hostedTrip's route and requestedTrip's possible routes
-                    break;
+                    continue;
                 }
 
                 //Try to match vehicle features
@@ -244,14 +243,14 @@ export const root: {
                     //CASE: Requester cares about AC
                     if (hostedTrip.vehicle!.features.ac !== requestedTrip.vehicleFeatures.ac) {
                         //CASE: Requester's AC preference doesn't match with hosted vehicle's
-                        break;
+                        continue;
                     }
                 }
                 if (typeof requestedTrip.vehicleFeatures.luggage === "boolean") {
                     //CASE: Requester cares about luggage
                     if (hostedTrip.vehicle!.features.luggage !== requestedTrip.vehicleFeatures.luggage) {
                         //CASE: Requester's luggage preference doesn't match with hosted vehicle's
-                        break;
+                        continue;
                     }
                 }
 
@@ -259,7 +258,7 @@ export const root: {
                     if (!await PostGIS.isPointWithin(coord as [number, number], Default.PROXIMITY_RADIUS, hostedTrip.route.polyLines)) {
                         //CASE: The hosted trip's route is not within the key coordinate's proximity radius
                         //CASE: AT least one key coordinate is far from hosted trip's route
-                        break requestedTripLoop;
+                        continue requestedTripLoop;
                     }
                 }
 

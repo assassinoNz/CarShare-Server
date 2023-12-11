@@ -3,11 +3,16 @@ export const VALUE_SKIP = 0;
 export const VALUE_LIMIT = 10;
 
 /**
- * Number of milliseconds in a month
+ * Specified in milliseconds
  */
-export const DATE_OFFSET = 2592000000;
+export const FILTER_TIME = 2592000000; //Number of milliseconds in a month
 
 /**
- * DIstance in meters
+ * Specified in milliseconds
  */
-export const PROXIMITY_RADIUS = 2000;
+export const FILTER_SCHEDULE = 3600000; //Number of milliseconds in an hour
+
+/**
+ * Specified in meters
+ */
+export const PROXIMITY_RADIUS = 2000; //Number of meters in 2km
