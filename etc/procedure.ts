@@ -2,7 +2,7 @@ import { exec } from "child_process";
 import { Client } from "pg";
 import * as GraphQLType from "./graphql";
 import * as Config from "../config";
-import { GraphQlInput, Nominatim, PostGIS, Random, Requester } from "./util";
+import { GraphQlInput, Nominatim, Osrm, PostGIS, Random, Requester } from "./util";
 
 export class Init {
     static buildMongoDatabase() {
@@ -192,85 +192,118 @@ export class GraphQLProcedure {
 }
 
 export class GraphQLTest {
-    static async AddRequestedTrip(url: string, jwt: string, count = 10) {
+    static async AddHostedTrips(url: string, jwt: string) {
         const keyCoords: [number, number][] = [
-            [7.092252219283498, 79.99299056862273],
-            [7.072965706899689, 80.01593012768988]
+            [7.091540697723802, 79.9947859108097],//Gampaha
+            [7.034742366985356, 80.02610573596573]//Weliveriya
         ];
-        for (let i = 0; i < count; i++) {
-            try {
-                const result = await Requester.fetch<GraphQLType.MutationAddRequestedTripArgs, GraphQLType.Mutation["AddRequestedTrip"]>(
-                    url,
-                    jwt,
-                    `mutation AddRequestedTrip($requestedTrip: RequestedTripInput!) {
-                        result: AddRequestedTrip(requestedTrip: $requestedTrip)
-                    }`,
-                    {
-                        requestedTrip: {
-                            route: {
-                                from: await Nominatim.geocode(keyCoords[0]),
-                                to: await Nominatim.geocode(keyCoords[1]),
-                                keyCoords: keyCoords,
-                            },
-                            seats: Random.int(1, 5),
-                            time: {
-                                schedule: new Date().getTime() + Random.int(-2592000000, 2592000000)
-                            },
-                            vehicleFeatures: {
-                                ac: Random.partialBool(),
-                                luggage: Random.partialBool()
-                            }
-                        }
-                    }
-                );
     
-                console.log(result);
-            } catch (err) {
-                console.error(err);
-            }
+        try {
+            const result = await Requester.fetch<GraphQLType.MutationAddHostedTripArgs, GraphQLType.Mutation["AddHostedTrip"]>(
+                url,
+                jwt,
+                `mutation Mutation($hostedTrip: HostedTripInput!) {
+                    result: AddHostedTrip(hostedTrip: $hostedTrip)
+                }`,
+                {
+                    hostedTrip: {
+                        route: {
+                            from: await Nominatim.geocode(keyCoords[0]),
+                            to: await Nominatim.geocode(keyCoords[1]),
+                            keyCoords: keyCoords,
+                            polyLines: Osrm.extractRoutePolyLines((await Osrm.calculatePossibleRoutes(keyCoords))[0])
+                        },
+                        billing: {
+                            bankAccountId: "500000000000000000000000",
+                            priceFirstKm: Random.float(0, 1000),
+                            priceNextKm: Random.float(0, 1000),
+                        },
+                        seats: Random.int(1, 5),
+                        time: {
+                            schedule: new Date().getTime()
+                        },
+                        vehicleId: "300000000000000000000000"
+                    }
+                }
+            );
+
+            console.log(result);
+        } catch (err) {
+            console.error(err);
         }
     }
-    
-    static async AddHostedTrips(url: string, jwt: string, count = 10) {
-        const bankAccounts = await Requester.fetch<null, GraphQLType.Query["GetMyBankAccounts"]>(
-            url,
-            jwt,
-            `query GetMyBankAccounts {
-                result: GetMyBankAccounts {
-                _id
-                }
-            }`,
-            null
-        );
-    
-        const vehicles = await Requester.fetch<null, GraphQLType.Query["GetMyVehicles"]>(
-            url,
-            jwt,
-            `query GetMyVehicles {
-                result: GetMyVehicles {
-                _id
-                }
-            }`,
-            null
-        );
-    
-        for (let i = 0; i < count; i++) {
-            try {
-                const result = await Requester.fetch<GraphQLType.MutationAddHostedTripArgs, GraphQLType.Mutation["AddHostedTrip"]>(
-                    url,
-                    jwt,
-                    `mutation Mutation($hostedTrip: HostedTripInput!) {
-                        result: AddHostedTrip(hostedTrip: $hostedTrip)
-                    }`,
-                    {
-                        hostedTrip: await GraphQlInput.hostedTrip(bankAccounts, vehicles)
+
+    static async AddMatchingRequestedTrip(url: string, jwt: string) {
+        const keyCoords: [number, number][] = [
+            [7.092252219283498, 79.99299056862273],//Gampaha
+            [7.072965706899689, 80.01593012768988] //Miriswatta
+        ];
+        try {
+            const result = await Requester.fetch<GraphQLType.MutationAddRequestedTripArgs, GraphQLType.Mutation["AddRequestedTrip"]>(
+                url,
+                jwt,
+                `mutation AddRequestedTrip($requestedTrip: RequestedTripInput!) {
+                    result: AddRequestedTrip(requestedTrip: $requestedTrip)
+                }`,
+                {
+                    requestedTrip: {
+                        route: {
+                            from: await Nominatim.geocode(keyCoords[0]),
+                            to: await Nominatim.geocode(keyCoords[1]),
+                            keyCoords: keyCoords,
+                        },
+                        seats: Random.int(1, 5),
+                        time: {
+                            schedule: new Date().getTime()
+                        },
+                        vehicleFeatures: {
+                            ac: false,
+                            luggage: false
+                        }
                     }
-                );
-    
-                console.log(result);
-            } catch (err) {
-                console.error(err);
-            }
+                }
+            );
+
+            console.log(result);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    static async AddNonMatchingRequestedTrip(url: string, jwt: string) {
+        const keyCoords: [number, number][] = [
+            [7.093563000632659, 79.99366001117367],//Gampaha
+            [7.086064813422777, 80.03345207112561] //Yakkala
+        ];
+        try {
+            const result = await Requester.fetch<GraphQLType.MutationAddRequestedTripArgs, GraphQLType.Mutation["AddRequestedTrip"]>(
+                url,
+                jwt,
+                `mutation AddRequestedTrip($requestedTrip: RequestedTripInput!) {
+                    result: AddRequestedTrip(requestedTrip: $requestedTrip)
+                }`,
+                {
+                    requestedTrip: {
+                        route: {
+                            from: await Nominatim.geocode(keyCoords[0]),
+                            to: await Nominatim.geocode(keyCoords[1]),
+                            keyCoords: keyCoords,
+                        },
+                        seats: Random.int(1, 5),
+                        time: {
+                            schedule: new Date().getTime()
+                        },
+                        vehicleFeatures: {
+                            ac: false,
+                            luggage: false
+                        }
+                    }
+                }
+            );
+
+            console.log(result);
+        } catch (err) {
+            console.error(err);
         }
     }
 }
