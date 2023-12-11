@@ -282,6 +282,7 @@ input RequestedTripRouteInput {
 #HANDSHAKE======================================
 enum HandshakeState {
     INITIATED #Done by sender
+    SEEN #Done by recipient
     ACCEPTED #Done by recipient
     CONFIRMED_REQUESTED_TRIP_START #Done by requester
     CONFIRMED_REQUESTED_TRIP_END #Done by host

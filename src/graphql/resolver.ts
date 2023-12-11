@@ -193,12 +193,12 @@ export const root: {
 
             //Validate if hosted trip's host is current user
             if (!hostedTrip.hostId.equals(me._id)) {
-                throw new Error.ItemNotAccessibleByUser("hosted trip", "id", args.hostedTripId.toHexString());
+                throw new Error.ItemNotAccessibleByUser("hosted trip", "_id", args.hostedTripId.toHexString());
             }
 
             //Validate if hosted trip is not expired
             if (hostedTrip.time.ended) {
-                throw new Error.ItemIsNotActive("hosted trip", "id", args.hostedTripId.toHexString());
+                throw new Error.ItemIsNotActive("hosted trip", "_id", args.hostedTripId.toHexString());
             }
 
             if (!hostedTrip.vehicle) {
@@ -542,7 +542,8 @@ export const root: {
             });
 
             switch (args.state) {
-                case Ex.HandshakeState.ACCEPTED: {
+                case Ex.HandshakeState.ACCEPTED:
+                case Ex.HandshakeState.SEEN: {
                     //CASE: Done by recipient
                     if (!handshake.recipientId.equals(me._id)) {
                         throw new Error.ItemNotAccessibleByUser("handshake", "_id", args._id.toHexString());
