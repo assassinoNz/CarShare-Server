@@ -65,7 +65,8 @@ export enum HandshakeState {
   CONFIRMED_REQUESTED_TRIP_START = 'CONFIRMED_REQUESTED_TRIP_START',
   DONE_PAYMENT = 'DONE_PAYMENT',
   INITIATED = 'INITIATED',
-  SEEN = 'SEEN'
+  SEEN = 'SEEN',
+  SENT = 'SENT'
 }
 
 export type HandshakeTime = {
@@ -74,6 +75,9 @@ export type HandshakeTime = {
   confirmedRequestedTripEnd?: Maybe<Scalars['Date']['output']>;
   confirmedRequestedTripStart?: Maybe<Scalars['Date']['output']>;
   initiated: Scalars['Date']['output'];
+  paymentDone?: Maybe<Scalars['Date']['output']>;
+  seen?: Maybe<Scalars['Date']['output']>;
+  sent?: Maybe<Scalars['Date']['output']>;
 };
 
 export type HostRating = {
@@ -183,6 +187,7 @@ export type MutationSignInArgs = {
 export type MutationUpdateHandshakeStateArgs = {
   _id: Scalars['ObjectId']['input'];
   state: HandshakeState;
+  value: Scalars['Boolean']['input'];
 };
 
 
@@ -194,7 +199,6 @@ export type MutationUpdateTripStateArgs = {
 export type Payment = {
   __typename?: 'Payment';
   amount: Scalars['Float']['output'];
-  time?: Maybe<Scalars['Date']['output']>;
 };
 
 export type Permission = {

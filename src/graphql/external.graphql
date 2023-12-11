@@ -60,6 +60,7 @@ type Mutation {
     UpdateHandshakeState(
         _id: ObjectId!,
         state: HandshakeState!,
+        value: Boolean!,
     ): Boolean!
 }
 
@@ -283,6 +284,7 @@ input RequestedTripRouteInput {
 #HANDSHAKE======================================
 enum HandshakeState {
     INITIATED #Done by sender
+    SENT #Done by sender
     SEEN #Done by recipient
     ACCEPTED #Done by recipient
     CONFIRMED_REQUESTED_TRIP_START #Done by requester
@@ -303,14 +305,15 @@ type Handshake {
 
 type Payment {
     amount: Float!
-    time: Date #If available, payment is done
 }
 
 type HandshakeTime {
     initiated: Date!
+    seen: Date
     accepted: Date
     confirmedRequestedTripStart: Date
     confirmedRequestedTripEnd: Date
+    paymentDone: Date
 }
 
 #BANK_ACCOUNT=============================

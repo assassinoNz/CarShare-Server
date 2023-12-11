@@ -497,9 +497,7 @@ export const root: {
                 throw new Error.ItemNotAccessibleByUser("hosted trip/requested trip", "_id", `${args.hostedTripId.toString()}/${args.requestedTripId.toString()}`);
             }
 
-            const result = await Server.db.collection<In.HandshakeInput>(Collection.HANDSHAKES).insertOne({
-                ...handshakeToBeInserted
-            });
+            const result = await Server.db.collection<In.HandshakeInput>(Collection.HANDSHAKES).insertOne(handshakeToBeInserted);
             if (!result.acknowledged) {
                 throw new Error.CouldNotPerformOperation(Module.REQUESTED_TRIPS, Operation.CREATE);
             }
@@ -551,22 +549,38 @@ export const root: {
             });
 
             switch (args.state) {
-                case Ex.HandshakeState.ACCEPTED:
+                case Ex.HandshakeState.SENT: {
+                    //CASE: Done by sender
+                    if (!handshake.senderId.equals(me._id)) {
+                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args._id.toHexString());
+                    }
+                    //NOTE: Dependant on the handshake's state being INITIATED
+                    //NOTE: Since INITIATED state is always present, no need to check for its dependency
+                    break;
+                }
+
                 case Ex.HandshakeState.SEEN: {
                     //CASE: Done by recipient
                     if (!handshake.recipientId.equals(me._id)) {
                         throw new Error.ItemNotAccessibleByUser("handshake", "_id", args._id.toHexString());
                     }
+                    //NOTE: Dependant on the handshake's state being SENT
+                    if (!handshake.time.sent) {
+                        //CASE: Handshake is in INITIATED state
+                        throw new Error.InvalidItemState("handshake", "_id", args._id.toHexString(), Ex.HandshakeState.INITIATED, Ex.HandshakeState.INITIATED, Ex.HandshakeState.SEEN);
+                    }
                     break;
                 }
 
-                case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END: {
-                    //CASE: Done by host
-                    const hostedTrip = await Validator.getIfExists<In.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
-                        _id: handshake.hostedTripId
-                    });
-                    if (!hostedTrip.hostId.equals(me._id)) {
+                case Ex.HandshakeState.ACCEPTED: {
+                    //CASE: Done by recipient
+                    if (!handshake.recipientId.equals(me._id)) {
                         throw new Error.ItemNotAccessibleByUser("handshake", "_id", args._id.toHexString());
+                    }
+                    //NOTE: Dependant on the handshake's state being SEEN
+                    if (!handshake.time.seen) {
+                        //CASE: Handshake is in SENT state
+                        throw new Error.InvalidItemState("handshake", "_id", args._id.toHexString(), Ex.HandshakeState.SENT, Ex.HandshakeState.SEEN, Ex.HandshakeState.ACCEPTED);
                     }
                     break;
                 }
@@ -579,6 +593,27 @@ export const root: {
                     if (!requestedTrip.requesterId.equals(me._id)) {
                         throw new Error.ItemNotAccessibleByUser("handshake", "_id", args._id.toHexString());
                     }
+                    //NOTE: Dependant on the handshake's state being ACCEPTED
+                    if (!handshake.time.accepted) {
+                        //CASE: Handshake is in SEEN state
+                        throw new Error.InvalidItemState("handshake", "_id", args._id.toHexString(), Ex.HandshakeState.SEEN, Ex.HandshakeState.ACCEPTED, Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START);
+                    }
+                    break;
+                }
+
+                case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END: {
+                    //CASE: Done by host
+                    const hostedTrip = await Validator.getIfExists<In.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
+                        _id: handshake.hostedTripId
+                    });
+                    if (!hostedTrip.hostId.equals(me._id)) {
+                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args._id.toHexString());
+                    }
+                    //NOTE: Dependant on the handshake's state being CONFIRMED_REQUESTED_TRIP_START
+                    if (!handshake.time.confirmedRequestedTripStart) {
+                        //CASE: Handshake is in ACCEPTED state
+                        throw new Error.InvalidItemState("handshake", "_id", args._id.toHexString(), Ex.HandshakeState.ACCEPTED, Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START, Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END);
+                    }
                     break;
                 }
             }
@@ -586,7 +621,7 @@ export const root: {
             const fieldToBeUpdated = `time.${Strings.screamingSnake2Camel(args.state)}`;
             const result = await Server.db.collection<In.Handshake>(Collection.HANDSHAKES).updateOne(
                 { _id: handshake._id },
-                { $set: { [fieldToBeUpdated]: new Date() } }
+                args.value === true ? { $set: { [fieldToBeUpdated]: new Date() } } : { $unset: { [fieldToBeUpdated]: "" } }
             );
             return result.acknowledged;
         },

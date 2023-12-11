@@ -107,6 +107,19 @@ export class ItemDoesNotExist extends GraphQLError {
     }
 }
 
+export class InvalidItemState extends GraphQLError {
+    constructor(itemType: string, key: string, keyValue: string, currentState: string, neededState: string, toState: string) {
+        super(`Current state ${currentState} of the ${itemType} with ${key} set to ${keyValue} is not valid to be transitioned to ${toState}`, {
+            extensions: {
+                title: `The subjected to modification is in invalid state`,
+                suggestion: `Try to bring it to a valid state before performing the operation`,
+                description: `The ${itemType} with ${key} set to ${keyValue} needs to be in ${neededState} state to be transitioned to ${toState}.`,
+                code: `INVALID_FIELD_VALUE`
+            }
+        });
+    }
+}
+
 export class ItemIsNotActive extends GraphQLError {
     constructor(itemType: string, uniqueKey: string, uniqueKeyValue: string) {
         super(`That ${itemType} with ${uniqueKey} set to ${uniqueKeyValue} is not active or is expired`, {
