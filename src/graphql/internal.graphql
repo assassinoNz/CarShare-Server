@@ -26,6 +26,7 @@ type Query {
     GetMyHandshakes(
         tripId: ObjectId,
         sent: Boolean,
+        state: HandshakeState,
         skip: Int,
         limit: Int @constraint(max: 10)
     ): [Handshake]!

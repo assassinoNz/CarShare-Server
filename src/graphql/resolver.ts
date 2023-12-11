@@ -167,6 +167,15 @@ export const root: {
                 );
             }
 
+            if (args.state) {
+                //CASE: Add a filter based on state
+                options[`time.${Strings.screamingSnake2Camel(args.state)}`] = {
+                    "$exists": true
+                }
+            }
+
+            console.log(options);
+
             return await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find(options)
                 .skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)

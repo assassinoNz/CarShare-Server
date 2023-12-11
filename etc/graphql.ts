@@ -216,6 +216,7 @@ export type QueryGetMyHandshakesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   sent?: InputMaybe<Scalars['Boolean']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
+  state?: InputMaybe<HandshakeState>;
   tripId?: InputMaybe<Scalars['ObjectId']['input']>;
 };
 
