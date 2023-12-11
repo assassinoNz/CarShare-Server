@@ -224,7 +224,7 @@ export const root: {
                 //     $lt: hostedTrip.time.schedule.getHours() + 1
                 // },
 
-                //TODO: Filter out requested trips that are mine
+                //Filter out requested trips that are mine
                 requesterId: {
                     $ne: me._id
                 }
