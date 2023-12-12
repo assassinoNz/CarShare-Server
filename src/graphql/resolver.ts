@@ -548,6 +548,11 @@ export const root: {
             });
 
             switch (args.state) {
+                case Ex.HandshakeState.INITIATED: {
+                    //WANING: Cannot modify INITIATED state
+                    throw new Error.InvalidFieldValue("handshake", "state", args.state, `The ${Ex.HandshakeState.INITIATED} state of a handshake cannot be modified.`);
+                }
+
                 case Ex.HandshakeState.SENT: {
                     //CASE: Done by sender
                     if (!handshake.senderId.equals(me._id)) {
