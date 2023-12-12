@@ -239,21 +239,17 @@ export const root: {
                 }
 
                 //Try to match vehicle features
-                if (typeof requestedTrip.vehicleFeatures.ac === "boolean") {
-                    //CASE: Requester cares about AC
-                    if (hostedTrip.vehicle!.features.ac !== requestedTrip.vehicleFeatures.ac) {
-                        //CASE: Requester's AC preference doesn't match with hosted vehicle's
-                        continue;
-                    }
-                }
-                if (typeof requestedTrip.vehicleFeatures.luggage === "boolean") {
-                    //CASE: Requester cares about luggage
-                    if (hostedTrip.vehicle!.features.luggage !== requestedTrip.vehicleFeatures.luggage) {
-                        //CASE: Requester's luggage preference doesn't match with hosted vehicle's
-                        continue;
+                for (const featureKey of Object.keys(requestedTrip.vehicleFeatures) as (keyof In.VehicleFeatures)[]) {
+                    if (typeof requestedTrip.vehicleFeatures[featureKey] === "boolean") {
+                        //CASE: Requester cares about the feature being present or not
+                        if (hostedTrip.vehicle!.features[featureKey] !== requestedTrip.vehicleFeatures[featureKey]) {
+                            //CASE: Requester's feature preference doesn't match with hosted vehicle's
+                            continue;
+                        }
                     }
                 }
 
+                //Test if requested trip's keyCoords are near to the path of hosted trip
                 for (const coord of requestedTrip.route.keyCoords) {
                     if (!await PostGIS.isPointWithin(coord as [number, number], Default.PROXIMITY_RADIUS, hostedTrip.route.polyLines)) {
                         //CASE: The hosted trip's route is not within the key coordinate's proximity radius
