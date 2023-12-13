@@ -614,6 +614,12 @@ export const root: {
                 }
 
                 case Ex.HandshakeState.STARTED_REQUESTED_TRIP: {
+                    //Validate coord
+                    if (!args.coord) {
+                        throw new Error.InvalidFieldValue("arguments", "coord", "null", "a coordinate is required to start a requested trip");
+                    }
+                    Validator.validateCoords([args.coord], "arguments", "coord");
+
                     //CASE: Done by host
                     const hostedTrip = await Validator.getIfExists<In.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
                         _id: handshake.hostedTripId
@@ -627,10 +633,15 @@ export const root: {
                         throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.SEEN, Ex.HandshakeState.ACCEPTED, Ex.HandshakeState.STARTED_REQUESTED_TRIP);
                     }
 
-                    //Also update requested trip.time
+                    //Also update requested trip.time & trip.route.started
                     await Server.db.collection<In.RequestedTrip>(Collection.REQUESTED_TRIPS).updateOne(
                         { _id: handshake.requestedTripId },
-                        { $set: { "time.started": new Date() } }
+                        { 
+                            $set: { 
+                                "time.started": new Date(),
+                                "route.started": args.coord
+                            } 
+                        }
                     );
 
                     break;
@@ -653,6 +664,12 @@ export const root: {
                 }
 
                 case Ex.HandshakeState.ENDED_REQUESTED_TRIP: {
+                    //Validate coord
+                    if (!args.coord) {
+                        throw new Error.InvalidFieldValue("arguments", "coord", "null", "a coordinate is required to end a requested trip");
+                    }
+                    Validator.validateCoords([args.coord], "arguments", "coord");
+
                     //CASE: Done by requester
                     const requestedTrip = await Validator.getIfExists<In.RequestedTrip>(Collection.REQUESTED_TRIPS, "requested trip", {
                         _id: handshake.requestedTripId
@@ -669,7 +686,12 @@ export const root: {
                     //Also update requested trip.time
                     await Server.db.collection<In.RequestedTrip>(Collection.REQUESTED_TRIPS).updateOne(
                         { _id: handshake.requestedTripId },
-                        { $set: { "time.ended": new Date() } }
+                        { 
+                            $set: { 
+                                "time.started": new Date(),
+                                "route.started": args.coord
+                            } 
+                        }
                     );
 
                     break;
