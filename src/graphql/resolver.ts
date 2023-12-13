@@ -722,7 +722,16 @@ export const root: {
             const fieldToBeUpdated = `time.${camelCaseState}`;
             const result = await Server.db.collection<In.Handshake>(Collection.HANDSHAKES).updateOne(
                 { _id: handshake._id },
-                { $set: { [fieldToBeUpdated]: new Date() } }
+                args.state === Ex.HandshakeState.DONE_PAYMENT ?
+                    { 
+                        $set: { 
+                            [fieldToBeUpdated]: new Date(),
+                            "payment.time": new Date()
+                        } 
+                    } :
+                    { 
+                        $set: { [fieldToBeUpdated]: new Date() }
+                    }
             );
             return result.acknowledged;
         },
