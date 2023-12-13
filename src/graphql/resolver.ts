@@ -544,8 +544,8 @@ export const root: {
             const result = await Server.db.collection<In.RequestedTrip>(Collection.REQUESTED_TRIPS).updateOne(
                 { _id: hostedTrip._id },
                 { $set: {
-                    [`time.${Strings.screamingSnake2Camel(args.state)}`]: new Date(),
-                    [`route.${Strings.screamingSnake2Camel(args.state)}`]: args.coord
+                    [`time.${camelCaseState}`]: new Date(),
+                    [`route.${camelCaseState}`]: args.coord
                 } }
             );
             return result.acknowledged;
