@@ -52,6 +52,7 @@ export type Handshake = {
 
 export enum HandshakeState {
   ACCEPTED = 'ACCEPTED',
+  CANCELLED = 'CANCELLED',
   CONFIRMED_REQUESTED_TRIP_END = 'CONFIRMED_REQUESTED_TRIP_END',
   CONFIRMED_REQUESTED_TRIP_START = 'CONFIRMED_REQUESTED_TRIP_START',
   DONE_PAYMENT = 'DONE_PAYMENT',
@@ -63,6 +64,7 @@ export enum HandshakeState {
 export type HandshakeTime = {
   __typename?: 'HandshakeTime';
   accepted?: Maybe<Scalars['Date']['output']>;
+  cancelled?: Maybe<Scalars['Date']['output']>;
   confirmedRequestedTripEnd?: Maybe<Scalars['Date']['output']>;
   confirmedRequestedTripStart?: Maybe<Scalars['Date']['output']>;
   initiated: Scalars['Date']['output'];
@@ -171,7 +173,6 @@ export type MutationSignInArgs = {
 export type MutationUpdateHandshakeStateArgs = {
   _id: Scalars['ObjectId']['input'];
   state: HandshakeState;
-  value: Scalars['Boolean']['input'];
 };
 
 

@@ -49,18 +49,17 @@ type Mutation {
 
     InitHandshake(
         hostedTripId: ObjectId!,
-        requestedTripId: ObjectId!,
+        requestedTripId: ObjectId!
     ): ObjectId!
 
     UpdateTripState(
         tripId: ObjectId!,
-        state: TripState!,
+        state: TripState!
     ): Boolean!
 
     UpdateHandshakeState(
         _id: ObjectId!,
-        state: HandshakeState!,
-        value: Boolean!,
+        state: HandshakeState!
     ): Boolean!
 }
 
@@ -296,6 +295,7 @@ enum HandshakeState {
     CONFIRMED_REQUESTED_TRIP_START
     CONFIRMED_REQUESTED_TRIP_END
     DONE_PAYMENT
+    CANCELLED
 }
 
 type Handshake {
@@ -331,6 +331,7 @@ type HandshakeTime {
     confirmedRequestedTripStart: Date
     confirmedRequestedTripEnd: Date
     paymentDone: Date
+    cancelled: Date
 }
 
 #BANK_ACCOUNT=============================

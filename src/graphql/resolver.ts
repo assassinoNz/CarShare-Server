@@ -543,6 +543,12 @@ export const root: {
                 _id: args._id
             });
 
+            //NOTE: Any updates are dependant on the handshake's state being not CANCELLED
+            if (handshake.time.cancelled) {
+                //CASE: Handshake is in CANCELLED state
+                throw new Error.InvalidItemState("handshake", "_id", args._id.toHexString(), Ex.HandshakeState.CANCELLED, `NOT ${Ex.HandshakeState.CANCELLED}`, args.state);
+            }
+
             switch (args.state) {
                 case Ex.HandshakeState.INITIATED: {
                     //WANING: Cannot modify INITIATED state
@@ -616,12 +622,39 @@ export const root: {
                     }
                     break;
                 }
+
+                case Ex.HandshakeState.DONE_PAYMENT: {
+                    //CASE: Done by host
+                    const hostedTrip = await Validator.getIfExists<In.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
+                        _id: handshake.hostedTripId
+                    });
+                    if (!hostedTrip.hostId.equals(me._id)) {
+                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args._id.toHexString());
+                    }
+                    //NOTE: Dependant on the handshake's state being CONFIRMED_REQUESTED_TRIP_END
+                    if (!handshake.time.confirmedRequestedTripEnd) {
+                        //CASE: Handshake is in ACCEPTED state
+                        throw new Error.InvalidItemState("handshake", "_id", args._id.toHexString(), Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START, Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END, Ex.HandshakeState.DONE_PAYMENT);
+                    }
+                    break;
+                }
+
+                case Ex.HandshakeState.CANCELLED: {
+                    //CASE: Done by host/recipient
+                    if (!handshake.senderId.equals(me._id) || !handshake.recipientId.equals(me._id)) {
+                        //CASE: I'm not either host or recipient
+                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args._id.toHexString());
+                    }
+                    //NOTE: Dependant on the handshake's state being INITIATED
+                    //NOTE: Since INITIATED state is always present, no need to check for its dependency
+                    break;
+                }
             }
 
             const fieldToBeUpdated = `time.${Strings.screamingSnake2Camel(args.state)}`;
             const result = await Server.db.collection<In.Handshake>(Collection.HANDSHAKES).updateOne(
                 { _id: handshake._id },
-                args.value === true ? { $set: { [fieldToBeUpdated]: new Date() } } : { $unset: { [fieldToBeUpdated]: "" } }
+                { $set: { [fieldToBeUpdated]: new Date() } }
             );
             return result.acknowledged;
         },
