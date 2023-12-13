@@ -65,11 +65,11 @@ export enum HandshakeState {
   CONFIRMED_REQUESTED_TRIP_END = 'CONFIRMED_REQUESTED_TRIP_END',
   CONFIRMED_REQUESTED_TRIP_START = 'CONFIRMED_REQUESTED_TRIP_START',
   DONE_PAYMENT = 'DONE_PAYMENT',
+  ENDED_REQUESTED_TRIP = 'ENDED_REQUESTED_TRIP',
   INITIATED = 'INITIATED',
-  REQUESTED_TRIP_ENDED = 'REQUESTED_TRIP_ENDED',
-  REQUESTED_TRIP_STARTED = 'REQUESTED_TRIP_STARTED',
   SEEN = 'SEEN',
-  SENT = 'SENT'
+  SENT = 'SENT',
+  STARTED_REQUESTED_TRIP = 'STARTED_REQUESTED_TRIP'
 }
 
 export type HandshakeTime = {
@@ -78,10 +78,12 @@ export type HandshakeTime = {
   cancelled?: Maybe<Scalars['Date']['output']>;
   confirmedRequestedTripEnd?: Maybe<Scalars['Date']['output']>;
   confirmedRequestedTripStart?: Maybe<Scalars['Date']['output']>;
+  endedRequestedTrip?: Maybe<Scalars['Date']['output']>;
   initiated: Scalars['Date']['output'];
   paymentDone?: Maybe<Scalars['Date']['output']>;
   seen?: Maybe<Scalars['Date']['output']>;
   sent?: Maybe<Scalars['Date']['output']>;
+  startedRequestedTrip?: Maybe<Scalars['Date']['output']>;
 };
 
 export type HostRating = {

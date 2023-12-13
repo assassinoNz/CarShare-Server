@@ -288,13 +288,13 @@ enum HandshakeState {
     SENT #Done by sender
     SEEN #Done by recipient
     ACCEPTED #Done by recipient
-    #HOSTED_TRIP_STARTED #Done by host
-    REQUESTED_TRIP_STARTED #Done by host
+    #STARTED_HOSTED_TRIP #Done by host
+    STARTED_REQUESTED_TRIP #Done by host
     CONFIRMED_REQUESTED_TRIP_START #Done by requester
-    REQUESTED_TRIP_ENDED #Done by requester
+    ENDED_REQUESTED_TRIP #Done by requester
     CONFIRMED_REQUESTED_TRIP_END #Done by host
     DONE_PAYMENT #Done by host
-    #HOSTED_TRIP_ENDED #Done by host
+    #ENDED_HOSTED_TRIP #Done by host
     CANCELLED #Done by sender/recipient
 }
 
@@ -315,9 +315,12 @@ type Payment {
 
 type HandshakeTime {
     initiated: Date!
+    sent: Date
     seen: Date
     accepted: Date
+    startedRequestedTrip: Date
     confirmedRequestedTripStart: Date
+    endedRequestedTrip: Date
     confirmedRequestedTripEnd: Date
     paymentDone: Date
     cancelled: Date

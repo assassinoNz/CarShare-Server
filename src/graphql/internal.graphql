@@ -298,13 +298,13 @@ enum HandshakeState {
     SENT
     SEEN
     ACCEPTED
-    #HOSTED_TRIP_STARTED
-    REQUESTED_TRIP_STARTED
+    #STARTED_HOSTED_TRIP
+    STARTED_REQUESTED_TRIP
     CONFIRMED_REQUESTED_TRIP_START
-    REQUESTED_TRIP_ENDED
+    ENDED_REQUESTED_TRIP
     CONFIRMED_REQUESTED_TRIP_END
     DONE_PAYMENT
-    #HOSTED_TRIP_ENDED
+    #ENDED_HOSTED_TRIP
     CANCELLED
 }
 
@@ -338,7 +338,9 @@ type HandshakeTime {
     sent: Date
     seen: Date
     accepted: Date
+    startedRequestedTrip: Date
     confirmedRequestedTripStart: Date
+    endedRequestedTrip: Date
     confirmedRequestedTripEnd: Date
     paymentDone: Date
     cancelled: Date
