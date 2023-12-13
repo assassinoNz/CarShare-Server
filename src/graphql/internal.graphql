@@ -54,7 +54,8 @@ type Mutation {
 
     UpdateTripState(
         tripId: ObjectId!,
-        state: TripState!
+        state: TripState!,
+        coord: [Float!]!
     ): Boolean!
 
     UpdateHandshakeState(
@@ -261,12 +262,14 @@ type HostedTripRoute {
     to: String!
     polyLines: [String!]!
     keyCoords: [[Float!]!]!
+    started: [[Float!]!] #Available only after starting the trip
+    ended: [[Float!]!] #Available only after ending the trip
     tileOverlapIndex: String!
 }
 
 input HostedTripRouteInput {
-    from: String! @constraint(pattern: "^[a-zA-Z]{5,30}*$")
-    to: String! @constraint(pattern: "^[a-zA-Z]{5,30}*$")
+    from: String!
+    to: String!
     polyLines: [String!]!
     keyCoords: [[Float!]!]!
     tileOverlapIndex: String!
@@ -276,6 +279,8 @@ type RequestedTripRoute {
     from: String!
     to: String!
     keyCoords: [[Float!]!]!
+    started: [[Float!]!] #Available only after starting the trip
+    ended: [[Float!]!] #Available only after ending the trip
     tileOverlapIndex: String!
 }
 

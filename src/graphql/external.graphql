@@ -54,7 +54,8 @@ type Mutation {
 
     UpdateTripState(
         tripId: ObjectId!,
-        state: TripState!
+        state: TripState!,
+        coord: [Float!]!
     ): Boolean!
 
     UpdateHandshakeState(

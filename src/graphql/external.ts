@@ -177,6 +177,7 @@ export type MutationUpdateHandshakeStateArgs = {
 
 
 export type MutationUpdateTripStateArgs = {
+  coord: Array<Scalars['Float']['input']>;
   state: TripState;
   tripId: Scalars['ObjectId']['input'];
 };

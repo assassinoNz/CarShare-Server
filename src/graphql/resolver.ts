@@ -529,10 +529,15 @@ export const root: {
                 trip = requestedTrip;
             }
 
-            const fieldToBeUpdated = `time.${Strings.screamingSnake2Camel(args.state)}`;
+            //Validate given coordinate
+            Validator.validateCoords([args.coord], "arguments", "coord");
+
             const result = await Server.db.collection<In.RequestedTrip>(Collection.REQUESTED_TRIPS).updateOne(
                 { _id: trip._id },
-                { $set: { [fieldToBeUpdated]: new Date() } }
+                { $set: {
+                    [`time.${Strings.screamingSnake2Camel(args.state)}`]: new Date(),
+                    [`route.${Strings.screamingSnake2Camel(args.state)}`]: args.coord
+                } }
             );
             return result.acknowledged;
         },

@@ -114,9 +114,11 @@ export type HostedTripInput = {
 
 export type HostedTripRoute = {
   __typename?: 'HostedTripRoute';
+  ended?: Maybe<Array<Array<Scalars['Float']['output']>>>;
   from: Scalars['String']['output'];
   keyCoords: Array<Array<Scalars['Float']['output']>>;
   polyLines: Array<Scalars['String']['output']>;
+  started?: Maybe<Array<Array<Scalars['Float']['output']>>>;
   tileOverlapIndex: Scalars['String']['output'];
   to: Scalars['String']['output'];
 };
@@ -193,6 +195,7 @@ export type MutationUpdateHandshakeStateArgs = {
 
 
 export type MutationUpdateTripStateArgs = {
+  coord: Array<Scalars['Float']['input']>;
   state: TripState;
   tripId: Scalars['ObjectId']['input'];
 };
@@ -300,8 +303,10 @@ export type RequestedTripInput = {
 
 export type RequestedTripRoute = {
   __typename?: 'RequestedTripRoute';
+  ended?: Maybe<Array<Array<Scalars['Float']['output']>>>;
   from: Scalars['String']['output'];
   keyCoords: Array<Array<Scalars['Float']['output']>>;
+  started?: Maybe<Array<Array<Scalars['Float']['output']>>>;
   tileOverlapIndex: Scalars['String']['output'];
   to: Scalars['String']['output'];
 };
