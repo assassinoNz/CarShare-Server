@@ -500,40 +500,45 @@ export const root: {
             return result.insertedId;
         },
 
-        UpdateTripState: async (parent, args: Ex.MutationUpdateTripStateArgs, ctx, info) => {
-            const hostedTrip = await Server.db.collection<In.HostedTrip>(Collection.HOSTED_TRIPS).findOne({
-                _id: args.tripId
+        UpdateHostedTripState: async (parent, args: Ex.MutationUpdateHostedTripStateArgs, ctx, info) => {
+            const me = await Authorizer.query(ctx, Module.HOSTED_TRIPS, Operation.UPDATE);
+            const hostedTrip = await Validator.getIfExists<In.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
+                _id: args.hostedTripId
             });
 
-            let trip: In.HostedTrip | In.RequestedTrip;
+            //Check if hosted trip's host is me
+            if (!hostedTrip.hostId.equals(me._id)) {
+                throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.hostedTripId.toHexString());
+            }
 
-            if (hostedTrip) {
-                //CASE: tripId refers to a hosted trip
-                const me = await Authorizer.query(ctx, Module.HOSTED_TRIPS, Operation.UPDATE);
-                if (!hostedTrip.hostId.equals(me._id)) {
-                    throw new Error.ItemNotAccessibleByUser("hosted trip", "_id", hostedTrip._id.toHexString());
+            switch (args.state) {
+                case Ex.TripState.STARTED: {
+                    //CASE: Done by host
+                    //NOTE: Depends on hosted trip being not STARTED
+                    if (hostedTrip.time.started) {
+                        throw new Error.InvalidItemState("hosted trip", "state", args.state, Ex.TripState.STARTED, `NOT ${Ex.TripState.STARTED}`, Ex.TripState.STARTED);
+                    }
+                    break;
                 }
-                trip = hostedTrip;
-            } else {
-                //CASE: tripId doesn't refer to a hosted trip
-                //The trip must be a requested trip, otherwise it's an error
-                const requestedTrip = await Validator.getIfExists<In.RequestedTrip>(Collection.REQUESTED_TRIPS, "hosted trip/requested trip", {
-                    _id: args.tripId
-                });
 
-                //CASE: tripId refers to a requested trip
-                const me = await Authorizer.query(ctx, Module.REQUESTED_TRIPS, Operation.UPDATE);
-                if (!requestedTrip.requesterId.equals(me._id)) {
-                    throw new Error.ItemNotAccessibleByUser("requested trip", "_id", requestedTrip._id.toHexString());
+                case Ex.TripState.ENDED: {
+                    //CASE: Done by host
+                    //NOTE: Depends on hosted trip being STARTED and not ENDED
+                    if (!hostedTrip.time.started) {
+                        throw new Error.InvalidItemState("hosted trip", "state", args.state, `NOT ${Ex.TripState.STARTED}`, Ex.TripState.STARTED, Ex.TripState.ENDED);
+                    }
+                    if (hostedTrip.time.ended) {
+                        throw new Error.InvalidItemState("hosted trip", "state", args.state, Ex.TripState.ENDED, `NOT ${Ex.TripState.ENDED}`, Ex.TripState.ENDED);
+                    }
+                    break;
                 }
-                trip = requestedTrip;
             }
 
             //Validate given coordinate
             Validator.validateCoords([args.coord], "arguments", "coord");
 
             const result = await Server.db.collection<In.RequestedTrip>(Collection.REQUESTED_TRIPS).updateOne(
-                { _id: trip._id },
+                { _id: hostedTrip._id },
                 { $set: {
                     [`time.${Strings.screamingSnake2Camel(args.state)}`]: new Date(),
                     [`route.${Strings.screamingSnake2Camel(args.state)}`]: args.coord
@@ -545,13 +550,13 @@ export const root: {
         UpdateHandshakeState: async (parent, args: Ex.MutationUpdateHandshakeStateArgs, ctx, info) => {
             const me = await Authorizer.query(ctx, Module.HANDSHAKES, Operation.UPDATE);
             const handshake = await Validator.getIfExists<In.Handshake>(Collection.HANDSHAKES, "handshake", {
-                _id: args._id
+                _id: args.handshakeId
             });
 
             //NOTE: Any updates are dependant on the handshake's state being not CANCELLED
             if (handshake.time.cancelled) {
                 //CASE: Handshake is in CANCELLED state
-                throw new Error.InvalidItemState("handshake", "_id", args._id.toHexString(), Ex.HandshakeState.CANCELLED, `NOT ${Ex.HandshakeState.CANCELLED}`, args.state);
+                throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.CANCELLED, `NOT ${Ex.HandshakeState.CANCELLED}`, args.state);
             }
 
             switch (args.state) {
@@ -563,7 +568,7 @@ export const root: {
                 case Ex.HandshakeState.SENT: {
                     //CASE: Done by sender
                     if (!handshake.senderId.equals(me._id)) {
-                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args._id.toHexString());
+                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.handshakeId.toHexString());
                     }
                     //NOTE: Dependant on the handshake's state being INITIATED
                     //NOTE: Since INITIATED state is always present, no need to check for its dependency
@@ -573,12 +578,12 @@ export const root: {
                 case Ex.HandshakeState.SEEN: {
                     //CASE: Done by recipient
                     if (!handshake.recipientId.equals(me._id)) {
-                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args._id.toHexString());
+                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.handshakeId.toHexString());
                     }
                     //NOTE: Dependant on the handshake's state being SENT
                     if (!handshake.time.sent) {
                         //CASE: Handshake is in INITIATED state
-                        throw new Error.InvalidItemState("handshake", "_id", args._id.toHexString(), Ex.HandshakeState.INITIATED, Ex.HandshakeState.INITIATED, Ex.HandshakeState.SEEN);
+                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.INITIATED, Ex.HandshakeState.INITIATED, Ex.HandshakeState.SEEN);
                     }
                     break;
                 }
@@ -586,12 +591,12 @@ export const root: {
                 case Ex.HandshakeState.ACCEPTED: {
                     //CASE: Done by recipient
                     if (!handshake.recipientId.equals(me._id)) {
-                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args._id.toHexString());
+                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.handshakeId.toHexString());
                     }
                     //NOTE: Dependant on the handshake's state being SEEN
                     if (!handshake.time.seen) {
                         //CASE: Handshake is in SENT state
-                        throw new Error.InvalidItemState("handshake", "_id", args._id.toHexString(), Ex.HandshakeState.SENT, Ex.HandshakeState.SEEN, Ex.HandshakeState.ACCEPTED);
+                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.SENT, Ex.HandshakeState.SEEN, Ex.HandshakeState.ACCEPTED);
                     }
                     break;
                 }
@@ -602,12 +607,12 @@ export const root: {
                         _id: handshake.requestedTripId
                     });
                     if (!requestedTrip.requesterId.equals(me._id)) {
-                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args._id.toHexString());
+                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.handshakeId.toHexString());
                     }
                     //NOTE: Dependant on the handshake's state being ACCEPTED
                     if (!handshake.time.accepted) {
                         //CASE: Handshake is in SEEN state
-                        throw new Error.InvalidItemState("handshake", "_id", args._id.toHexString(), Ex.HandshakeState.SEEN, Ex.HandshakeState.ACCEPTED, Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START);
+                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.SEEN, Ex.HandshakeState.ACCEPTED, Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START);
                     }
                     break;
                 }
@@ -618,12 +623,12 @@ export const root: {
                         _id: handshake.hostedTripId
                     });
                     if (!hostedTrip.hostId.equals(me._id)) {
-                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args._id.toHexString());
+                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.handshakeId.toHexString());
                     }
                     //NOTE: Dependant on the handshake's state being CONFIRMED_REQUESTED_TRIP_START
                     if (!handshake.time.confirmedRequestedTripStart) {
                         //CASE: Handshake is in ACCEPTED state
-                        throw new Error.InvalidItemState("handshake", "_id", args._id.toHexString(), Ex.HandshakeState.ACCEPTED, Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START, Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END);
+                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.ACCEPTED, Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START, Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END);
                     }
                     break;
                 }
@@ -634,12 +639,12 @@ export const root: {
                         _id: handshake.hostedTripId
                     });
                     if (!hostedTrip.hostId.equals(me._id)) {
-                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args._id.toHexString());
+                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.handshakeId.toHexString());
                     }
                     //NOTE: Dependant on the handshake's state being CONFIRMED_REQUESTED_TRIP_END
                     if (!handshake.time.confirmedRequestedTripEnd) {
                         //CASE: Handshake is in ACCEPTED state
-                        throw new Error.InvalidItemState("handshake", "_id", args._id.toHexString(), Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START, Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END, Ex.HandshakeState.DONE_PAYMENT);
+                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START, Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END, Ex.HandshakeState.DONE_PAYMENT);
                     }
                     break;
                 }
@@ -648,7 +653,7 @@ export const root: {
                     //CASE: Done by host/recipient
                     if (!handshake.senderId.equals(me._id) || !handshake.recipientId.equals(me._id)) {
                         //CASE: I'm not either host or recipient
-                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args._id.toHexString());
+                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.handshakeId.toHexString());
                     }
                     //NOTE: Dependant on the handshake's state being INITIATED
                     //NOTE: Since INITIATED state is always present, no need to check for its dependency

@@ -57,6 +57,8 @@ export enum HandshakeState {
   CONFIRMED_REQUESTED_TRIP_START = 'CONFIRMED_REQUESTED_TRIP_START',
   DONE_PAYMENT = 'DONE_PAYMENT',
   INITIATED = 'INITIATED',
+  REQUESTED_TRIP_ENDED = 'REQUESTED_TRIP_ENDED',
+  REQUESTED_TRIP_STARTED = 'REQUESTED_TRIP_STARTED',
   SEEN = 'SEEN',
   SENT = 'SENT'
 }
@@ -129,7 +131,7 @@ export type Mutation = {
   InitHandshake: Scalars['ObjectId']['output'];
   SignIn: Scalars['String']['output'];
   UpdateHandshakeState: Scalars['Boolean']['output'];
-  UpdateTripState: Scalars['Boolean']['output'];
+  UpdateHostedTripState: Scalars['Boolean']['output'];
 };
 
 
@@ -171,15 +173,16 @@ export type MutationSignInArgs = {
 
 
 export type MutationUpdateHandshakeStateArgs = {
-  _id: Scalars['ObjectId']['input'];
+  coord?: InputMaybe<Array<Scalars['Float']['input']>>;
+  handshakeId: Scalars['ObjectId']['input'];
   state: HandshakeState;
 };
 
 
-export type MutationUpdateTripStateArgs = {
+export type MutationUpdateHostedTripStateArgs = {
   coord: Array<Scalars['Float']['input']>;
+  hostedTripId: Scalars['ObjectId']['input'];
   state: TripState;
-  tripId: Scalars['ObjectId']['input'];
 };
 
 export type Payment = {

@@ -52,15 +52,16 @@ type Mutation {
         requestedTripId: ObjectId!
     ): ObjectId!
 
-    UpdateTripState(
-        tripId: ObjectId!,
+    UpdateHostedTripState(
+        hostedTripId: ObjectId!,
         state: TripState!,
         coord: [Float!]!
     ): Boolean!
 
     UpdateHandshakeState(
-        _id: ObjectId!,
+        handshakeId: ObjectId!,
         state: HandshakeState!
+        coord: [Float!]
     ): Boolean!
 }
 
@@ -287,9 +288,13 @@ enum HandshakeState {
     SENT #Done by sender
     SEEN #Done by recipient
     ACCEPTED #Done by recipient
+    #HOSTED_TRIP_STARTED #Done by host
+    REQUESTED_TRIP_STARTED #Done by host
     CONFIRMED_REQUESTED_TRIP_START #Done by requester
+    REQUESTED_TRIP_ENDED #Done by requester
     CONFIRMED_REQUESTED_TRIP_END #Done by host
     DONE_PAYMENT #Done by host
+    #HOSTED_TRIP_ENDED #Done by host
     CANCELLED #Done by sender/recipient
 }
 
