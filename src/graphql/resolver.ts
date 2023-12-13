@@ -506,29 +506,33 @@ export const root: {
                 _id: args.hostedTripId
             });
 
+            //Transform args.state to camel case
+            const camelCaseState = Strings.screamingSnake2Camel(args.state) as keyof In.TripTime;
+
             //Check if hosted trip's host is me
             if (!hostedTrip.hostId.equals(me._id)) {
                 throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.hostedTripId.toHexString());
             }
 
+            //Check if the hosted trip is already in the required state
+            if (hostedTrip.time[camelCaseState]) {
+                throw new Error.InvalidItemState("hosted trip", "state", args.state, Ex.TripState.STARTED, `NOT ${Ex.TripState.STARTED}`, Ex.TripState.STARTED);
+            }
+
             switch (args.state) {
-                case Ex.TripState.STARTED: {
-                    //CASE: Done by host
-                    //NOTE: Depends on hosted trip being not STARTED
-                    if (hostedTrip.time.started) {
-                        throw new Error.InvalidItemState("hosted trip", "state", args.state, Ex.TripState.STARTED, `NOT ${Ex.TripState.STARTED}`, Ex.TripState.STARTED);
-                    }
-                    break;
-                }
+                //WARNING: No need to handle this state. See reason below
+                // case Ex.TripState.STARTED: {
+                //     //CASE: Done by host
+                //     //NOTE: Depends on hosted trip being not STARTED
+                //     //NOTE: Already checked globally
+                //     break;
+                // }
 
                 case Ex.TripState.ENDED: {
                     //CASE: Done by host
-                    //NOTE: Depends on hosted trip being STARTED and not ENDED
+                    //NOTE: Depends on hosted trip being STARTED
                     if (!hostedTrip.time.started) {
                         throw new Error.InvalidItemState("hosted trip", "state", args.state, `NOT ${Ex.TripState.STARTED}`, Ex.TripState.STARTED, Ex.TripState.ENDED);
-                    }
-                    if (hostedTrip.time.ended) {
-                        throw new Error.InvalidItemState("hosted trip", "state", args.state, Ex.TripState.ENDED, `NOT ${Ex.TripState.ENDED}`, Ex.TripState.ENDED);
                     }
                     break;
                 }
