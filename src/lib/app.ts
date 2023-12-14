@@ -5,7 +5,7 @@ import express from "express";
 import cors from "cors";
 import redis from "redis";
 import JWTR from "jwt-redis";
-import { Client } from "pg";
+import pg from "pg";
 import { Db, MongoClient, ObjectId } from "mongodb";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
@@ -18,8 +18,10 @@ import { osrm, nominatim } from "../rest/resolver.js";
 import { scalar, root, type } from "../graphql/resolver.js";
 
 export class Server {
+    static readonly cwd = new URL(".", import.meta.url).pathname;
+
     //PostgresSQL
-    static readonly postgresDriver = new Client({
+    static readonly postgresDriver = new pg.Client({
         host: Config.HOST_POSTGRES,
         user: Config.USER_POSTGRES,
         password: Config.PASSWORD_POSTGRES,
@@ -41,7 +43,7 @@ export class Server {
     //Apollo
     static readonly apollo = new ApolloServer({
         includeStacktraceInErrorResponses: false,
-        typeDefs: [gqlConstraint.constraintDirectiveTypeDefsGql, fs.readFileSync(path.resolve(__dirname + "/../graphql/external.graphql"), "utf-8")],
+        typeDefs: [gqlConstraint.constraintDirectiveTypeDefsGql, fs.readFileSync(path.resolve(this.cwd + "/../graphql/external.graphql"), "utf-8")],
         resolvers: {
             ...scalar,
             ...root,
@@ -152,7 +154,7 @@ export class Server {
                 component: "Server",
                 status: true,
                 port: Config.PORT_EXPRESS,
-                cwd: __dirname
+                cwd: this.cwd
             });
         });
     }
