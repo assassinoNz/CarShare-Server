@@ -650,6 +650,9 @@ export const root: {
                     }
 
                     //NOTE: Dependant on the hosted trip's state being STARTED
+                    if (!hostedTrip.time.started) {
+                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), `NOT ${In.HandshakeState.STARTED_HOSTED_TRIP}`, In.HandshakeState.STARTED_HOSTED_TRIP, Ex.HandshakeState.STARTED_REQUESTED_TRIP);
+                    }
 
                     //NOTE: Dependant on the handshake's state being ACCEPTED
                     if (!handshake.time.accepted) {
