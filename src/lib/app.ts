@@ -1,21 +1,21 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import * as express from "express";
-import * as cors from "cors";
-import * as redis from "redis";
+import express from "express";
+import cors from "cors";
+import redis from "redis";
 import JWTR from "jwt-redis";
 import { Client } from "pg";
 import { Db, MongoClient, ObjectId } from "mongodb";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
-import { createApollo4QueryValidationPlugin, constraintDirectiveTypeDefsGql } from "graphql-constraint-directive/apollo4";
+import gqlConstraint from "graphql-constraint-directive/apollo4.js";
 
-import * as Config from "../../config";
-import * as In from "../graphql/internal";
-import { Context, JwtPayload } from "./interface";
-import { osrm, nominatim } from "../rest/resolver";
-import { scalar, root, type } from "../graphql/resolver";
+import * as Config from "../../config.js";
+import * as In from "../graphql/internal.js";
+import { Context, JwtPayload } from "./interface.js";
+import { osrm, nominatim } from "../rest/resolver.js";
+import { scalar, root, type } from "../graphql/resolver.js";
 
 export class Server {
     //PostgresSQL
@@ -41,14 +41,14 @@ export class Server {
     //Apollo
     static readonly apollo = new ApolloServer({
         includeStacktraceInErrorResponses: false,
-        typeDefs: [constraintDirectiveTypeDefsGql, fs.readFileSync(path.resolve(__dirname + "/../graphql/external.graphql"), "utf-8")],
+        typeDefs: [gqlConstraint.constraintDirectiveTypeDefsGql, fs.readFileSync(path.resolve(__dirname + "/../graphql/external.graphql"), "utf-8")],
         resolvers: {
             ...scalar,
             ...root,
             ...type
         },
         plugins: [
-            createApollo4QueryValidationPlugin({})
+            gqlConstraint.createApollo4QueryValidationPlugin({})
         ]
     });
 

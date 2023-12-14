@@ -1,12 +1,12 @@
 import * as pl from "@googlemaps/polyline-codec";
 import * as wkx from "wkx";
 
-import * as Error from "./error";
-import * as Config from "../../config";
-import * as In from "../graphql/internal";
-import { Server } from "./app";
-import { ModuleId, OperationIndex, PossibleModule, PossibleOperation } from "./enum";
-import { Context, OsrmRoute } from "./interface";
+import * as Error from "./error.js";
+import * as Config from "../../config.js";
+import * as In from "../graphql/internal.js";
+import { Server } from "./app.js";
+import { ModuleId, OperationIndex, PossibleModule, PossibleOperation } from "./enum.js";
+import { Context, OsrmRoute } from "./interface.js";
 import { Document, Filter } from "mongodb";
 
 export class Strings {

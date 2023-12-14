@@ -1,4 +1,4 @@
-import { Server } from "./src/lib/app";
+import { Server } from "./src/lib/app.js";
 
 Promise.all([
     Server.connectPostgresDriver(),

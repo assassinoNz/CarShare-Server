@@ -1,4 +1,4 @@
-import * as In from "../graphql/internal";
+import * as In from "../graphql/internal.js";
 
 export interface JwtPayload {
     userId: string;

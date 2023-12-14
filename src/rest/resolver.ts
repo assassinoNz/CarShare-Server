@@ -1,8 +1,8 @@
 import fetch from "node-fetch";
 import { Request, Response } from "express";
-import { SECRET_JWT, URL_NOMINATIM, URL_OSRM } from "../../config";
-import { JwtPayload } from "../lib/interface";
-import { Server } from "../lib/app";
+import { SECRET_JWT, URL_NOMINATIM, URL_OSRM } from "../../config.js";
+import { JwtPayload } from "../lib/interface.js";
+import { Server } from "../lib/app.js";
 
 export const osrm = {
     CalculatePossibleRoutes: async (req: Request, res: Response): Promise<void> => {

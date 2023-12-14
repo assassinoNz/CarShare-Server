@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "CommonJS",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "allowJs": false,
     "declaration": false,
     "declarationMap": false,
-    "sourceMap": true,
+    "sourceMap": false,
     "removeComments": true,
     "strict": true,
     "noUnusedLocals": true,

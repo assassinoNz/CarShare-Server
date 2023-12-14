@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql";
 
-import * as In from "../graphql/internal";
-import { Module, Operation, PossibleModule, PossibleOperation } from "./enum";
+import * as In from "../graphql/internal.js";
+import { Module, Operation, PossibleModule, PossibleOperation } from "./enum.js";
 
 export class PasswordMismatch extends GraphQLError {
     constructor(username: string) {

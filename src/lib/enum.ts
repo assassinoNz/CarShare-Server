@@ -1,4 +1,4 @@
-import { Strings } from "./util";
+import { Strings } from "./util.js";
 
 export enum OperationIndex { CREATE, RETRIEVE, UPDATE, DELETE }
 

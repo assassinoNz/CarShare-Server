@@ -3,15 +3,15 @@ import * as crypto from "crypto";
 import { Filter, ObjectId } from "mongodb";
 import { GraphQLError, GraphQLScalarType, Kind } from "graphql";
 
-import * as Config from "../../config";
-import * as Default from "../lib/default";
-import * as Error from "../lib/error";
-import * as In from "./internal";
-import * as Ex from "./external";
-import { Server } from "../lib/app";
-import { Collection, Module, Operation } from "../lib/enum";
-import { JwtPayload, TypeResolver, RootResolver } from "../lib/interface";
-import { Authorizer, Osrm, PostGIS, Strings, Validator } from "../lib/util";
+import * as Config from "../../config.js";
+import * as Default from "../lib/default.js";
+import * as Error from "../lib/error.js";
+import * as In from "./internal.js";
+import * as Ex from "./external.js";
+import { Server } from "../lib/app.js";
+import { Collection, Module, Operation } from "../lib/enum.js";
+import { JwtPayload, TypeResolver, RootResolver } from "../lib/interface.js";
+import { Authorizer, Osrm, PostGIS, Strings, Validator } from "../lib/util.js";
 
 export const scalar = {
     ObjectId: new GraphQLScalarType<ObjectId | null, string>({
