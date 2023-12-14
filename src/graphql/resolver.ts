@@ -554,7 +554,7 @@ export const root: {
                     if (await handshakes.hasNext()) {
                         throw new Error.InvalidAction("hosted trip", "_id", args.hostedTripId.toHexString(), "ENDING", "there are ongoing requested trips");
                     }
-                    
+
                     break;
                 }
             }
@@ -765,16 +765,9 @@ export const root: {
             const fieldToBeUpdated = `time.${camelCaseState}`;
             const result = await Server.db.collection<In.Handshake>(Collection.HANDSHAKES).updateOne(
                 { _id: handshake._id },
-                args.state === Ex.HandshakeState.DONE_PAYMENT ?
-                    { 
-                        $set: { 
-                            [fieldToBeUpdated]: new Date(),
-                            "payment.time": new Date()
-                        } 
-                    } :
-                    { 
-                        $set: { [fieldToBeUpdated]: new Date() }
-                    }
+                { 
+                    $set: { [fieldToBeUpdated]: new Date() }
+                }
             );
             return result.acknowledged;
         },
