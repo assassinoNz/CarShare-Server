@@ -145,3 +145,16 @@ export class InvalidFieldValue extends GraphQLError {
         });
     }
 }
+
+export class InvalidAction extends GraphQLError {
+    constructor(itemType: string, key: string, keyValue: string, action: string, because: string) {
+        super(`The action of ${action} performed on the ${itemType} with ${key} set to ${keyValue} is not valid`, {
+            extensions: {
+                title: `That action is not allowed to perform`,
+                suggestion: `Try performing a valid action`,
+                description: `The action of ${action} was denied on the ${itemType} because ${because}.`,
+                code: `INVALID_ACTION`
+            }
+        });
+    }
+}

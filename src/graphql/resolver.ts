@@ -502,6 +502,7 @@ export const root: {
 
         UpdateHostedTripState: async (parent, args: Ex.MutationUpdateHostedTripStateArgs, ctx, info) => {
             const me = await Authorizer.query(ctx, Module.HOSTED_TRIPS, Operation.UPDATE);
+            const now = new Date();
             const hostedTrip = await Validator.getIfExists<In.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
                 _id: args.hostedTripId
             });
@@ -521,19 +522,39 @@ export const root: {
 
             switch (args.state) {
                 //WARNING: No need to handle this state. See reason below
-                // case Ex.TripState.STARTED: {
-                //     //CASE: Done by host
-                //     //NOTE: Depends on hosted trip being not STARTED
-                //     //NOTE: Already checked globally
-                //     break;
-                // }
+                case Ex.TripState.STARTED: {
+                    //CASE: Done by host
+                    //NOTE: Depends on hosted trip being not STARTED (Already checked globally)
+                    //NOTE: Depends on the time is past the schedule
+                    if (hostedTrip.time.schedule > now) {
+                        throw new Error.InvalidAction("hosted trip", "_id", args.hostedTripId.toHexString(), "STARTING", "the scheduled time has not yet reached");
+                    }
+
+                    break;
+                }
 
                 case Ex.TripState.ENDED: {
                     //CASE: Done by host
-                    //NOTE: Depends on hosted trip being STARTED
-                    if (!hostedTrip.time.started) {
-                        throw new Error.InvalidItemState("hosted trip", "state", args.state, `NOT ${Ex.TripState.STARTED}`, Ex.TripState.STARTED, Ex.TripState.ENDED);
+                    //NOTE: Depends all requested trips being CONFIRMED_REQUESTED_TRIP_END
+                    //Get all handshakes that are accepted, not cancelled, not requested trip end confirmed
+                    const handshakes = Server.db.collection<In.Handshake>(Collection.HANDSHAKES).find({
+                        hostedTripId: args.hostedTripId,
+                        "time.accepted": {
+                            $exists: true
+                        },
+                        "time.confirmedRequestedTripEnd": {
+                            $exists: false
+                        },
+                        "time.cancelled": {
+                            $exists: false
+                        },
+                    });
+
+                    //NOTE: For ENDED state to be succeeded, there must me no handshakes matching the above criteria
+                    if (await handshakes.hasNext()) {
+                        throw new Error.InvalidAction("hosted trip", "_id", args.hostedTripId.toHexString(), "ENDING", "there are ongoing requested trips");
                     }
+                    
                     break;
                 }
             }
