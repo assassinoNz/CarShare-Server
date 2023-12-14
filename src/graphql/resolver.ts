@@ -523,7 +523,7 @@ export const root: {
             switch (args.state) {
                 //WARNING: No need to handle this state. See reason below
                 case Ex.TripState.STARTED: {
-                    //CASE: Done by host
+                    //NOTE: Done by host
                     //NOTE: Depends on hosted trip being not STARTED (Already checked globally)
                     //NOTE: Depends on the time is past the schedule
                     if (hostedTrip.time.schedule > now) {
@@ -534,7 +534,7 @@ export const root: {
                 }
 
                 case Ex.TripState.ENDED: {
-                    //CASE: Done by host
+                    //NOTE: Done by host
                     //NOTE: Depends all requested trips being CONFIRMED_REQUESTED_TRIP_END
                     //Get all handshakes that are accepted, not cancelled, not requested trip end confirmed
                     const handshakes = Server.db.collection<In.Handshake>(Collection.HANDSHAKES).find({
@@ -599,7 +599,7 @@ export const root: {
                 }
 
                 case Ex.HandshakeState.SENT: {
-                    //CASE: Done by sender
+                    //NOTE: Done by sender
                     if (!handshake.senderId.equals(me._id)) {
                         throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.handshakeId.toHexString());
                     }
@@ -609,7 +609,7 @@ export const root: {
                 }
 
                 case Ex.HandshakeState.SEEN: {
-                    //CASE: Done by recipient
+                    //NOTE: Done by recipient
                     if (!handshake.recipientId.equals(me._id)) {
                         throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.handshakeId.toHexString());
                     }
@@ -622,7 +622,7 @@ export const root: {
                 }
 
                 case Ex.HandshakeState.ACCEPTED: {
-                    //CASE: Done by recipient
+                    //NOTE: Done by recipient
                     if (!handshake.recipientId.equals(me._id)) {
                         throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.handshakeId.toHexString());
                     }
@@ -641,13 +641,16 @@ export const root: {
                     }
                     Validator.validateCoords([args.coord], "arguments", "coord");
 
-                    //CASE: Done by host
+                    //NOTE: Done by host
                     const hostedTrip = await Validator.getIfExists<In.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
                         _id: handshake.hostedTripId
                     });
                     if (!hostedTrip.hostId.equals(me._id)) {
                         throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.handshakeId.toHexString());
                     }
+
+                    //NOTE: Dependant on the hosted trip's state being STARTED
+
                     //NOTE: Dependant on the handshake's state being ACCEPTED
                     if (!handshake.time.accepted) {
                         //CASE: Handshake is in SEEN state
@@ -669,7 +672,7 @@ export const root: {
                 }
 
                 case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START: {
-                    //CASE: Done by requester
+                    //NOTE: Done by requester
                     const requestedTrip = await Validator.getIfExists<In.RequestedTrip>(Collection.REQUESTED_TRIPS, "requested trip", {
                         _id: handshake.requestedTripId
                     });
@@ -691,7 +694,7 @@ export const root: {
                     }
                     Validator.validateCoords([args.coord], "arguments", "coord");
 
-                    //CASE: Done by requester
+                    //NOTE: Done by requester
                     const requestedTrip = await Validator.getIfExists<In.RequestedTrip>(Collection.REQUESTED_TRIPS, "requested trip", {
                         _id: handshake.requestedTripId
                     });
@@ -719,7 +722,7 @@ export const root: {
                 }
 
                 case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END: {
-                    //CASE: Done by host
+                    //NOTE: Done by host
                     const hostedTrip = await Validator.getIfExists<In.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
                         _id: handshake.hostedTripId
                     });
@@ -727,7 +730,7 @@ export const root: {
                         throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.handshakeId.toHexString());
                     }
                     //NOTE: Dependant on the handshake's state being ENDED_REQUESTED_TRIP
-                    if (!handshake.time.confirmedRequestedTripStart) {
+                    if (!handshake.time.endedRequestedTrip) {
                         //CASE: Handshake is in CONFIRMED_REQUESTED_TRIP_START state
                         throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START, Ex.HandshakeState.ENDED_REQUESTED_TRIP, Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END);
                     }
@@ -735,7 +738,7 @@ export const root: {
                 }
 
                 case Ex.HandshakeState.DONE_PAYMENT: {
-                    //CASE: Done by host
+                    //NOTE: Done by host
                     const hostedTrip = await Validator.getIfExists<In.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
                         _id: handshake.hostedTripId
                     });
@@ -751,7 +754,7 @@ export const root: {
                 }
 
                 case Ex.HandshakeState.CANCELLED: {
-                    //CASE: Done by host/recipient
+                    //NOTE: Done by host/recipient
                     if (!handshake.senderId.equals(me._id) || !handshake.recipientId.equals(me._id)) {
                         //CASE: I'm not either host or recipient
                         throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.handshakeId.toHexString());
