@@ -81,9 +81,16 @@ const usersInsertion = db.users.insertMany([
         },
         currentCoord: null,
         rating: {
-            politeness: 0.9,
-            punctuality: 0.6,
-            driving: 0.7,
+            asHost: {
+                politeness: 0.4,
+                punctuality: 0.2,
+                driving: 0.3,
+                meetsCondition: 0.1,
+            },
+            asRequester: {
+                politeness: 0.9,
+                punctuality: 0.2,
+            }
         },
     }
 ]);
