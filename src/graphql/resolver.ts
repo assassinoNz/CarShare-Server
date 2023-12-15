@@ -134,21 +134,21 @@ export const root: {
         GetMyHandshakes: async (_parent, args: Ex.QueryGetMyHandshakesArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.HANDSHAKES, Operation.RETRIEVE);
 
-            const options: Filter<In.Handshake & Ex.Handshake> = {};
+            const filter: Filter<In.Handshake & Ex.Handshake> = {};
 
             if (args.sent === true) {
                 //CASE: Filter handshakes sent by me
-                options.senderId = me._id;
+                filter.senderId = me._id;
             } else if (args.sent === false) {
                 //CASE: Filter handshakes received by me
-                options.recipientId = me._id;
+                filter.recipientId = me._id;
             } else {
                 //CASE: Retrieve everything either sent or received by me
-                if (!options["$or"]) {
-                    options["$or"] = [];
+                if (!filter["$or"]) {
+                    filter["$or"] = [];
                 }
 
-                options["$or"].push(
+                filter["$or"].push(
                     { senderId: me._id },
                     { recipientId: me._id }
                 );
@@ -157,11 +157,11 @@ export const root: {
             if (args.tripId) {
                 //NOTE: tripId could be a hostedTripId or a requestedTripId
                 //CASE: Retrieve the handshake where hostedTripId=tripId or requestedTripId=tripId
-                if (!options["$or"]) {
-                    options["$or"] = [];
+                if (!filter["$or"]) {
+                    filter["$or"] = [];
                 }
 
-                options["$or"].push(
+                filter["$or"].push(
                     { hostedTripId: args.tripId },
                     { requestedTripId: args.tripId }
                 );
@@ -169,12 +169,12 @@ export const root: {
 
             if (args.state) {
                 //CASE: Add a filter based on state
-                options[`time.${Strings.screamingSnake2Camel(args.state)}`] = {
+                filter[`time.${Strings.screamingSnake2Camel(args.state)}`] = {
                     "$exists": true
                 }
             }
 
-            return await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find(options)
+            return await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find(filter)
                 .skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
                 .toArray();
