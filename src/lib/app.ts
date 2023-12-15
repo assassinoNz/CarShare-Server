@@ -117,7 +117,7 @@ export class Server {
 
         //Bind Apollo server
         this.express.use("/graphql", cors(), express.json(), expressMiddleware(this.apollo, {
-            context: async ({ req, res }): Promise<Context> => {
+            context: async ({ req, res: _res }): Promise<Context> => {
                 //Get JWT token from the header or make it empty
                 const token = req.headers.authorization || "";
 
