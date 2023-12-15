@@ -1,8 +1,8 @@
-import { exec } from "child_process";
-import { Client } from "pg";
-import * as GraphQLType from "./graphql";
-import * as Config from "../config";
-import { GraphQlInput, Nominatim, Osrm, PostGIS, Random, Requester } from "./util";
+import { exec } from "node:child_process";
+import pg from "pg";
+import * as GraphQLType from "./graphql.js";
+import * as Config from "../config.js";
+import { GraphQlInput, Nominatim, Osrm, PostGIS, Random, Requester } from "./util.js";
 
 export class Init {
     static buildMongoDatabase() {
@@ -20,7 +20,7 @@ export class Init {
     }
 
     static async buildTilesTable(numTilesX: number, numTilesY: number) {
-        const postgresDriver = new Client({
+        const postgresDriver = new pg.Client({
             host: Config.HOST_POSTGRES,
             user: Config.USER_POSTGRES,
             password: Config.PASSWORD_POSTGRES,
@@ -65,7 +65,7 @@ export class Init {
         const query1 = "DROP TABLE IF EXISTS tiles;";
         const result1 = await postgresDriver.query(query1);
         console.log(result1);
-        
+
         const query2 = `
             CREATE TABLE tiles (
                 id SERIAL PRIMARY KEY,
@@ -74,7 +74,7 @@ export class Init {
         `;
         const result2 = await postgresDriver.query(query2);
         console.log(result2);
-        
+
         const query3 = `INSERT INTO tiles (geom) VALUES ` + values.join(",") + ";";
         const result3 = await postgresDriver.query(query3);
         console.log(result3);
@@ -97,7 +97,7 @@ export class GraphQLProcedure {
                         bankAccount: GraphQlInput.bankAccount()
                     }
                 );
-    
+
                 console.log(result);
             } catch (err) {
                 console.error(err);
@@ -118,14 +118,14 @@ export class GraphQLProcedure {
                         vehicle: GraphQlInput.vehicle()
                     }
                 );
-    
+
                 console.log(result);
             } catch (err) {
                 console.error(err);
             }
         }
     }
-    
+
     static async AddRequestedTrips(url: string, jwt: string, count = 10) {
         for (let i = 0; i < count; i++) {
             try {
@@ -139,14 +139,14 @@ export class GraphQLProcedure {
                         requestedTrip: await GraphQlInput.requestedTrip()
                     }
                 );
-    
+
                 console.log(result);
             } catch (err) {
                 console.error(err);
             }
         }
     }
-    
+
     static async AddHostedTrips(url: string, jwt: string, count = 10) {
         const bankAccounts = await Requester.fetch<null, GraphQLType.Query["GetMyBankAccounts"]>(
             url,
@@ -158,7 +158,7 @@ export class GraphQLProcedure {
             }`,
             null
         );
-    
+
         const vehicles = await Requester.fetch<null, GraphQLType.Query["GetMyVehicles"]>(
             url,
             jwt,
@@ -169,7 +169,7 @@ export class GraphQLProcedure {
             }`,
             null
         );
-    
+
         for (let i = 0; i < count; i++) {
             try {
                 const result = await Requester.fetch<GraphQLType.MutationAddHostedTripArgs, GraphQLType.Mutation["AddHostedTrip"]>(
@@ -182,7 +182,7 @@ export class GraphQLProcedure {
                         hostedTrip: await GraphQlInput.hostedTrip(bankAccounts, vehicles)
                     }
                 );
-    
+
                 console.log(result);
             } catch (err) {
                 console.error(err);
@@ -192,12 +192,52 @@ export class GraphQLProcedure {
 }
 
 export class GraphQLTest {
+    static NominatimTest(url: string, jwt: string, term = "Hatch colombo") {
+        fetch(`${url}?format=json&q=${encodeURIComponent(term)}`, {
+            method: "GET",
+            headers: {
+                "Authorization": jwt
+            }
+        })
+            .then((response: any) => response.text())
+            .then((data: any) => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error(error);
+                throw error;
+            });
+    }
+
+    static OsrmTest(url: string, jwt: string, coords = [
+        [7.091540697723802, 79.9947859108097],
+        [7.034742366985356, 80.02610573596573]
+    ]) {
+        //NOTE: Deep copy coords because we're reversing each coord
+        coords = JSON.parse(JSON.stringify(coords));
+
+        fetch(`${url}/${coords.map(coord => coord.reverse().join(",")).join(";")}?overview=false&steps=true`, {
+            method: "GET",
+            headers: {
+                "Authorization": jwt
+            }
+        })
+            .then((response: any) => response.text())
+            .then((data: any) => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error(error);
+                throw error;
+            });
+    }
+
     static async AddHostedTrips(url: string, jwt: string) {
         const keyCoords: [number, number][] = [
             [7.091540697723802, 79.9947859108097],//Gampaha
             [7.034742366985356, 80.02610573596573]//Weliveriya
         ];
-    
+
         try {
             const result = await Requester.fetch<GraphQLType.MutationAddHostedTripArgs, GraphQLType.Mutation["AddHostedTrip"]>(
                 url,

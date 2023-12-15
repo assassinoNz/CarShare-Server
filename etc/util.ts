@@ -1,12 +1,12 @@
 import fetch from "node-fetch";
-import * as GraphQLType from "./graphql";
-import * as Config from "../config";
-import { OsrmRoute } from "../src/lib/interface";
-import { CharGroup } from "./const";
+import * as GraphQLType from "./graphql.js";
+import * as Config from "../config.js";
+import { OsrmRoute } from "../src/lib/interface.js";
+import { CharGroup } from "./const.js";
 
 export class Requester {
     static fetch<Input, Output>(url: string, jwt: string, query: string, variables: Input) {
-        return fetch(url, {
+        return fetch.default(url, {
             method: "POST",
             headers: {
                 "Authorization": jwt,
@@ -66,7 +66,7 @@ export class Osrm {
         //NOTE: Deep copy coords because we're reversing each coord
         coords = JSON.parse(JSON.stringify(coords));
 
-        return fetch(`${Config.URL_OSRM}/${coords.map(coord => coord.reverse().join(",")).join(";")}?overview=false&steps=true`)
+        return fetch.default(`${Config.URL_OSRM}/${coords.map(coord => coord.reverse().join(",")).join(";")}?overview=false&steps=true`)
             .then((res: any) => res.json())
             .then((res: any) => res.routes as OsrmRoute[]);
     }
@@ -86,7 +86,7 @@ export class Osrm {
 
 export class Nominatim {
     static geocode(coord: [number, number]) {
-        return fetch(`${Config.URL_NOMINATIM}/reverse?format=json&lat=${coord[0]}&lon=${coord[1]}`).then(res => res.json())
+        return fetch.default(`${Config.URL_NOMINATIM}/reverse?format=json&lat=${coord[0]}&lon=${coord[1]}`).then(res => res.json())
         .then(res => {
             if (res.error) {
                 throw res.error;

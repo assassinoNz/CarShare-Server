@@ -3,8 +3,8 @@
     "tasks": [
         {
             "type": "shell",
-            "command": "ts-node index.ts",
-            "label": "Run with ts-node",
+            "command": "npm start",
+            "label": "Run with tsx",
             "problemMatcher": []
         },
         {

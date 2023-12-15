@@ -10,6 +10,6 @@ Promise.all([
     console.log({
         component: "Server",
         status: false,
-        error: "Server failed to start due to the above logged errors"
+        error: err
     });
 });

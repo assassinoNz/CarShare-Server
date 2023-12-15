@@ -1,5 +1,5 @@
-import * as fs from "fs";
-import * as path from "path";
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 import express from "express";
 import cors from "cors";
@@ -50,6 +50,7 @@ export class Server {
             ...type
         },
         plugins: [
+            //@ts-ignore
             gqlConstraint.createApollo4QueryValidationPlugin({})
         ]
     });
@@ -95,7 +96,7 @@ export class Server {
         try {
             await this.redisDriver.connect();
             //@ts-ignore
-            this.jwtr = new JWTR(this.redisDriver);
+            this.jwtr = new JWTR.default(this.redisDriver);
             console.log({
                 component: "Redis Driver",
                 status: true,
@@ -105,7 +106,7 @@ export class Server {
             console.error({
                 component: "Redis Driver",
                 status: false,
-                error: err.errors[0]
+                error: err
             });
             throw err;
         }

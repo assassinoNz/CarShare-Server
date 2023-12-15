@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 import { Request, Response } from "express";
-import { SECRET_JWT, URL_NOMINATIM, URL_OSRM } from "../../config.js";
+import * as Config from "../../config.js";
 import { JwtPayload } from "../lib/interface.js";
 import { Server } from "../lib/app.js";
 
@@ -10,10 +10,10 @@ export const osrm = {
         const token = req.headers.authorization || "";
 
         try {
-            await Server.jwtr.verify(token, SECRET_JWT) as JwtPayload;
+            await Server.jwtr.verify(token, Config.SECRET_JWT) as JwtPayload;
 
             try {
-                const data = await fetch(`${URL_OSRM}/${encodeURIComponent(req.params.keyCoords)}?overview=false&steps=true`)
+                const data = await fetch.default(`${Config.URL_OSRM}/${encodeURIComponent(req.params.keyCoords)}?overview=false&steps=true`)
                     .then((response: any) => response.json());
 
                 res.json(data);
@@ -35,10 +35,10 @@ export const nominatim = {
         const token = req.headers.authorization || "";
 
         try {
-            await Server.jwtr.verify(token, SECRET_JWT) as JwtPayload;
+            await Server.jwtr.verify(token, Config.SECRET_JWT) as JwtPayload;
 
             try {
-                const data = await fetch(`${URL_NOMINATIM}/search?format=json&q=${encodeURIComponent(req.query.q as string)}`)
+                const data = await fetch.default(`${Config.URL_NOMINATIM}/search?format=json&q=${encodeURIComponent(req.query.q as string)}`)
                     .then((response: any) => response.json());
 
                 res.json(data);
