@@ -177,6 +177,7 @@ type HostedTrip {
     time: TripTime!
     vehicle: Vehicle! #Could be a temporary or saved
     seats: Int!
+    remainingSeats: Int!
     billing: TripBilling!
     hasHandshakes: Boolean!
 }

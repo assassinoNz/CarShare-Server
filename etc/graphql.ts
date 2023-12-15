@@ -90,6 +90,7 @@ export type HostedTrip = {
   billing: TripBilling;
   hasHandshakes: Scalars['Boolean']['output'];
   host: User;
+  remainingSeats: Scalars['Int']['output'];
   route: HostedTripRoute;
   seats: Scalars['Int']['output'];
   time: TripTime;
