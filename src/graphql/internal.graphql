@@ -195,6 +195,7 @@ type HostedTrip {
     vehicleId: ObjectId
     vehicle: Vehicle
     seats: Int!
+    remainingSeats: Int!
     billing: TripBilling!
 }
 
@@ -205,6 +206,7 @@ input HostedTripInput {
     vehicleId: ObjectId
     vehicle: VehicleInput
     seats: Int!
+    remainingSeats: Int!
     billing: TripBillingInput!
 }
 

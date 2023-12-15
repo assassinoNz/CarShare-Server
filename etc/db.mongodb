@@ -212,6 +212,7 @@ const hostedTripsInsertion = db.hostedTrips.insertMany([
         },
         vehicleId: vehiclesInsertion.insertedIds[0],
         seats: 3,
+        remainingSeats: 3,
         billing: {
             bankAccountId: bankAccountsInsertion.insertedIds[0],
             priceFirstKm: 100,
@@ -260,6 +261,7 @@ const hostedTripsInsertion = db.hostedTrips.insertMany([
             }
         },
         seats: 2,
+        remainingSeats: 2,
         billing: {
             bankAccountId: bankAccountsInsertion.insertedIds[2],
             priceFirstKm: 150,

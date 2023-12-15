@@ -101,6 +101,7 @@ export type HostedTrip = {
   _id: Scalars['ObjectId']['output'];
   billing: TripBilling;
   hostId: Scalars['ObjectId']['output'];
+  remainingSeats: Scalars['Int']['output'];
   route: HostedTripRoute;
   seats: Scalars['Int']['output'];
   time: TripTime;
@@ -111,6 +112,7 @@ export type HostedTrip = {
 export type HostedTripInput = {
   billing: TripBillingInput;
   hostId: Scalars['ObjectId']['input'];
+  remainingSeats: Scalars['Int']['input'];
   route: HostedTripRouteInput;
   seats: Scalars['Int']['input'];
   time: TripTimeInput;

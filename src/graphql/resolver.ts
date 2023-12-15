@@ -66,12 +66,12 @@ export const root: {
     Mutation: RootResolver<In.Mutation, Ex.Mutation>,
 } = {
     Query: {
-        GetMe: async (parent, args, ctx, info) => {
+        GetMe: async (_parent, _args, ctx, _info) => {
             //WARNING: GetMe doesn't need any permission validation
             return Authorizer.me(ctx);
         },
 
-        GetMyVehicles: async (parent, args: Ex.QueryGetMyVehiclesArgs, ctx, info) => {
+        GetMyVehicles: async (_parent, args: Ex.QueryGetMyVehiclesArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.VEHICLES, Operation.RETRIEVE);
             return await Server.db.collection<In.Vehicle>(Collection.VEHICLES).find({ ownerId: me._id })
                 .skip(args.skip || Default.VALUE_SKIP)
@@ -79,7 +79,7 @@ export const root: {
                 .toArray();
         },
 
-        GetMyBankAccounts: async (parent, args: Ex.QueryGetMyBankAccountsArgs, ctx, info) => {
+        GetMyBankAccounts: async (_parent, args: Ex.QueryGetMyBankAccountsArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.BANK_ACCOUNTS, Operation.RETRIEVE);
             return await Server.db.collection<In.BankAccount>(Collection.BANK_ACCOUNTS).find({ ownerId: me._id })
                 .skip(args.skip || Default.VALUE_SKIP)
@@ -87,7 +87,7 @@ export const root: {
                 .toArray();
         },
 
-        GetMyHostedTrips: async (parent, args: Ex.QueryGetMyHostedTripsArgs, ctx, info) => {
+        GetMyHostedTrips: async (_parent, args: Ex.QueryGetMyHostedTripsArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.HOSTED_TRIPS, Operation.RETRIEVE);
             const now = new Date();
             return await Server.db.collection<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS).find({
@@ -101,7 +101,7 @@ export const root: {
                 .toArray();
         },
 
-        GetMyHostedTrip: async (parent, args: Ex.QueryGetMyHostedTripArgs, ctx, info) => {
+        GetMyHostedTrip: async (_parent, args: Ex.QueryGetMyHostedTripArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.HOSTED_TRIPS, Operation.RETRIEVE);
             return await Validator.getIfExists<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
                 _id: args._id,
@@ -109,7 +109,7 @@ export const root: {
             });
         },
 
-        GetMyRequestedTrips: async (parent, args: Ex.QueryGetMyRequestedTripsArgs, ctx, info) => {
+        GetMyRequestedTrips: async (_parent, args: Ex.QueryGetMyRequestedTripsArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.REQUESTED_TRIPS, Operation.RETRIEVE);
             const now = new Date();
             return await Server.db.collection<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS).find({
@@ -123,7 +123,7 @@ export const root: {
                 .toArray();
         },
 
-        GetMyRequestedTrip: async (parent, args: Ex.QueryGetMyRequestedTripArgs, ctx, info) => {
+        GetMyRequestedTrip: async (_parent, args: Ex.QueryGetMyRequestedTripArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.REQUESTED_TRIPS, Operation.RETRIEVE);
             return await Validator.getIfExists<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS, "requested trip", {
                 _id: args._id,
@@ -131,7 +131,7 @@ export const root: {
             });
         },
 
-        GetMyHandshakes: async (parent, args: Ex.QueryGetMyHandshakesArgs, ctx, info) => {
+        GetMyHandshakes: async (_parent, args: Ex.QueryGetMyHandshakesArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.HANDSHAKES, Operation.RETRIEVE);
 
             const options: Filter<In.Handshake & Ex.Handshake> = {};
@@ -180,7 +180,7 @@ export const root: {
                 .toArray();
         },
 
-        GetMyHandshake: async (parent, args: Ex.QueryGetMyHandshakeArgs, ctx, info) => {
+        GetMyHandshake: async (_parent, args: Ex.QueryGetMyHandshakeArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.HANDSHAKES, Operation.RETRIEVE);
             return await Validator.getIfExists<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES, "handshake", {
                 _id: args._id,
@@ -191,7 +191,7 @@ export const root: {
             });
         },
 
-        GetMatchingRequestedTrips: async (parent, args: Ex.QueryGetMatchingRequestedTripsArgs, ctx, info) => {
+        GetMatchingRequestedTrips: async (_parent, args: Ex.QueryGetMatchingRequestedTripsArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.REQUESTED_TRIPS, Operation.RETRIEVE);
 
             const hostedTrip = await Validator.getIfExists<In.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
@@ -231,6 +231,12 @@ export const root: {
 
             //For each requested trip, calculate match results
             requestedTripLoop: for await (const requestedTrip of requestedTrips) {
+                //Try to match seat availability
+                if (hostedTrip.remainingSeats < requestedTrip.seats) {
+                    //CASE: Hosted trip doesn't have enough seats to fulfil requested trip
+                    continue;
+                }
+
                 if ((BigInt(hostedTrip.route.tileOverlapIndex) & BigInt(requestedTrip.route.tileOverlapIndex)) === 0n) {
                     //CASE: There is no intersection between hostedTrip's route and requestedTrip's possible routes
                     continue;
@@ -265,7 +271,7 @@ export const root: {
     },
 
     Mutation: {
-        CreateGenericUser: async (parent, args: Ex.MutationCreateGenericUserArgs, ctx, info) => {
+        CreateGenericUser: async (_parent, args: Ex.MutationCreateGenericUserArgs, _ctx, _info) => {
             const result = await Server.db.collection<In.UserInput>(Collection.USERS).insertOne({
                 ...args.user,
                 isActive: true,
@@ -298,7 +304,7 @@ export const root: {
             );
         },
 
-        SignIn: async (parent, args: Ex.MutationSignInArgs, ctx, info) => {
+        SignIn: async (_parent, args: Ex.MutationSignInArgs, _ctx, _info) => {
             const item = await Validator.getIfActive<In.User>(Collection.USERS, "user", {
                 mobile: args.mobile
             });
@@ -315,7 +321,7 @@ export const root: {
             );
         },
 
-        AddVehicle: async (parent, args: Ex.MutationAddVehicleArgs, ctx, info) => {
+        AddVehicle: async (_parent, args: Ex.MutationAddVehicleArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.VEHICLES, Operation.CREATE);
             const result = await Server.db.collection<In.VehicleInput>(Collection.VEHICLES).insertOne({
                 ...args.vehicle,
@@ -333,7 +339,7 @@ export const root: {
             return result.insertedId;
         },
 
-        AddBankAccount: async (parent, args: Ex.MutationAddBankAccountArgs, ctx, info) => {
+        AddBankAccount: async (_parent, args: Ex.MutationAddBankAccountArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.BANK_ACCOUNTS, Operation.CREATE);
             const result = await Server.db.collection<In.BankAccountInput>(Collection.BANK_ACCOUNTS).insertOne({
                 ...args.bankAccount,
@@ -347,12 +353,13 @@ export const root: {
             return result.insertedId;
         },
 
-        AddHostedTrip: async (parent, args: Ex.MutationAddHostedTripArgs, ctx, info) => {
+        AddHostedTrip: async (_parent, args: Ex.MutationAddHostedTripArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.HOSTED_TRIPS, Operation.CREATE);
             const tripToBeInserted: In.HostedTripInput = {
                 ...args.hostedTrip,
                 hostId: me._id,
                 vehicle: undefined,
+                remainingSeats: args.hostedTrip.seats,
                 route: {
                     ...args.hostedTrip.route,
                     tileOverlapIndex: "" //Will be calculated after validation
@@ -402,7 +409,7 @@ export const root: {
             return result.insertedId;
         },
 
-        AddRequestedTrip: async (parent, args: Ex.MutationAddRequestedTripArgs, ctx, info) => {
+        AddRequestedTrip: async (_parent, args: Ex.MutationAddRequestedTripArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.REQUESTED_TRIPS, Operation.CREATE);
 
             //Validate keyCoords
@@ -433,7 +440,7 @@ export const root: {
             return result.insertedId;
         },
 
-        InitHandshake: async (parent, args: Ex.MutationInitHandshakeArgs, ctx, info) => {
+        InitHandshake: async (_parent, args: Ex.MutationInitHandshakeArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.HANDSHAKES, Operation.CREATE);
             const hostedTrip = await Validator.getIfExists<In.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
                 _id: args.hostedTripId
@@ -498,7 +505,7 @@ export const root: {
             return result.insertedId;
         },
 
-        UpdateHostedTripState: async (parent, args: Ex.MutationUpdateHostedTripStateArgs, ctx, info) => {
+        UpdateHostedTripState: async (_parent, args: Ex.MutationUpdateHostedTripStateArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.HOSTED_TRIPS, Operation.UPDATE);
             const now = new Date();
             const hostedTrip = await Validator.getIfExists<In.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
@@ -570,7 +577,7 @@ export const root: {
             return result.acknowledged;
         },
 
-        UpdateHandshakeState: async (parent, args: Ex.MutationUpdateHandshakeStateArgs, ctx, info) => {
+        UpdateHandshakeState: async (_parent, args: Ex.MutationUpdateHandshakeStateArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.HANDSHAKES, Operation.UPDATE);
             const handshake = await Validator.getIfExists<In.Handshake>(Collection.HANDSHAKES, "handshake", {
                 _id: args.handshakeId
@@ -629,6 +636,16 @@ export const root: {
                         //CASE: Handshake is in SENT state
                         throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.SENT, Ex.HandshakeState.SEEN, Ex.HandshakeState.ACCEPTED);
                     }
+                    //Decrease the hosted trip's remaining seats by the amount requested by requested trip
+                    const requestedTrip = await Validator.getIfExists<In.RequestedTrip>(Collection.REQUESTED_TRIPS, "requested trip", {
+                        _id: handshake.requestedTripId
+                    });
+                    await Server.db.collection<In.HostedTrip>(Collection.HOSTED_TRIPS).updateOne(
+                        { _id: handshake.hostedTripId },
+                        { 
+                            $inc: { remainingSeats: -requestedTrip.seats }
+                        }
+                    );
                     break;
                 }
 
@@ -762,6 +779,17 @@ export const root: {
                     }
                     //NOTE: Dependant on the handshake's state being INITIATED
                     //NOTE: Since INITIATED state is always present, no need to check for its dependency
+
+                    //Increase the hosted trip's remaining seats by the amount requested by requested trip
+                    const requestedTrip = await Validator.getIfExists<In.RequestedTrip>(Collection.REQUESTED_TRIPS, "requested trip", {
+                        _id: handshake.requestedTripId
+                    });
+                    await Server.db.collection<In.HostedTrip>(Collection.HOSTED_TRIPS).updateOne(
+                        { _id: handshake.hostedTripId },
+                        { 
+                            $inc: { remainingSeats: requestedTrip.seats }
+                        }
+                    );
                     break;
                 }
             }
@@ -785,16 +813,16 @@ export const type: {
     Handshake: TypeResolver<In.Handshake, Ex.Handshake>,
 } = {
     HostedTrip: {
-        route: async (parent, args, ctx, info) => parent.route,
+        route: async (parent, _args, _ctx, _info) => parent.route,
 
-        host: async (parent, args, ctx, info) => {
+        host: async (parent, _args, ctx, _info) => {
             await Authorizer.query(ctx, Module.USERS, Operation.RETRIEVE);
             return await Validator.getIfExists<In.User>(Collection.USERS, "user/host", {
                 _id: parent.hostId
             });
         },
 
-        vehicle: async (parent, args, ctx, info) => {
+        vehicle: async (parent, _args, ctx, _info) => {
             if (parent.vehicleId) {
                 //CASE: vehicleId exists.
                 //User has assigned a saved vehicle. It must be retrieved from database
@@ -809,14 +837,14 @@ export const type: {
             }
         },
 
-        billing: async (parent, args, ctx, info) => {
+        billing: async (parent, _args, _ctx, _info) => {
             return {
                 ...parent.billing,
                 bankAccount: {} as Ex.BankAccount
             }
         },
 
-        hasHandshakes: async (parent, args, ctx, info) => {
+        hasHandshakes: async (parent, _args, ctx, _info) => {
             await Authorizer.query(ctx, Module.HANDSHAKES, Operation.RETRIEVE);
             return Server.db.collection<In.Handshake>(Collection.HANDSHAKES).find({
                 hostedTripId: parent._id,
@@ -825,7 +853,7 @@ export const type: {
     },
 
     TripBilling: {
-        bankAccount: async (parent, args, ctx, info) => {
+        bankAccount: async (parent, _args, ctx, _info) => {
             await Authorizer.query(ctx, Module.BANK_ACCOUNTS, Operation.RETRIEVE);
             return await Validator.getIfExists<In.BankAccount>(Collection.BANK_ACCOUNTS, "bank account", {
                 _id: parent.bankAccountId
@@ -834,16 +862,16 @@ export const type: {
     },
 
     RequestedTrip: {
-        route: async (parent, args, ctx, info) => parent.route,
+        route: async (parent, _args, _ctx, _info) => parent.route,
 
-        requester: async (parent, args, ctx, info) => {
+        requester: async (parent, _args, ctx, _info) => {
             await Authorizer.query(ctx, Module.USERS, Operation.RETRIEVE);
             return await Validator.getIfExists<In.User>(Collection.USERS, "user/requester", {
                 _id: parent.requesterId
             });
         },
 
-        hasHandshakes: async (parent, args, ctx, info) => {
+        hasHandshakes: async (parent, _args, ctx, _info) => {
             await Authorizer.query(ctx, Module.HANDSHAKES, Operation.RETRIEVE);
             return Server.db.collection<In.Handshake>(Collection.HANDSHAKES).find({
                 requestedTripId: parent._id,
@@ -852,28 +880,28 @@ export const type: {
     },
 
     Handshake: {
-        sender: async (parent, args, ctx, info) => {
+        sender: async (parent, _args, ctx, _info) => {
             await Authorizer.query(ctx, Module.USERS, Operation.RETRIEVE);
             return await Validator.getIfExists<In.User>(Collection.USERS, "user/sender", {
                 _id: parent.senderId
             });
         },
 
-        recipient: async (parent, args, ctx, info) => {
+        recipient: async (parent, _args, ctx, _info) => {
             await Authorizer.query(ctx, Module.USERS, Operation.RETRIEVE);
             return await Validator.getIfExists<In.User>(Collection.USERS, "user/recipient", {
                 _id: parent.recipientId
             });
         },
 
-        hostedTrip: async (parent, args, ctx, info) => {
+        hostedTrip: async (parent, _args, ctx, _info) => {
             await Authorizer.query(ctx, Module.HOSTED_TRIPS, Operation.RETRIEVE);
             return await Validator.getIfExists<In.HostedTrip & Ex.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
                 _id: parent.hostedTripId
             });
         },
 
-        requestedTrip: async (parent, args, ctx, info) => {
+        requestedTrip: async (parent, _args, ctx, _info) => {
             await Authorizer.query(ctx, Module.REQUESTED_TRIPS, Operation.RETRIEVE);
             return await Validator.getIfExists<In.RequestedTrip & Ex.RequestedTrip>(Collection.REQUESTED_TRIPS, "requested trip", {
                 _id: parent.requestedTripId
