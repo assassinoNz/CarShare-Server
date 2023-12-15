@@ -74,16 +74,16 @@ export const root: {
         GetMyVehicles: async (_parent, args: Ex.QueryGetMyVehiclesArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.VEHICLES, Operation.RETRIEVE);
             return await Server.db.collection<In.Vehicle>(Collection.VEHICLES).find({ ownerId: me._id })
-                .skip(args.skip || Default.VALUE_SKIP)
-                .limit(args.limit || Default.VALUE_LIMIT)
+                .skip(args.skip ?? Default.VALUE_SKIP)
+                .limit(args.limit ?? Default.VALUE_LIMIT)
                 .toArray();
         },
 
         GetMyBankAccounts: async (_parent, args: Ex.QueryGetMyBankAccountsArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.BANK_ACCOUNTS, Operation.RETRIEVE);
             return await Server.db.collection<In.BankAccount>(Collection.BANK_ACCOUNTS).find({ ownerId: me._id })
-                .skip(args.skip || Default.VALUE_SKIP)
-                .limit(args.limit || Default.VALUE_LIMIT)
+                .skip(args.skip ?? Default.VALUE_SKIP)
+                .limit(args.limit ?? Default.VALUE_LIMIT)
                 .toArray();
         },
 
@@ -96,8 +96,8 @@ export const root: {
                     $gte: args.from || new Date(now.getTime() - Default.FILTER_TIME),
                     $lt: args.to || new Date(now.getTime() + Default.FILTER_TIME)
                 }
-            }).skip(args.skip || Default.VALUE_SKIP)
-                .limit(args.limit || Default.VALUE_LIMIT)
+            }).skip(args.skip ?? Default.VALUE_SKIP)
+                .limit(args.limit ?? Default.VALUE_LIMIT)
                 .toArray();
         },
 
@@ -118,8 +118,8 @@ export const root: {
                     $gte: args.from || new Date(now.getTime() - Default.FILTER_TIME),
                     $lt: args.to || new Date(now.getTime() + Default.FILTER_TIME)
                 }
-            }).skip(args.skip || Default.VALUE_SKIP)
-                .limit(args.limit || Default.VALUE_LIMIT)
+            }).skip(args.skip ?? Default.VALUE_SKIP)
+                .limit(args.limit ?? Default.VALUE_LIMIT)
                 .toArray();
         },
 
@@ -175,8 +175,8 @@ export const root: {
             }
 
             return await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find(filter)
-                .skip(args.skip || Default.VALUE_SKIP)
-                .limit(args.limit || Default.VALUE_LIMIT)
+                .skip(args.skip ?? Default.VALUE_SKIP)
+                .limit(args.limit ?? Default.VALUE_LIMIT)
                 .toArray();
         },
 
