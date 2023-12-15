@@ -449,6 +449,7 @@ export const root: {
                 _id: args.requestedTripId
             });
 
+            const now = new Date();
             const handshakeToBeInserted: In.HandshakeInput = {
                 hostedTripId: args.hostedTripId,
                 requestedTripId: args.requestedTripId,
@@ -469,7 +470,8 @@ export const root: {
                     }
                 },
                 time: {
-                    initiated: new Date()
+                    initiated: now,
+                    sent: now
                 }
             };
 
