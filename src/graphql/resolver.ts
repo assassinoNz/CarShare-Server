@@ -174,8 +174,6 @@ export const root: {
                 }
             }
 
-            console.log(options);
-
             return await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find(options)
                 .skip(args.skip || Default.VALUE_SKIP)
                 .limit(args.limit || Default.VALUE_LIMIT)
