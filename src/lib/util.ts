@@ -4,6 +4,7 @@ import * as wkx from "wkx";
 import * as Error from "./error.js";
 import * as Config from "../../config.js";
 import * as In from "../graphql/internal.js";
+import * as Ex from "../graphql/external.js";
 import { Server } from "./app.js";
 import { ModuleId, OperationIndex, PossibleModule, PossibleOperation } from "./enum.js";
 import { Context, OsrmRoute } from "./interface.js";
@@ -55,6 +56,22 @@ export class Validator {
             ) {
                 throw new Error.InvalidFieldValue(itemType, key, `[${coord[0]}, ${coord[1]}]`, `coordinate is constrained to be [${PostGIS.LAT_BOTTOM} < lat < ${PostGIS.LAT_TOP} , ${PostGIS.LONG_LEFT} < long < ${PostGIS.LONG_RIGHT}]`);
             }
+        }
+    }
+
+    static getNextHandshakeState(currentState: Ex.HandshakeState) {
+        switch (currentState) {
+            case Ex.HandshakeState.INITIATED: return Ex.HandshakeState.SENT;
+            case Ex.HandshakeState.SENT: return Ex.HandshakeState.SEEN;
+            case Ex.HandshakeState.SEEN: return Ex.HandshakeState.ACCEPTED;
+            case Ex.HandshakeState.ACCEPTED: return Ex.HandshakeState.STARTED_REQUESTED_TRIP;
+            case Ex.HandshakeState.STARTED_REQUESTED_TRIP: return Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START;
+            case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START: return Ex.HandshakeState.ENDED_REQUESTED_TRIP;
+            case Ex.HandshakeState.ENDED_REQUESTED_TRIP: return Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END;
+            case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END: return Ex.HandshakeState.DONE_PAYMENT;
+            default: {
+                throw new Error.InvalidFieldValue("handshake", "state", currentState, `${currentState} has no successive states`);
+            };
         }
     }
 }

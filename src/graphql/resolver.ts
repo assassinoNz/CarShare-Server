@@ -169,8 +169,37 @@ export const root: {
 
             if (args.state) {
                 //CASE: Add a filter based on state
+
+                //NOTE: To filter a handshake based on state,
+                //1. If the filtering state itself is not CANCELLED, then there must be no time.cancelled field
+                if (args.state !== Ex.HandshakeState.CANCELLED) {
+                    filter[`time.cancelled`] = {
+                        "$exists": false
+                    };
+                }
+
+                //2. There must be a time filed related to that state
                 filter[`time.${Strings.screamingSnake2Camel(args.state)}`] = {
                     "$exists": true
+                };
+                
+                //2. There must not be a time field related to the successive state
+                //NOTE: DONE_PAYMENT and CANCELLED states don't need this because they don't have successive states
+                switch (args.state) {
+                    case Ex.HandshakeState.INITIATED:
+                    case Ex.HandshakeState.SENT:
+                    case Ex.HandshakeState.SEEN:
+                    case Ex.HandshakeState.ACCEPTED:
+                    case Ex.HandshakeState.STARTED_REQUESTED_TRIP:
+                    case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START:
+                    case Ex.HandshakeState.ENDED_REQUESTED_TRIP:
+                    case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END: {
+                        filter[`time.${Strings.screamingSnake2Camel(Validator.getNextHandshakeState(args.state))}`] = {
+                            "$exists": false
+                        };
+
+                        break;
+                    }
                 }
             }
 
@@ -571,10 +600,12 @@ export const root: {
 
             const result = await Server.db.collection<In.RequestedTrip>(Collection.REQUESTED_TRIPS).updateOne(
                 { _id: hostedTrip._id },
-                { $set: {
-                    [`time.${camelCaseState}`]: new Date(),
-                    [`route.${camelCaseState}`]: args.coord
-                } }
+                {
+                    $set: {
+                        [`time.${camelCaseState}`]: new Date(),
+                        [`route.${camelCaseState}`]: args.coord
+                    }
+                }
             );
             return result.acknowledged;
         },
@@ -601,18 +632,14 @@ export const root: {
 
             switch (args.state) {
                 case Ex.HandshakeState.INITIATED: {
-                    //WANING: Cannot modify INITIATED state
+                    //WANING: Cannot modify INITIATED state because every handshake is initially INITIATED
                     throw new Error.InvalidFieldValue("handshake", "state", args.state, `The ${Ex.HandshakeState.INITIATED} state of a handshake cannot be modified.`);
                 }
 
                 case Ex.HandshakeState.SENT: {
                     //NOTE: Done by sender
-                    if (!handshake.senderId.equals(me._id)) {
-                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.handshakeId.toHexString());
-                    }
-                    //NOTE: Dependant on the handshake's state being INITIATED
-                    //NOTE: Since INITIATED state is always present, no need to check for its dependency
-                    break;
+                    //WANING: Cannot modify SENT state because every handshake is initially SENT
+                    throw new Error.InvalidFieldValue("handshake", "state", args.state, `The ${Ex.HandshakeState.SENT} state of a handshake cannot be modified.`);
                 }
 
                 case Ex.HandshakeState.SEEN: {
@@ -644,7 +671,7 @@ export const root: {
                     });
                     await Server.db.collection<In.HostedTrip>(Collection.HOSTED_TRIPS).updateOne(
                         { _id: handshake.hostedTripId },
-                        { 
+                        {
                             $inc: { remainingSeats: -requestedTrip.seats }
                         }
                     );
@@ -680,11 +707,11 @@ export const root: {
                     //Also update requested trip.time & trip.route.started
                     await Server.db.collection<In.RequestedTrip>(Collection.REQUESTED_TRIPS).updateOne(
                         { _id: handshake.requestedTripId },
-                        { 
-                            $set: { 
+                        {
+                            $set: {
                                 "time.started": new Date(),
                                 "route.started": args.coord
-                            } 
+                            }
                         }
                     );
 
@@ -730,11 +757,11 @@ export const root: {
                     //Also update requested trip.time
                     await Server.db.collection<In.RequestedTrip>(Collection.REQUESTED_TRIPS).updateOne(
                         { _id: handshake.requestedTripId },
-                        { 
-                            $set: { 
+                        {
+                            $set: {
                                 "time.started": new Date(),
                                 "route.started": args.coord
-                            } 
+                            }
                         }
                     );
 
@@ -788,7 +815,7 @@ export const root: {
                     });
                     await Server.db.collection<In.HostedTrip>(Collection.HOSTED_TRIPS).updateOne(
                         { _id: handshake.hostedTripId },
-                        { 
+                        {
                             $inc: { remainingSeats: requestedTrip.seats }
                         }
                     );
@@ -799,7 +826,7 @@ export const root: {
             const fieldToBeUpdated = `time.${camelCaseState}`;
             const result = await Server.db.collection<In.Handshake>(Collection.HANDSHAKES).updateOne(
                 { _id: handshake._id },
-                { 
+                {
                     $set: { [fieldToBeUpdated]: new Date() }
                 }
             );
