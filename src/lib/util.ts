@@ -1,5 +1,5 @@
-import * as pl from "@googlemaps/polyline-codec";
 import * as wkx from "wkx";
+import pl from "@googlemaps/polyline-codec";
 
 import * as Error from "./error.js";
 import * as Config from "../../config.js";

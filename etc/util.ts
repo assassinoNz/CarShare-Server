@@ -6,7 +6,7 @@ import { CharGroup } from "./const.js";
 
 export class Requester {
     static fetch<Input, Output>(url: string, jwt: string, query: string, variables: Input) {
-        return fetch.default(url, {
+        return fetch(url, {
             method: "POST",
             headers: {
                 "Authorization": jwt,
@@ -18,7 +18,7 @@ export class Requester {
             })
         })
             .then(res => res.json())
-            .then(res => {
+            .then((res: any) => {
                 if (res.data) {
                     return res.data.result as Output;
                 } else {
@@ -66,7 +66,7 @@ export class Osrm {
         //NOTE: Deep copy coords because we're reversing each coord
         coords = JSON.parse(JSON.stringify(coords));
 
-        return fetch.default(`${Config.URL_OSRM}/${coords.map(coord => coord.reverse().join(",")).join(";")}?overview=false&steps=true`)
+        return fetch(`${Config.URL_OSRM}/${coords.map(coord => coord.reverse().join(",")).join(";")}?overview=false&steps=true`)
             .then((res: any) => res.json())
             .then((res: any) => res.routes as OsrmRoute[]);
     }
@@ -86,8 +86,8 @@ export class Osrm {
 
 export class Nominatim {
     static geocode(coord: [number, number]) {
-        return fetch.default(`${Config.URL_NOMINATIM}/reverse?format=json&lat=${coord[0]}&lon=${coord[1]}`).then(res => res.json())
-        .then(res => {
+        return fetch(`${Config.URL_NOMINATIM}/reverse?format=json&lat=${coord[0]}&lon=${coord[1]}`).then(res => res.json())
+        .then((res: any) => {
             if (res.error) {
                 throw res.error;
             } else {
