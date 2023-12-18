@@ -232,7 +232,7 @@ export class GraphQLTest {
             });
     }
 
-    static async AddHostedTrips(url: string, jwt: string) {
+    static async AddHostedTrip(url: string, jwt: string) {
         const keyCoords: [number, number][] = [
             [7.091540697723802, 79.9947859108097],//Gampaha
             [7.034742366985356, 80.02610573596573]//Weliveriya
