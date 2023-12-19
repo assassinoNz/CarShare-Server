@@ -178,7 +178,7 @@ export const root: {
                     };
                 }
 
-                //2. There must be a time filed related to that state
+                //2. There must be a time field related to that state
                 filter[`time.${Strings.screamingSnake2Camel(args.state)}`] = {
                     "$exists": true
                 };
@@ -186,14 +186,14 @@ export const root: {
                 //2. There must not be a time field related to the successive state
                 //NOTE: DONE_PAYMENT and CANCELLED states don't need this because they don't have successive states
                 switch (args.state) {
-                    case Ex.HandshakeState.INITIATED:
                     case Ex.HandshakeState.SENT:
                     case Ex.HandshakeState.SEEN:
                     case Ex.HandshakeState.ACCEPTED:
+                    case Ex.HandshakeState.CONFIRMED_ACCEPTED:
                     case Ex.HandshakeState.STARTED_REQUESTED_TRIP:
-                    case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START:
+                    case Ex.HandshakeState.CONFIRMED_STARTED_REQUESTED_TRIP:
                     case Ex.HandshakeState.ENDED_REQUESTED_TRIP:
-                    case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END: {
+                    case Ex.HandshakeState.CONFIRMED_ENDED_REQUESTED_TRIP: {
                         filter[`time.${Strings.screamingSnake2Camel(Validator.getNextHandshakeState(args.state))}`] = {
                             "$exists": false
                         };
@@ -499,7 +499,6 @@ export const root: {
                     }
                 },
                 time: {
-                    initiated: now,
                     sent: now
                 }
             };
@@ -631,11 +630,6 @@ export const root: {
             }
 
             switch (args.state) {
-                case Ex.HandshakeState.INITIATED: {
-                    //WANING: Cannot modify INITIATED state because every handshake is initially INITIATED
-                    throw new Error.InvalidFieldValue("handshake", "state", args.state, `The ${Ex.HandshakeState.INITIATED} state of a handshake cannot be modified.`);
-                }
-
                 case Ex.HandshakeState.SENT: {
                     //NOTE: Done by sender
                     //WANING: Cannot modify SENT state because every handshake is initially SENT
@@ -648,10 +642,7 @@ export const root: {
                         throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.handshakeId.toHexString());
                     }
                     //NOTE: Dependant on the handshake's state being SENT
-                    if (!handshake.time.sent) {
-                        //CASE: Handshake is in INITIATED state
-                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.INITIATED, Ex.HandshakeState.SENT, Ex.HandshakeState.SEEN);
-                    }
+                    //Since SENT is always present, no need to check
                     break;
                 }
 
@@ -678,6 +669,19 @@ export const root: {
                     break;
                 }
 
+                case Ex.HandshakeState.CONFIRMED_ACCEPTED: {
+                    //NOTE: Done by sender
+                    if (!handshake.senderId.equals(me._id)) {
+                        throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.handshakeId.toHexString());
+                    }
+                    //NOTE: Dependant on the handshake's state being ACCEPTED
+                    if (!handshake.time.seen) {
+                        //CASE: Handshake is in SEEN state
+                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.SEEN, Ex.HandshakeState.ACCEPTED, Ex.HandshakeState.CONFIRMED_ACCEPTED);
+                    }
+                    break;
+                }
+
                 case Ex.HandshakeState.STARTED_REQUESTED_TRIP: {
                     //Validate coord
                     if (!args.coord) {
@@ -698,10 +702,10 @@ export const root: {
                         throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), `NOT ${In.HandshakeState.STARTED_HOSTED_TRIP}`, In.HandshakeState.STARTED_HOSTED_TRIP, Ex.HandshakeState.STARTED_REQUESTED_TRIP);
                     }
 
-                    //NOTE: Dependant on the handshake's state being ACCEPTED
+                    //NOTE: Dependant on the handshake's state being CONFIRMED_ACCEPTED
                     if (!handshake.time.accepted) {
-                        //CASE: Handshake is in SEEN state
-                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.SEEN, Ex.HandshakeState.ACCEPTED, Ex.HandshakeState.STARTED_REQUESTED_TRIP);
+                        //CASE: Handshake is in ACCEPTED state
+                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.ACCEPTED, Ex.HandshakeState.CONFIRMED_ACCEPTED, Ex.HandshakeState.STARTED_REQUESTED_TRIP);
                     }
 
                     //Also update requested trip.time & trip.route.started
@@ -718,7 +722,7 @@ export const root: {
                     break;
                 }
 
-                case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START: {
+                case Ex.HandshakeState.CONFIRMED_STARTED_REQUESTED_TRIP: {
                     //NOTE: Done by requester
                     const requestedTrip = await Validator.getIfExists<In.RequestedTrip>(Collection.REQUESTED_TRIPS, "requested trip", {
                         _id: handshake.requestedTripId
@@ -729,7 +733,7 @@ export const root: {
                     //NOTE: Dependant on the handshake's state being STARTED_REQUESTED_TRIP
                     if (!handshake.time.startedRequestedTrip) {
                         //CASE: Handshake is in ACCEPTED state
-                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.ACCEPTED, Ex.HandshakeState.STARTED_REQUESTED_TRIP, Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START);
+                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.ACCEPTED, Ex.HandshakeState.STARTED_REQUESTED_TRIP, Ex.HandshakeState.CONFIRMED_STARTED_REQUESTED_TRIP);
                     }
                     break;
                 }
@@ -751,7 +755,7 @@ export const root: {
                     //NOTE: Dependant on the handshake's state being CONFIRMED_REQUESTED_TRIP_START
                     if (!handshake.time.confirmedRequestedTripStart) {
                         //CASE: Handshake is in STARTED_REQUESTED_TRIP state
-                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.STARTED_REQUESTED_TRIP, Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START, Ex.HandshakeState.ENDED_REQUESTED_TRIP);
+                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.STARTED_REQUESTED_TRIP, Ex.HandshakeState.CONFIRMED_STARTED_REQUESTED_TRIP, Ex.HandshakeState.ENDED_REQUESTED_TRIP);
                     }
 
                     //Also update requested trip.time
@@ -768,7 +772,7 @@ export const root: {
                     break;
                 }
 
-                case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END: {
+                case Ex.HandshakeState.CONFIRMED_ENDED_REQUESTED_TRIP: {
                     //NOTE: Done by host
                     const hostedTrip = await Validator.getIfExists<In.HostedTrip>(Collection.HOSTED_TRIPS, "hosted trip", {
                         _id: handshake.hostedTripId
@@ -779,7 +783,7 @@ export const root: {
                     //NOTE: Dependant on the handshake's state being ENDED_REQUESTED_TRIP
                     if (!handshake.time.endedRequestedTrip) {
                         //CASE: Handshake is in CONFIRMED_REQUESTED_TRIP_START state
-                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START, Ex.HandshakeState.ENDED_REQUESTED_TRIP, Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END);
+                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.CONFIRMED_STARTED_REQUESTED_TRIP, Ex.HandshakeState.ENDED_REQUESTED_TRIP, Ex.HandshakeState.CONFIRMED_ENDED_REQUESTED_TRIP);
                     }
                     break;
                 }
@@ -795,7 +799,7 @@ export const root: {
                     //NOTE: Dependant on the handshake's state being CONFIRMED_REQUESTED_TRIP_END
                     if (!handshake.time.confirmedRequestedTripEnd) {
                         //CASE: Handshake is in ENDED_REQUESTED_TRIP state
-                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.ENDED_REQUESTED_TRIP, Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END, Ex.HandshakeState.DONE_PAYMENT);
+                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.ENDED_REQUESTED_TRIP, Ex.HandshakeState.CONFIRMED_ENDED_REQUESTED_TRIP, Ex.HandshakeState.DONE_PAYMENT);
                     }
                     break;
                 }

@@ -61,14 +61,14 @@ export class Validator {
 
     static getNextHandshakeState(currentState: Ex.HandshakeState) {
         switch (currentState) {
-            case Ex.HandshakeState.INITIATED: return Ex.HandshakeState.SENT;
             case Ex.HandshakeState.SENT: return Ex.HandshakeState.SEEN;
             case Ex.HandshakeState.SEEN: return Ex.HandshakeState.ACCEPTED;
-            case Ex.HandshakeState.ACCEPTED: return Ex.HandshakeState.STARTED_REQUESTED_TRIP;
-            case Ex.HandshakeState.STARTED_REQUESTED_TRIP: return Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START;
-            case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_START: return Ex.HandshakeState.ENDED_REQUESTED_TRIP;
-            case Ex.HandshakeState.ENDED_REQUESTED_TRIP: return Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END;
-            case Ex.HandshakeState.CONFIRMED_REQUESTED_TRIP_END: return Ex.HandshakeState.DONE_PAYMENT;
+            case Ex.HandshakeState.ACCEPTED: return Ex.HandshakeState.CONFIRMED_ACCEPTED;
+            case Ex.HandshakeState.CONFIRMED_ACCEPTED: return Ex.HandshakeState.STARTED_REQUESTED_TRIP;
+            case Ex.HandshakeState.STARTED_REQUESTED_TRIP: return Ex.HandshakeState.CONFIRMED_STARTED_REQUESTED_TRIP;
+            case Ex.HandshakeState.CONFIRMED_STARTED_REQUESTED_TRIP: return Ex.HandshakeState.ENDED_REQUESTED_TRIP;
+            case Ex.HandshakeState.ENDED_REQUESTED_TRIP: return Ex.HandshakeState.CONFIRMED_ENDED_REQUESTED_TRIP;
+            case Ex.HandshakeState.CONFIRMED_ENDED_REQUESTED_TRIP: return Ex.HandshakeState.DONE_PAYMENT;
             default: {
                 throw new Error.InvalidFieldValue("handshake", "state", currentState, `${currentState} has no successive states`);
             };
