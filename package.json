@@ -27,6 +27,7 @@
         "wkx": "^0.5.0"
     },
     "scripts": {
+        "prestart": "tsc --noEmit",
         "start": "tsx index.ts",
         "test": "tsx test.ts"
     }
