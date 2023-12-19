@@ -186,7 +186,7 @@ export const root: {
                 //2. There must not be a time field related to the successive state
                 //NOTE: DONE_PAYMENT and CANCELLED states don't need this because they don't have successive states
                 switch (args.state) {
-                    case Ex.HandshakeState.SENT:
+                    case Ex.HandshakeState.INITIATED:
                     case Ex.HandshakeState.SEEN:
                     case Ex.HandshakeState.ACCEPTED:
                     case Ex.HandshakeState.CONFIRMED_ACCEPTED:
@@ -499,7 +499,7 @@ export const root: {
                     }
                 },
                 time: {
-                    sent: now
+                    initiated: now
                 }
             };
 
@@ -630,10 +630,10 @@ export const root: {
             }
 
             switch (args.state) {
-                case Ex.HandshakeState.SENT: {
+                case Ex.HandshakeState.INITIATED: {
                     //NOTE: Done by sender
                     //WANING: Cannot modify SENT state because every handshake is initially SENT
-                    throw new Error.InvalidFieldValue("handshake", "state", args.state, `The ${Ex.HandshakeState.SENT} state of a handshake cannot be modified.`);
+                    throw new Error.InvalidFieldValue("handshake", "state", args.state, `The ${Ex.HandshakeState.INITIATED} state of a handshake cannot be modified.`);
                 }
 
                 case Ex.HandshakeState.SEEN: {
@@ -654,7 +654,7 @@ export const root: {
                     //NOTE: Dependant on the handshake's state being SEEN
                     if (!handshake.time.seen) {
                         //CASE: Handshake is in SENT state
-                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.SENT, Ex.HandshakeState.SEEN, Ex.HandshakeState.ACCEPTED);
+                        throw new Error.InvalidItemState("handshake", "_id", args.handshakeId.toHexString(), Ex.HandshakeState.INITIATED, Ex.HandshakeState.SEEN, Ex.HandshakeState.ACCEPTED);
                     }
                     //Decrease the hosted trip's remaining seats by the amount requested by requested trip
                     const requestedTrip = await Validator.getIfExists<In.RequestedTrip>(Collection.REQUESTED_TRIPS, "requested trip", {

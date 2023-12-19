@@ -61,7 +61,7 @@ export class Validator {
 
     static getNextHandshakeState(currentState: Ex.HandshakeState) {
         switch (currentState) {
-            case Ex.HandshakeState.SENT: return Ex.HandshakeState.SEEN;
+            case Ex.HandshakeState.INITIATED: return Ex.HandshakeState.SEEN;
             case Ex.HandshakeState.SEEN: return Ex.HandshakeState.ACCEPTED;
             case Ex.HandshakeState.ACCEPTED: return Ex.HandshakeState.CONFIRMED_ACCEPTED;
             case Ex.HandshakeState.CONFIRMED_ACCEPTED: return Ex.HandshakeState.STARTED_REQUESTED_TRIP;

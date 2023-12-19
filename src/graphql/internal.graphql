@@ -296,7 +296,7 @@ input RequestedTripRouteInput {
 
 #HANDSHAKE======================================
 enum HandshakeState {
-    SENT #Done by sender
+    INITIATED #Done by sender
     SEEN #Done by recipient
     ACCEPTED #Done by recipient
     CONFIRMED_ACCEPTED #Done by sender
@@ -337,7 +337,6 @@ type Payment {
 
 type HandshakeTime {
     initiated: Date!
-    sent: Date
     seen: Date
     accepted: Date
     startedRequestedTrip: Date

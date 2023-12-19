@@ -68,8 +68,8 @@ export enum HandshakeState {
   DONE_PAYMENT = 'DONE_PAYMENT',
   ENDED_HOSTED_TRIP = 'ENDED_HOSTED_TRIP',
   ENDED_REQUESTED_TRIP = 'ENDED_REQUESTED_TRIP',
+  INITIATED = 'INITIATED',
   SEEN = 'SEEN',
-  SENT = 'SENT',
   STARTED_HOSTED_TRIP = 'STARTED_HOSTED_TRIP',
   STARTED_REQUESTED_TRIP = 'STARTED_REQUESTED_TRIP'
 }
@@ -84,7 +84,6 @@ export type HandshakeTime = {
   initiated: Scalars['Date']['output'];
   paymentDone?: Maybe<Scalars['Date']['output']>;
   seen?: Maybe<Scalars['Date']['output']>;
-  sent?: Maybe<Scalars['Date']['output']>;
   startedRequestedTrip?: Maybe<Scalars['Date']['output']>;
 };
 
