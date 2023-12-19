@@ -45,6 +45,7 @@ export type Handshake = {
   rating: TripRating;
   recipientId: Scalars['ObjectId']['output'];
   requestedTripId: Scalars['ObjectId']['output'];
+  route: HandshakeRoute;
   senderId: Scalars['ObjectId']['output'];
   time: HandshakeTime;
 };
@@ -55,8 +56,15 @@ export type HandshakeInput = {
   rating: TripRating;
   recipientId: Scalars['ObjectId']['input'];
   requestedTripId: Scalars['ObjectId']['input'];
+  route: HandshakeRoute;
   senderId: Scalars['ObjectId']['input'];
   time: HandshakeTime;
+};
+
+export type HandshakeRoute = {
+  __typename?: 'HandshakeRoute';
+  intersectEndWkb: Scalars['String']['output'];
+  intersectStartWkb: Scalars['String']['output'];
 };
 
 export enum HandshakeState {

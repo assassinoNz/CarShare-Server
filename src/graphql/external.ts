@@ -46,8 +46,15 @@ export type Handshake = {
   rating: TripRating;
   recipient: User;
   requestedTrip: RequestedTrip;
+  route: HandshakeRoute;
   sender: User;
   time: HandshakeTime;
+};
+
+export type HandshakeRoute = {
+  __typename?: 'HandshakeRoute';
+  intersectEndWkb: Scalars['String']['output'];
+  intersectStartWkb: Scalars['String']['output'];
 };
 
 export enum HandshakeState {

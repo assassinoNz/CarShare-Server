@@ -500,6 +500,10 @@ export const root: {
                 },
                 time: {
                     initiated: now
+                },
+                route: {
+                    intersectStartWkb: "", //NOTE: Will be calculated later
+                    intersectEndWkb: "" //NOTE: Will be calculated later
                 }
             };
 
@@ -526,6 +530,11 @@ export const root: {
                 //CASE: None of the trips belong to me
                 throw new Error.ItemNotAccessibleByUser("hosted trip/requested trip", "_id", `${args.hostedTripId.toString()}/${args.requestedTripId.toString()}`);
             }
+
+            //Update intersectWkb values to proper values
+            handshakeToBeInserted.route.intersectStartWkb = await PostGIS.calculateIntersectionPoints(hostedTrip.route.keyCoords[0] as [number, number], Default.PROXIMITY_RADIUS, hostedTrip.route.polyLines);
+
+            handshakeToBeInserted.route.intersectEndWkb = await PostGIS.calculateIntersectionPoints(hostedTrip.route.keyCoords[hostedTrip.route.keyCoords.length - 1] as [number, number], Default.PROXIMITY_RADIUS, hostedTrip.route.polyLines);
 
             const result = await Server.db.collection<In.HandshakeInput>(Collection.HANDSHAKES).insertOne(handshakeToBeInserted);
             if (!result.acknowledged) {

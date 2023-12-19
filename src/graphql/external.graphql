@@ -283,6 +283,11 @@ input RequestedTripRouteInput {
     keyCoords: [[Float!]!]! @constraint(minItems: 2) #[[lat, long]]
 }
 
+type HandshakeRoute {
+    intersectStartWkb: String!
+    intersectEndWkb: String!
+}
+
 #HANDSHAKE======================================
 enum HandshakeState {
     INITIATED #Done by sender
@@ -308,6 +313,7 @@ type Handshake {
     payment: Payment!
     rating: TripRating!
     time: HandshakeTime!
+    route: HandshakeRoute!
 }
 
 type Payment {

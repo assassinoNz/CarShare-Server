@@ -294,6 +294,11 @@ input RequestedTripRouteInput {
     tileOverlapIndex: String!
 }
 
+type HandshakeRoute {
+    intersectStartWkb: String!
+    intersectEndWkb: String!
+}
+
 #HANDSHAKE======================================
 enum HandshakeState {
     INITIATED #Done by sender
@@ -319,6 +324,7 @@ type Handshake {
     payment: Payment!
     rating: TripRating!
     time: HandshakeTime!
+    route: HandshakeRoute!
 }
 
 input HandshakeInput {
@@ -329,6 +335,7 @@ input HandshakeInput {
     payment: Payment!
     rating: TripRating!
     time: HandshakeTime!
+    route: HandshakeRoute!
 }
 
 type Payment {

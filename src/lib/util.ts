@@ -222,8 +222,24 @@ export class PostGIS {
             ) AS intersects;
         `;
 
-        const result = await Server.postgresDriver.query(query)
+        const result = await Server.postgresDriver.query(query);
         return result.rows[0].intersects as boolean;
+    }
+
+    static async calculateIntersectionPoints(coord: [number, number], proximityRadius: number, polyLines: string[]) {
+        const query = `
+            WITH circle AS (
+                SELECT ST_ExteriorRing(ST_Buffer(ST_GeomFromText('${this.makePointString(coord)}'), ${proximityRadius})) AS geom
+            )
+            SELECT ST_Intersection(
+                circle.geom,
+                ST_GeomFromText('${this.makeLineString(polyLines)}')
+            ) AS intersection_wkb
+            FROM circle;
+        `;
+    
+        const result = await Server.postgresDriver.query(query);
+        return result.rows[0].intersection_wkb as string;
     }
 }
 
