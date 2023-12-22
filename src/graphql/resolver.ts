@@ -134,52 +134,45 @@ export const root: {
         GetMyHandshakes: async (_parent, args: Ex.QueryGetMyHandshakesArgs, ctx, _info) => {
             const me = await Authorizer.query(ctx, Module.HANDSHAKES, Operation.RETRIEVE);
 
-            const filter: Filter<In.Handshake & Ex.Handshake> = {};
-
+            const sentFilter: Filter<In.Handshake & Ex.Handshake> = {};
             if (args.sent === true) {
                 //CASE: Filter handshakes sent by me
-                filter.senderId = me._id;
+                sentFilter.senderId = me._id;
             } else if (args.sent === false) {
                 //CASE: Filter handshakes received by me
-                filter.recipientId = me._id;
+                sentFilter.recipientId = me._id;
             } else {
                 //CASE: Retrieve everything either sent or received by me
-                if (!filter["$or"]) {
-                    filter["$or"] = [];
-                }
-
-                filter["$or"].push(
+                sentFilter.$or = [
                     { senderId: me._id },
                     { recipientId: me._id }
-                );
+                ];
             }
 
+            const tripIdFilter: Filter<In.Handshake & Ex.Handshake> = {};
             if (args.tripId) {
                 //NOTE: tripId could be a hostedTripId or a requestedTripId
                 //CASE: Retrieve the handshake where hostedTripId=tripId or requestedTripId=tripId
-                if (!filter["$or"]) {
-                    filter["$or"] = [];
-                }
-
-                filter["$or"].push(
+                tripIdFilter.$or = [
                     { hostedTripId: args.tripId },
                     { requestedTripId: args.tripId }
-                );
+                ];
             }
 
+            const stateFilter: Filter<In.Handshake & Ex.Handshake> = {};
             if (args.state) {
                 //CASE: Add a filter based on state
 
                 //NOTE: To filter a handshake based on state,
                 //1. If the filtering state itself is not CANCELLED, then there must be no time.cancelled field
                 if (args.state !== Ex.HandshakeState.CANCELLED) {
-                    filter[`time.cancelled`] = {
+                    stateFilter[`time.cancelled`] = {
                         "$exists": false
                     };
                 }
 
                 //2. There must be a time field related to that state
-                filter[`time.${Strings.screamingSnake2Camel(args.state)}`] = {
+                stateFilter[`time.${Strings.screamingSnake2Camel(args.state)}`] = {
                     "$exists": true
                 };
                 
@@ -194,7 +187,7 @@ export const root: {
                     case Ex.HandshakeState.CONFIRMED_STARTED_REQUESTED_TRIP:
                     case Ex.HandshakeState.ENDED_REQUESTED_TRIP:
                     case Ex.HandshakeState.CONFIRMED_ENDED_REQUESTED_TRIP: {
-                        filter[`time.${Strings.screamingSnake2Camel(Validator.getNextHandshakeState(args.state))}`] = {
+                        stateFilter[`time.${Strings.screamingSnake2Camel(Validator.getNextHandshakeState(args.state))}`] = {
                             "$exists": false
                         };
 
@@ -202,9 +195,10 @@ export const root: {
                     }
                 }
             }
-
-            return await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find(filter)
-                .skip(args.skip ?? Default.VALUE_SKIP)
+            
+            return await Server.db.collection<In.Handshake & Ex.Handshake>(Collection.HANDSHAKES).find({
+                $and: [sentFilter, tripIdFilter, stateFilter]
+            }).skip(args.skip ?? Default.VALUE_SKIP)
                 .limit(args.limit ?? Default.VALUE_LIMIT)
                 .toArray();
         },
