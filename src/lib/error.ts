@@ -114,7 +114,7 @@ export class InvalidItemState extends GraphQLError {
                 title: `The subjected to modification is in invalid state`,
                 suggestion: `Try to bring it to a valid state before performing the operation`,
                 description: `The ${itemType} with ${key} set to ${keyValue} needs to be in ${neededState} state to be transitioned to ${toState}.`,
-                code: `INVALID_FIELD_VALUE`
+                code: `INVALID_ITEM_STATE`
             }
         });
     }
