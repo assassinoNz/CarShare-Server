@@ -295,8 +295,8 @@ input RequestedTripRouteInput {
 }
 
 type HandshakeRoute {
-    intersectStartWkb: String!
-    intersectEndWkb: String!
+    intersectStartCoords: [[Float!]]!
+    intersectEndCoords: [[Float!]]!
 }
 
 #HANDSHAKE======================================
