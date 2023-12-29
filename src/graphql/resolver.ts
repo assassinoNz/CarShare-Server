@@ -809,7 +809,7 @@ export const root: {
 
                 case Ex.HandshakeState.CANCELLED: {
                     //NOTE: Done by host/recipient
-                    if (!handshake.senderId.equals(me._id) || !handshake.recipientId.equals(me._id)) {
+                    if (!(handshake.senderId.equals(me._id) || handshake.recipientId.equals(me._id))) {
                         //CASE: I'm not either host or recipient
                         throw new Error.ItemNotAccessibleByUser("handshake", "_id", args.handshakeId.toHexString());
                     }
