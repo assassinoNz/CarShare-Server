@@ -265,6 +265,18 @@ export const root: {
                     continue;
                 }
 
+                //Check if requested trip has any accepted handshakes
+                const requestedTripHandshakes = Server.db.collection<In.Handshake>(Collection.HANDSHAKES).find({
+                    requestedTripId: requestedTrip._id,
+                    "time.accepted": { $exists: true },
+                    "time.cancelled": { $exists: false },
+                });
+
+                if (await requestedTripHandshakes.hasNext()) {
+                    //CASE: Requested trip already has an accepted handshake
+                    continue;
+                }
+
                 //Try to match vehicle features
                 for (const featureKey of Object.keys(requestedTrip.vehicleFeatures) as (keyof In.VehicleFeatures)[]) {
                     if (typeof requestedTrip.vehicleFeatures[featureKey] === "boolean") {
