@@ -1,10 +1,9 @@
-import * as wkx from "wkx";
-import pl from "@googlemaps/polyline-codec";
-
+import * as Wkx from "wkx";
 import * as Error from "./error.js";
-import * as Config from "../../config.js";
+import * as Config from "../config.js";
 import * as In from "../graphql/internal.js";
 import * as Ex from "../graphql/external.js";
+import Pl from "@googlemaps/polyline-codec";
 import { Server } from "./app.js";
 import { ModuleId, OperationIndex, PossibleModule, PossibleOperation } from "./enum.js";
 import { Context, OsrmRoute } from "./interface.js";
@@ -123,7 +122,7 @@ export class PostGIS {
 
         const stringifiedCoords: string[] = [];
         for (const polyLine of polyLines) {
-            const coords = pl.decode(polyLine);
+            const coords = Pl.decode(polyLine);
 
             if (coords.length > 1) {
                 for (const coord of coords) {
@@ -139,7 +138,7 @@ export class PostGIS {
     }
 
     private static wkb2Coords(wkbEncoding: string) {
-        const geometry = wkx.Geometry.parse(Buffer.from(wkbEncoding, "hex"));
+        const geometry = Wkx.Geometry.parse(Buffer.from(wkbEncoding, "hex"));
 
         const coords: number[][] = [];
         //@ts-ignore
@@ -156,7 +155,7 @@ export class PostGIS {
     }
 
     private static wkb2Polyline(wkbEncoding: string) {
-        return pl.encode(this.wkb2Coords(wkbEncoding));
+        return Pl.encode(this.wkb2Coords(wkbEncoding));
     }
 
     static async calculateRouteMatchResult(mainRoutePolyLines: string[], secondaryRoutePolyLines: string[]) {

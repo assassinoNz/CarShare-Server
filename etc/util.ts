@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 import * as GraphQLType from "./graphql.js";
 import * as Config from "../config.js";
-import { OsrmRoute } from "../src/lib/interface.js";
+import { OsrmRoute } from "../src/interface.js";
 import { CharGroup } from "./const.js";
 
 export class Requester {

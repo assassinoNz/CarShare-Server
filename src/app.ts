@@ -1,27 +1,25 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-
-import express from "express";
-import cors from "cors";
-import redis from "redis";
-import JWTR from "jwt-redis";
-import pg from "pg";
+import * as Config from "../config.js";
+import * as In from "../graphql/internal.js";
+import Express from "express";
+import Cors from "cors";
+import Redis from "redis";
+import Jwtr from "jwt-redis";
+import Pg from "pg";
+import GqlConstraint from "graphql-constraint-directive/apollo4.js";
 import { Db, MongoClient, ObjectId } from "mongodb";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
-import gqlConstraint from "graphql-constraint-directive/apollo4.js";
-
-import * as Config from "../../config.js";
-import * as In from "../graphql/internal.js";
 import { Context, JwtPayload } from "./interface.js";
-import { osrm, nominatim } from "../rest/resolver.js";
-import { scalar, root, type } from "../graphql/resolver.js";
+import { Osrm, Nominatim } from "../rest/resolver.js";
+import { Scalar, Root, Type } from "../graphql/resolver.js";
 
 export class Server {
     static readonly cwd = new URL(".", import.meta.url).pathname;
 
     //PostgresSQL
-    static readonly postgresDriver = new pg.Client({
+    static readonly postgresDriver = new Pg.Client({
         host: Config.HOST_POSTGRES,
         user: Config.USER_POSTGRES,
         password: Config.PASSWORD_POSTGRES,
@@ -34,24 +32,26 @@ export class Server {
     static db: Db;
 
     //Redis & Jwtr
-    private static readonly redisDriver = redis.createClient();
+    private static readonly redisDriver = Redis.createClient();
     static jwtr: any = null;
 
     //Express
-    static readonly express = express();
+    static readonly express = Express();
 
     //Apollo
     static readonly apollo = new ApolloServer({
         includeStacktraceInErrorResponses: false,
-        typeDefs: [gqlConstraint.constraintDirectiveTypeDefsGql, fs.readFileSync(path.resolve(this.cwd + "/../graphql/external.graphql"), "utf-8")],
+        typeDefs: [
+            GqlConstraint.constraintDirectiveTypeDefsGql,
+            fs.readFileSync(path.resolve(this.cwd + "/../graphql/external.graphql"), "utf-8")
+        ],
         resolvers: {
-            ...scalar,
-            ...root,
-            ...type
+            ...Scalar,
+            ...Root,
+            ...Type
         },
         plugins: [
-            //@ts-ignore
-            gqlConstraint.createApollo4QueryValidationPlugin({})
+            GqlConstraint.createApollo4QueryValidationPlugin({})
         ]
     });
 
@@ -96,7 +96,7 @@ export class Server {
         try {
             await this.redisDriver.connect();
             //@ts-ignore
-            this.jwtr = new JWTR.default(this.redisDriver);
+            this.jwtr = new Jwtr.default(this.redisDriver);
             console.log({
                 component: "Redis Driver",
                 status: true,
@@ -116,7 +116,7 @@ export class Server {
         await this.apollo.start();
 
         //Bind Apollo server
-        this.express.use("/graphql", cors(), express.json(), expressMiddleware(this.apollo, {
+        this.express.use("/graphql", Cors(), Express.json(), expressMiddleware(this.apollo, {
             context: async ({ req, res: _res }): Promise<Context> => {
                 //Get JWT token from the header or make it empty
                 const token = req.headers.authorization || "";
@@ -138,13 +138,13 @@ export class Server {
         }));
 
         //Bind static assets
-        this.express.use("/", express.static("public"));
+        this.express.use("/", Express.static("public"));
 
         //Bind OSRM
-        this.express.use("/osrm/route/v1/driving/:keyCoords", osrm.CalculatePossibleRoutes);
+        this.express.use("/osrm/route/v1/driving/:keyCoords", Osrm.CalculatePossibleRoutes);
 
         //Bind Nominatim
-        this.express.use("/nominatim/search", nominatim.SearchForCoords);
+        this.express.use("/nominatim/search", Nominatim.SearchForCoords);
     }
 
     static async start() {

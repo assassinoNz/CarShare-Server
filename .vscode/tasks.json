@@ -4,14 +4,14 @@
         {
             "type": "shell",
             "command": "npm start",
-            "label": "Run with tsx",
+            "label": "run: tsx",
             "problemMatcher": []
         },
         {
             "type": "shell",
             "group": "build",
-            "command": "./node_modules/.bin/graphql-codegen --config etc/codegen.yml",
-            "label": "Generate schema types",
+            "command": "./node_modules/.bin/graphql-codegen --config graphql/codegen.ts",
+            "label": "build: graphql-codegen",
             "problemMatcher": []
         }
     ]
