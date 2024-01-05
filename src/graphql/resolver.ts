@@ -360,7 +360,7 @@ export const root: {
             );
         },
 
-        UpdateGenericUser: async (_parent, args: Ex.MutationUpdateGenericUserArgs, ctx, _info) => {
+        UpdateMe: async (_parent, args: Ex.MutationUpdateMeArgs, ctx, _info) => {
             const me = Authorizer.me(ctx);
             if (!args.userId.equals(me._id)) {
                 throw new Error.ItemNotAccessibleByUser("user", "_id", args.userId.toHexString());

@@ -139,9 +139,9 @@ export type Mutation = {
   CreateGenericUser: Scalars['String']['output'];
   InitHandshake: Scalars['ObjectId']['output'];
   SignIn: Scalars['String']['output'];
-  UpdateGenericUser: Scalars['Int']['output'];
   UpdateHandshakeState: Scalars['Boolean']['output'];
   UpdateHostedTripState: Scalars['Boolean']['output'];
+  UpdateMe: Scalars['Int']['output'];
 };
 
 
@@ -182,12 +182,6 @@ export type MutationSignInArgs = {
 };
 
 
-export type MutationUpdateGenericUserArgs = {
-  user: UserUpdate;
-  userId: Scalars['ObjectId']['input'];
-};
-
-
 export type MutationUpdateHandshakeStateArgs = {
   coord?: InputMaybe<Array<Scalars['Float']['input']>>;
   handshakeId: Scalars['ObjectId']['input'];
@@ -199,6 +193,12 @@ export type MutationUpdateHostedTripStateArgs = {
   coord: Array<Scalars['Float']['input']>;
   hostedTripId: Scalars['ObjectId']['input'];
   state: TripState;
+};
+
+
+export type MutationUpdateMeArgs = {
+  user: UserUpdate;
+  userId: Scalars['ObjectId']['input'];
 };
 
 export type Payment = {

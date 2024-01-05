@@ -40,7 +40,7 @@ type Mutation {
 
     CreateGenericUser(user: UserInput!): String!
 
-    UpdateGenericUser(
+    UpdateMe(
         userId: ObjectId!
         user: UserUpdate!
     ): Int!
