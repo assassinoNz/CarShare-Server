@@ -1,10 +1,16 @@
 {
     "cSpell.words": [
         "BSON",
+        "codegen",
+        "googlemaps",
         "jwtr",
+        "linebreak",
         "LINESTRING",
         "mongosh",
         "Nominatim",
-        "Osrm"
+        "Osrm",
+        "polyline",
+        "prestart",
+        "upserted"
     ]
 }

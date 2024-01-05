@@ -10,7 +10,7 @@
         {
             "type": "shell",
             "group": "build",
-            "command": "./node_modules/.bin/graphql-codegen --config graphql/codegen.ts",
+            "command": "npm run build",
             "label": "build: graphql-codegen",
             "problemMatcher": []
         }
