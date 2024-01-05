@@ -1,13 +1,11 @@
 import * as crypto from "crypto";
-
-import { Filter, ObjectId } from "mongodb";
-import { GraphQLError, GraphQLScalarType, Kind } from "graphql";
-
 import * as Config from "../../config.js";
 import * as Default from "../lib/default.js";
 import * as Error from "../lib/error.js";
 import * as In from "./internal.js";
 import * as Ex from "./external.js";
+import { Filter, ObjectId } from "mongodb";
+import { GraphQLError, GraphQLScalarType, Kind } from "graphql";
 import { Server } from "../lib/app.js";
 import { Collection, Module, Operation } from "../lib/enum.js";
 import { JwtPayload, TypeResolver, RootResolver } from "../lib/interface.js";
@@ -17,18 +15,21 @@ export const scalar = {
     ObjectId: new GraphQLScalarType<ObjectId | null, string>({
         name: "ObjectId",
         description: "The GraphQL frontend for BSON.ObjectId from MongoDB",
+
         serialize(value) {
             if (value instanceof ObjectId) {
                 return value.toHexString();
             }
             throw new GraphQLError(`Couldn't serialize "${value}". Make sure the value provided is an instance of ObjectId`);
         },
+
         parseValue(value) {
             if (typeof value === "string") {
                 return new ObjectId(value);
             }
             throw new GraphQLError(`Couldn't parse "${value}" to ObjectId. Make sure the value provided is of type string`);
         },
+
         parseLiteral(valueNode) {
             if (valueNode.kind === Kind.STRING) {
                 return new ObjectId(valueNode.value)
@@ -40,18 +41,21 @@ export const scalar = {
     Date: new GraphQLScalarType<Date | null, number>({
         name: "Date",
         description: "Date custom scalar type",
+
         serialize(value) {
             if (value instanceof Date) {
                 return value.getTime();
             }
             throw new GraphQLError(`Couldn't serialize "${value}". Make sure the value provided is an instance of Date`);
         },
+
         parseValue(value) {
             if (typeof value === "number") {
                 return new Date(value);
             }
             throw new GraphQLError(`Couldn't parse "${value}" to Date. Make sure the value provided is of type integer`);
         },
+
         parseLiteral(ast) {
             if (ast.kind === Kind.INT) {
                 return new Date(parseInt(ast.value, 10));
@@ -306,6 +310,23 @@ export const root: {
     },
 
     Mutation: {
+        SignIn: async (_parent, args: Ex.MutationSignInArgs, _ctx, _info) => {
+            const item = await Validator.getIfActive<In.User>(Collection.USERS, "user", {
+                mobile: args.mobile
+            });
+
+            const generatedHash = crypto.createHash("sha1").update(args.password).digest("hex");
+            if (generatedHash !== item.secret!.hash) {
+                throw new Error.PasswordMismatch(args.mobile);
+            }
+
+            return await Server.jwtr.sign(
+                { userId: item._id.toHexString() } as JwtPayload,
+                Config.SECRET_JWT,
+                { expiresIn: "7d" }
+            );
+        },
+
         CreateGenericUser: async (_parent, args: Ex.MutationCreateGenericUserArgs, _ctx, _info) => {
             const result = await Server.db.collection<In.UserInput>(Collection.USERS).insertOne({
                 ...args.user,
@@ -339,21 +360,25 @@ export const root: {
             );
         },
 
-        SignIn: async (_parent, args: Ex.MutationSignInArgs, _ctx, _info) => {
-            const item = await Validator.getIfActive<In.User>(Collection.USERS, "user", {
-                mobile: args.mobile
-            });
-
-            const generatedHash = crypto.createHash("sha1").update(args.password).digest("hex");
-            if (generatedHash !== item.secret!.hash) {
-                throw new Error.PasswordMismatch(args.mobile);
+        UpdateGenericUser: async (_parent, args: Ex.MutationUpdateGenericUserArgs, ctx, _info) => {
+            const me = Authorizer.me(ctx);
+            if (!args.userId.equals(me._id)) {
+                throw new Error.ItemNotAccessibleByUser("user", "_id", args.userId.toHexString());
             }
 
-            return await Server.jwtr.sign(
-                { userId: item._id.toHexString() } as JwtPayload,
-                Config.SECRET_JWT,
-                { expiresIn: "7d" }
+            if (args.user.currentCoord) {
+                Validator.validateCoords([args.user.currentCoord], "user", "currentCoord");
+            }
+
+            const result = await Server.db.collection<In.UserUpdate>(Collection.USERS).updateOne(
+                {_id: args.userId},
+                { $set: args.user }
             );
+            if (!result.acknowledged) {
+                throw new Error.CouldNotPerformOperation(Module.USERS, Operation.CREATE);
+            }
+
+            return result.upsertedCount;
         },
 
         AddVehicle: async (_parent, args: Ex.MutationAddVehicleArgs, ctx, _info) => {

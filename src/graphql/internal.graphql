@@ -36,8 +36,14 @@ type Query {
 }
 
 type Mutation {
-    CreateGenericUser(user: UserInput!): String!
     SignIn(mobile: String!, password: String!): String!
+
+    CreateGenericUser(user: UserInput!): String!
+
+    UpdateGenericUser(
+        userId: ObjectId!
+        user: UserUpdate!
+    ): Int!
 
     AddVehicle(vehicle: VehicleInput!): ObjectId!
 
@@ -86,6 +92,13 @@ input UserInput {
     email: String!
     secret: Secret!
     preferredName: String!
+}
+
+input UserUpdate {
+    mobile: String
+    preferredName: String
+    email: String
+    currentCoord: [Float!]
 }
 
 type Role {

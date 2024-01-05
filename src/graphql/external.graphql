@@ -36,8 +36,14 @@ type Query {
 }
 
 type Mutation {
-    CreateGenericUser(user: UserInput!): String!
     SignIn(mobile: String!, password: String!): String!
+
+    CreateGenericUser(user: UserInput!): String!
+
+    UpdateGenericUser(
+        userId: ObjectId!
+        user: UserUpdate!
+    ): Int!
 
     AddVehicle(vehicle: VehicleInput!): ObjectId!
 
@@ -87,6 +93,19 @@ input UserInput {
     preferredName: String! @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
 
     email: String! @constraint(format: "email")
+}
+
+input UserUpdate {
+    "@constraint(pattern: ^\\+94\\d{9}$)"
+    mobile: String @constraint(pattern: "^\\+94\\d{9}$")
+
+    "@constraint(pattern: ^[a-zA-Z0-9\\s]{3,20}$)"
+    preferredName: String @constraint(pattern: "^[a-zA-Z0-9\\s]{3,20}$")
+
+    email: String @constraint(format: "email")
+
+    "A tuple defined as [lat, long]. @constraint(minItems: 2, maxItems: 2)"
+    currentCoord: [Float!] @constraint(minItems: 0, maxItems: 2)
 }
 
 #RATING=========================================

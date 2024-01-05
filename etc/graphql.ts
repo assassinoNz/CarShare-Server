@@ -139,6 +139,7 @@ export type Mutation = {
   CreateGenericUser: Scalars['String']['output'];
   InitHandshake: Scalars['ObjectId']['output'];
   SignIn: Scalars['String']['output'];
+  UpdateGenericUser: Scalars['Int']['output'];
   UpdateHandshakeState: Scalars['Boolean']['output'];
   UpdateHostedTripState: Scalars['Boolean']['output'];
 };
@@ -178,6 +179,12 @@ export type MutationInitHandshakeArgs = {
 export type MutationSignInArgs = {
   mobile: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+
+export type MutationUpdateGenericUserArgs = {
+  user: UserUpdate;
+  userId: Scalars['ObjectId']['input'];
 };
 
 
@@ -383,6 +390,16 @@ export type UserRating = {
   __typename?: 'UserRating';
   asHost: HostRating;
   asRequester: RequesterRating;
+};
+
+export type UserUpdate = {
+  /** A tuple defined as [lat, long]. @constraint(minItems: 2, maxItems: 2) */
+  currentCoord?: InputMaybe<Array<Scalars['Float']['input']>>;
+  email?: InputMaybe<Scalars['String']['input']>;
+  /** @constraint(pattern: ^\+94\d{9}$) */
+  mobile?: InputMaybe<Scalars['String']['input']>;
+  /** @constraint(pattern: ^[a-zA-Z0-9\s]{3,20}$) */
+  preferredName?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Vehicle = {
