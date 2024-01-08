@@ -303,8 +303,8 @@ input RequestedTripRouteInput {
 }
 
 type HandshakeRoute {
-    intersectStartCoords: [[Float!]]!
-    intersectEndCoords: [[Float!]]!
+    intersectStartPolyline: String!
+    intersectEndPolyline: String!
 }
 
 #HANDSHAKE======================================

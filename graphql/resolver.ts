@@ -533,8 +533,8 @@ export const Root: {
                     initiated: now
                 },
                 route: {
-                    intersectStartCoords: [], //NOTE: Will be calculated later
-                    intersectEndCoords: [] //NOTE: Will be calculated later
+                    intersectStartPolyline: "", //NOTE: Will be calculated later
+                    intersectEndPolyline: "" //NOTE: Will be calculated later
                 }
             };
 
@@ -563,9 +563,9 @@ export const Root: {
             }
 
             //Update intersectWkb values to proper values
-            handshakeToBeInserted.route.intersectStartCoords = await PostGIS.calculateIntersectionCoords(hostedTrip.route.keyCoords[0] as [number, number], Default.PROXIMITY_RADIUS, hostedTrip.route.polyLines);
+            handshakeToBeInserted.route.intersectStartPolyline = await PostGIS.calculateIntersectionPolyline(hostedTrip.route.keyCoords[0] as [number, number], Default.PROXIMITY_RADIUS, hostedTrip.route.polyLines);
 
-            handshakeToBeInserted.route.intersectEndCoords = await PostGIS.calculateIntersectionCoords(hostedTrip.route.keyCoords[hostedTrip.route.keyCoords.length - 1] as [number, number], Default.PROXIMITY_RADIUS, hostedTrip.route.polyLines);
+            handshakeToBeInserted.route.intersectEndPolyline = await PostGIS.calculateIntersectionPolyline(hostedTrip.route.keyCoords[hostedTrip.route.keyCoords.length - 1] as [number, number], Default.PROXIMITY_RADIUS, hostedTrip.route.polyLines);
 
             const result = await Server.db.collection<In.HandshakeInput>(Collection.HANDSHAKES).insertOne(handshakeToBeInserted);
             if (!result.acknowledged) {

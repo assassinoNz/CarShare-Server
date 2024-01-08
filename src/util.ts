@@ -228,7 +228,7 @@ export class PostGIS {
     static async calculateIntersectionWkb(coord: [number, number], proximityRadius: number, polyLines: string[]) {
         const query = `
             WITH circle AS (
-                SELECT ST_ExteriorRing(ST_Buffer(ST_GeomFromText('${this.makePointString(coord)}'), ${proximityRadius})) AS geom
+                SELECT ST_Buffer(ST_GeomFromText('${this.makePointString(coord)}'), ${proximityRadius}) AS geom
             )
             SELECT ST_Intersection(
                 circle.geom,
@@ -241,8 +241,8 @@ export class PostGIS {
         return result.rows[0].intersection_wkb as string;
     }
 
-    static async calculateIntersectionCoords(coord: [number, number], proximityRadius: number, polyLines: string[]) {
-        return this.wkb2Coords(await this.calculateIntersectionWkb(coord, proximityRadius, polyLines));
+    static async calculateIntersectionPolyline(coord: [number, number], proximityRadius: number, polyLines: string[]) {
+        return this.wkb2Polyline(await this.calculateIntersectionWkb(coord, proximityRadius, polyLines));
     }
 }
 
