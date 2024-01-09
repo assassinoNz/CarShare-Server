@@ -9,12 +9,33 @@ import { ModuleId, OperationIndex, PossibleModule, PossibleOperation } from "./e
 import { Context, OsrmRoute } from "./interface.js";
 import { Document, Filter } from "mongodb";
 
-export class Strings {
+export class Format {
     static screamingSnake2Camel(screamingSnakeCase: string) {
         return screamingSnakeCase.toLowerCase()
             .split("_")
             .map((word, index) => index !== 0 ? word[0].toUpperCase() + word.slice(1) : word)
             .join("");
+    }
+
+    static wkb2Coords(wkb: string) {
+        const geometry = Wkx.Geometry.parse(Buffer.from(wkb, "hex"));
+
+        const coords: number[][] = [];
+        //@ts-ignore
+        if (geometry.lineStrings) {
+            //@ts-ignore
+            for (const lineString of geometry.lineStrings) {
+                for (const point of lineString.points) {
+                    coords.push([point.y, point.x]);
+                }
+            }
+        }
+
+        return coords;
+    }
+
+    static wkb2Polyline(wkb: string) {
+        return Pl.encode(this.wkb2Coords(wkb));
     }
 }
 
@@ -113,11 +134,11 @@ export class PostGIS {
     static readonly LAT_TOP = 10.0350000;
     static readonly LAT_BOTTOM = 5.7190000;
 
-    private static makePointString(coord: [number, number]) {
+    private static pointString(coord: [number, number]) {
         return `POINT(${coord[1]} ${coord[0]})`;
     }
 
-    private static makeLineString(polyLines: string[]) {
+    private static lineString(polyLines: string[]) {
         let lineString = "LINESTRING(";
 
         const stringifiedCoords: string[] = [];
@@ -135,27 +156,6 @@ export class PostGIS {
         lineString += ")";
 
         return lineString;
-    }
-
-    private static wkb2Coords(wkbEncoding: string) {
-        const geometry = Wkx.Geometry.parse(Buffer.from(wkbEncoding, "hex"));
-
-        const coords: number[][] = [];
-        //@ts-ignore
-        if (geometry.lineStrings) {
-            //@ts-ignore
-            for (const lineString of geometry.lineStrings) {
-                for (const point of lineString.points) {
-                    coords.push([point.y, point.x]);
-                }
-            }
-        }
-
-        return coords;
-    }
-
-    private static wkb2Polyline(wkbEncoding: string) {
-        return Pl.encode(this.wkb2Coords(wkbEncoding));
     }
 
     static async calculateRouteMatchResult(mainRoutePolyLines: string[], secondaryRoutePolyLines: string[]) {
@@ -176,8 +176,8 @@ export class PostGIS {
                         ST_Intersection(main_route, secondary_route) AS intersection_route
                     FROM (
                         SELECT
-                            ST_GeomFromText('${this.makeLineString(mainRoutePolyLines)}') AS main_route,
-                            ST_GeomFromText('${this.makeLineString(secondaryRoutePolyLines)}') AS secondary_route
+                            ST_GeomFromText('${this.lineString(mainRoutePolyLines)}') AS main_route,
+                            ST_GeomFromText('${this.lineString(secondaryRoutePolyLines)}') AS secondary_route
                     )
                 )
             );
@@ -191,7 +191,7 @@ export class PostGIS {
             intersectionLength: result.intersection_route_length as number,
             mainRouteCoverage: result.main_route_coverage as number,
             secondaryRouteCoverage: result.secondary_route_coverage as number,
-            intersectionPolyLine: this.wkb2Polyline(result.intersection_route)
+            intersectionPolyLine: Format.wkb2Polyline(result.intersection_route)
         }
     }
 
@@ -199,7 +199,7 @@ export class PostGIS {
         const query = `
             SELECT STRING_AGG(
                 CASE
-                    WHEN ST_Intersects(t.geom, ST_GeomFromText('${this.makeLineString(polyLines)}', 4326)) THEN '1' ELSE '0'
+                    WHEN ST_Intersects(t.geom, ST_GeomFromText('${this.lineString(polyLines)}', 4326)) THEN '1' ELSE '0'
                 END,
                 ''
                 ORDER BY t.id
@@ -215,34 +215,22 @@ export class PostGIS {
         const query = `
             SELECT
                 ST_DWithin(
-                ST_GeogFromText('${this.makePointString(coord)}'),
-                ST_GeogFromText('${this.makeLineString(polyLines)}'),
-                ${proximityRadius}
-            ) AS intersects;
+                    ST_GeogFromText('${this.pointString(coord)}'),
+                    ST_GeogFromText('${this.lineString(polyLines)}'),
+                    ${proximityRadius}) AS intersects;
         `;
 
         const result = await Server.postgresDriver.query(query);
         return result.rows[0].intersects as boolean;
     }
 
-    static async calculateIntersectionWkb(coord: [number, number], proximityRadius: number, polyLines: string[]) {
+    static async calculateClosestPoint(coord: [number, number], polyLines: string[]) {
         const query = `
-            WITH circle AS (
-                SELECT ST_Buffer(ST_GeomFromText('${this.makePointString(coord)}'), ${proximityRadius}) AS geom
-            )
-            SELECT ST_Intersection(
-                circle.geom,
-                ST_GeomFromText('${this.makeLineString(polyLines)}')
-            ) AS intersection_wkb
-            FROM circle;
+            SELECT ST_ClosestPoint('${this.lineString(polyLines)}', '${this.pointString(coord)}') AS closest_point_wkb;
         `;
     
         const result = await Server.postgresDriver.query(query);
-        return result.rows[0].intersection_wkb as string;
-    }
-
-    static async calculateIntersectionPolyline(coord: [number, number], proximityRadius: number, polyLines: string[]) {
-        return this.wkb2Polyline(await this.calculateIntersectionWkb(coord, proximityRadius, polyLines));
+        return Format.wkb2Coords(result.rows[0].closest_point_wkb as string)[0];
     }
 }
 

@@ -53,8 +53,8 @@ export type Handshake = {
 
 export type HandshakeRoute = {
   __typename?: 'HandshakeRoute';
-  intersectEndPolyline: Scalars['String']['output'];
-  intersectStartPolyline: Scalars['String']['output'];
+  nearestCoordEnd: Array<Scalars['Float']['output']>;
+  nearestCoordStart: Array<Scalars['Float']['output']>;
 };
 
 export enum HandshakeState {

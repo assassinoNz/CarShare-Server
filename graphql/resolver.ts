@@ -9,7 +9,7 @@ import { GraphQLError, GraphQLScalarType, Kind } from "graphql";
 import { Server } from "../src/app.js";
 import { Collection, Module, Operation } from "../src/enum.js";
 import { JwtPayload, TypeResolver, RootResolver } from "../src/interface.js";
-import { Authorizer, Osrm, PostGIS, Strings, Validator } from "../src/util.js";
+import { Authorizer, Osrm, PostGIS, Format, Validator } from "../src/util.js";
 
 export const Scalar = {
     ObjectId: new GraphQLScalarType<ObjectId | null, string>({
@@ -176,7 +176,7 @@ export const Root: {
                 }
 
                 //2. There must be a time field related to that state
-                stateFilter[`time.${Strings.screamingSnake2Camel(args.state)}`] = {
+                stateFilter[`time.${Format.screamingSnake2Camel(args.state)}`] = {
                     "$exists": true
                 };
                 
@@ -191,7 +191,7 @@ export const Root: {
                     case Ex.HandshakeState.CONFIRMED_STARTED_REQUESTED_TRIP:
                     case Ex.HandshakeState.ENDED_REQUESTED_TRIP:
                     case Ex.HandshakeState.CONFIRMED_ENDED_REQUESTED_TRIP: {
-                        stateFilter[`time.${Strings.screamingSnake2Camel(Validator.getNextHandshakeState(args.state))}`] = {
+                        stateFilter[`time.${Format.screamingSnake2Camel(Validator.getNextHandshakeState(args.state))}`] = {
                             "$exists": false
                         };
 
@@ -533,8 +533,8 @@ export const Root: {
                     initiated: now
                 },
                 route: {
-                    intersectStartPolyline: "", //NOTE: Will be calculated later
-                    intersectEndPolyline: "" //NOTE: Will be calculated later
+                    nearestCoordStart: [], //NOTE: Will be calculated later
+                    nearestCoordEnd: [] //NOTE: Will be calculated later
                 }
             };
 
@@ -563,9 +563,9 @@ export const Root: {
             }
 
             //Update intersectWkb values to proper values
-            handshakeToBeInserted.route.intersectStartPolyline = await PostGIS.calculateIntersectionPolyline(hostedTrip.route.keyCoords[0] as [number, number], Default.PROXIMITY_RADIUS, hostedTrip.route.polyLines);
+            handshakeToBeInserted.route.nearestCoordStart = await PostGIS.calculateClosestPoint(hostedTrip.route.keyCoords[0] as [number, number], hostedTrip.route.polyLines);
 
-            handshakeToBeInserted.route.intersectEndPolyline = await PostGIS.calculateIntersectionPolyline(hostedTrip.route.keyCoords[hostedTrip.route.keyCoords.length - 1] as [number, number], Default.PROXIMITY_RADIUS, hostedTrip.route.polyLines);
+            handshakeToBeInserted.route.nearestCoordEnd = await PostGIS.calculateClosestPoint(hostedTrip.route.keyCoords.at(-1) as [number, number], hostedTrip.route.polyLines);
 
             const result = await Server.db.collection<In.HandshakeInput>(Collection.HANDSHAKES).insertOne(handshakeToBeInserted);
             if (!result.acknowledged) {
@@ -583,7 +583,7 @@ export const Root: {
             });
 
             //Transform args.state to camel case
-            const camelCaseState = Strings.screamingSnake2Camel(args.state) as keyof In.TripTime;
+            const camelCaseState = Format.screamingSnake2Camel(args.state) as keyof In.TripTime;
 
             //Check if hosted trip's host is me
             if (!hostedTrip.hostId.equals(me._id)) {
@@ -656,7 +656,7 @@ export const Root: {
             });
 
             //Transform args.state to camel case
-            const camelCaseState = Strings.screamingSnake2Camel(args.state) as keyof In.HandshakeTime;
+            const camelCaseState = Format.screamingSnake2Camel(args.state) as keyof In.HandshakeTime;
 
             //NOTE: Any updates are dependant on the handshake's state being not CANCELLED
             if (handshake.time.cancelled) {

@@ -1,4 +1,4 @@
-import { Strings } from "./util.js";
+import { Format } from "./util.js";
 
 export enum OperationIndex { CREATE, RETRIEVE, UPDATE, DELETE }
 
@@ -45,6 +45,6 @@ export const Module = (Object.keys(ModuleId) as PossibleModule[]).reduce((acc, k
  */
 export const Collection = (Object.keys(ModuleId) as PossibleModule[]).reduce((acc, key: PossibleModule) => {
     //@ts-ignore
-    acc[key] = Strings.screamingSnake2Camel(key);
+    acc[key] = Format.screamingSnake2Camel(key);
     return acc;
 }, {} as {[K in PossibleModule]: K});
