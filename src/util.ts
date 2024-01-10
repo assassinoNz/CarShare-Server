@@ -34,6 +34,12 @@ export class Format {
         return coords;
     }
 
+    static wkb2Coord(wkb: string) {
+        const geometry = Wkx.Geometry.parse(Buffer.from(wkb, "hex"));
+        //@ts-ignore
+        return [geometry.y, geometry.x] as [number, number];
+    }
+
     static wkb2Polyline(wkb: string) {
         return Pl.encode(this.wkb2Coords(wkb));
     }
@@ -230,7 +236,7 @@ export class PostGIS {
         `;
     
         const result = await Server.postgresDriver.query(query);
-        return Format.wkb2Coords(result.rows[0].closest_point_wkb as string)[0];
+        return Format.wkb2Coord(result.rows[0].closest_point_wkb as string);
     }
 }
 
