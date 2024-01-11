@@ -563,9 +563,9 @@ export const Root: {
             }
 
             //Update intersectWkb values to proper values
-            handshakeToBeInserted.route.nearestCoordStart = await PostGIS.calculateClosestPoint(hostedTrip.route.keyCoords[0] as [number, number], hostedTrip.route.polyLines);
+            handshakeToBeInserted.route.nearestCoordStart = await PostGIS.calculateClosestPoint(requestedTrip.route.keyCoords[0] as [number, number], hostedTrip.route.polyLines);
 
-            handshakeToBeInserted.route.nearestCoordEnd = await PostGIS.calculateClosestPoint(hostedTrip.route.keyCoords.at(-1) as [number, number], hostedTrip.route.polyLines);
+            handshakeToBeInserted.route.nearestCoordEnd = await PostGIS.calculateClosestPoint(requestedTrip.route.keyCoords.at(-1) as [number, number], hostedTrip.route.polyLines);
 
             const result = await Server.db.collection<In.HandshakeInput>(Collection.HANDSHAKES).insertOne(handshakeToBeInserted);
             if (!result.acknowledged) {
